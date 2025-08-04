@@ -1,2 +1,2 @@
-# NCSSM_TSA_HUB
+# ncssm-tsa-hub
 Hub for event rules & past projects
