@@ -81,7 +81,7 @@ export default function Header(): JSX.Element {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-3 md:py-4">
+          <div className="flex justify-between items-center h-18">
             {/* Left: Logo + Title */}
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="bg-white rounded-full flex items-center justify-center">
@@ -91,7 +91,7 @@ export default function Header(): JSX.Element {
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full"
                 />
               </div>
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold whitespace-nowrap">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold whitespace-nowrap">
                 NCSSM Technology Student Association
               </h1>
             </div>
