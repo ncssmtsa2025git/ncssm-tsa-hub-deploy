@@ -1,15 +1,42 @@
 "use client";
 import Link from "next/link";
 import { JSX, useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react"; // NEW
+import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
 
 export default function Header(): JSX.Element {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [visible, setVisible] = useState(true);
-  const [mobileOpen, setMobileOpen] = useState(false); // NEW
+  const [mobileOpen, setMobileOpen] = useState(false);
   const lastY = useRef(0);
   const barRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+
+  // Base link style w/ hover underline animation
+  const baseLink =
+    "relative pb-1 transition-colors hover:text-blue-200 " +
+    "after:absolute after:left-0 after:bottom-0 after:h-[2px] " +
+    "after:w-full after:origin-left after:scale-x-0 after:bg-blue-200 " +
+    "after:transition-transform after:duration-300 hover:after:scale-x-100";
+
+  // Active logic: "/" must match exactly; others match prefix (e.g., /events/123)
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  // Helper to render a nav link with active highlight + underline
+  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+    const active = isActive(href);
+    return (
+      <Link
+        href={href}
+        aria-current={active ? "page" : undefined}
+        className={`${baseLink} ${active ? "text-blue-200 after:scale-x-100" : ""}`}
+      >
+        {children}
+      </Link>
+    );
+  };
 
   // Measure header height and expose as CSS var --header-h
   useEffect(() => {
@@ -34,15 +61,15 @@ export default function Header(): JSX.Element {
   // Scroll hide/show (don’t hide while mobile menu is open)
   useEffect(() => {
     const handleScroll = () => {
-      if (mobileOpen) return; // NEW
+      if (mobileOpen) return;
       const y = window.scrollY;
-      if (y < lastY.current - 5) setVisible(true);        // up
+      if (y < lastY.current - 5) setVisible(true); // up
       else if (y > lastY.current + 5 && y > 64) setVisible(false); // down
       lastY.current = y;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [mobileOpen]); // CHANGED
+  }, [mobileOpen]);
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("isLoggedIn");
@@ -60,12 +87,6 @@ export default function Header(): JSX.Element {
     window.location.href = "/";
   };
 
-  const iloveyitian =
-    "relative pb-1 transition-colors hover:text-blue-200 " +
-    "after:absolute after:left-0 after:bottom-0 after:h-[2px] " +
-    "after:w-full after:origin-left after:scale-x-0 after:bg-blue-200 " +
-    "after:transition-transform after:duration-300 hover:after:scale-x-100";
-
   return (
     <header className="sticky top-0 z-50">
       <div
@@ -76,7 +97,7 @@ export default function Header(): JSX.Element {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top row */}
-          <div className="flex justify-between items-center h-[72px]"> {/* CHANGED height */}
+          <div className="flex justify-between items-center h-[72px]">
             {/* Logo + title */}
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="bg-white rounded-full flex items-center justify-center">
@@ -93,16 +114,18 @@ export default function Header(): JSX.Element {
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8 text-lg">
-              <Link href="/" className={iloveyitian}>Home</Link>
-              <Link href="/events" className={iloveyitian}>Events</Link>
-              <Link href="/gallery" className={iloveyitian}>Gallery</Link>
-              <Link href="/resources" className={iloveyitian}>Resources</Link>
+              <NavLink href="/">Home</NavLink>
+              <NavLink href="/events">Events</NavLink>
+              <NavLink href="/gallery">Gallery</NavLink>
+              <NavLink href="/resources">Resources</NavLink>
 
               {isLoggedIn ? (
                 <div className="flex items-center gap-4 pl-4 border-l border-white/20">
                   <Link
                     href="/portal"
-                    className="bg-blue-700/90 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
+                    className={`bg-blue-700/90 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md ${
+                      isActive("/portal") ? "ring-2 ring-blue-300" : ""
+                    }`}
                   >
                     Portal
                   </Link>
@@ -119,12 +142,14 @@ export default function Header(): JSX.Element {
               ) : (
                 <Link
                   href="/login"
-                  className="ml-2 px-4 py-2 rounded-lg 
-                             bg-white/20 hover:bg-white/30 
-                             text-white font-medium 
-                             backdrop-blur-md 
-                             border-2 border-white/30 
-                             transition-all duration-300 shadow-sm hover:shadow-md"
+                  className={`ml-2 px-4 py-2 rounded-lg 
+                              bg-white/20 hover:bg-white/30 
+                              text-white font-medium 
+                              backdrop-blur-md 
+                              border-2 border-white/30 
+                              transition-all duration-300 shadow-sm hover:shadow-md ${
+                                isActive("/login") ? "ring-2 ring-blue-300" : ""
+                              }`}
                 >
                   Login
                 </Link>
@@ -144,31 +169,52 @@ export default function Header(): JSX.Element {
 
           {/* Mobile dropdown */}
           <div
-            className={`
-              md:hidden overflow-hidden transition-[max-height,opacity]
-              duration-300 ${mobileOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}
-            `}
+            className={`md:hidden overflow-hidden transition-[max-height,opacity]
+              duration-300 ${mobileOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}`}
           >
             <nav className="py-3 border-t border-white/15 space-y-2">
-              <Link href="/" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded hover:bg-white/10">
+              <Link
+                href="/"
+                onClick={() => setMobileOpen(false)}
+                aria-current={isActive("/") ? "page" : undefined}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${isActive("/") ? "bg-white/10 text-blue-200" : ""}`}
+              >
                 Home
               </Link>
-              <Link href="/events" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded hover:bg-white/10">
+              <Link
+                href="/events"
+                onClick={() => setMobileOpen(false)}
+                aria-current={isActive("/events") ? "page" : undefined}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${isActive("/events") ? "bg-white/10 text-blue-200" : ""}`}
+              >
                 Events
               </Link>
-              <Link href="/gallery" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded hover:bg-white/10">
+              <Link
+                href="/gallery"
+                onClick={() => setMobileOpen(false)}
+                aria-current={isActive("/gallery") ? "page" : undefined}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${isActive("/gallery") ? "bg-white/10 text-blue-200" : ""}`}
+              >
                 Gallery
               </Link>
-              <Link href="/resources" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded hover:bg-white/10">
+              <Link
+                href="/resources"
+                onClick={() => setMobileOpen(false)}
+                aria-current={isActive("/resources") ? "page" : undefined}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${isActive("/resources") ? "bg-white/10 text-blue-200" : ""}`}
+              >
                 Resources
               </Link>
 
-              <div className="pt-2 border-top border-white/10 mt-2">
+              <div className="pt-2 border-t border-white/10 mt-2">
                 {isLoggedIn ? (
                   <div className="flex items-center justify-between px-2">
                     <span className="text-sm text-blue-100">Welcome, {userName}</span>
                     <button
-                      onClick={() => { setMobileOpen(false); handleLogout(); }}
+                      onClick={() => {
+                        setMobileOpen(false);
+                        handleLogout();
+                      }}
                       className="text-sm px-3 py-2 rounded bg-white/20 hover:bg-white/30"
                     >
                       Logout
@@ -178,8 +224,11 @@ export default function Header(): JSX.Element {
                   <Link
                     href="/login"
                     onClick={() => setMobileOpen(false)}
-                    className="block w-full text-center mt-2 px-4 py-2 rounded 
-                               bg-white/20 hover:bg-white/30 border border-white/30"
+                    aria-current={isActive("/login") ? "page" : undefined}
+                    className={`block w-full text-center mt-2 px-4 py-2 rounded 
+                               bg-white/20 hover:bg-white/30 border border-white/30 ${
+                                 isActive("/login") ? "ring-2 ring-blue-300" : ""
+                               }`}
                   >
                     Login
                   </Link>

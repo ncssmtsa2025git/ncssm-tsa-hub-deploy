@@ -41,7 +41,7 @@ export default function Home(): JSX.Element {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4 font-serif">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Meet the Officers
             </h2>
           </div>
@@ -149,7 +149,7 @@ export default function Home(): JSX.Element {
       <section className="py-20 bg-blue-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6 font-serif">Our Journey in Photos</h2>
+            <h2 className="text-5xl font-bold mb-6">Our Journey in Photos</h2>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
               See the innovation, teamwork, and achievements that define our chapter
             </p>

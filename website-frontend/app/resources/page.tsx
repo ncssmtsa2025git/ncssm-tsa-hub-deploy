@@ -13,22 +13,40 @@ type Resource = {
 
 const resources: Resource[] = [
   {
-    title: 'NCSSM Official Site',
-    description: 'Programs, admissions, calendars, and news from NCSSM.',
-    href: 'https://www.ncssm.edu/',
+    title: 'Events Manager',
+    description: 'See & sign up for events.',
+    href: 'https://docs.google.com/spreadsheets/d/1TbLTrIRu7-l_Uhu94ux0SDNcvHvIvzpCRTqWR_-HfA8/edit?usp=sharing',
     category: 'NCSSM',
   },
   {
-    title: 'TSA Competitive Events Guide',
-    description: 'Rules, themes, and updates for TSA competitive events.',
-    href: 'https://tsaweb.org/competitions-programs/tsa',
+    title: 'NCTSA Website',
+    description: 'Resources for NCTSA',
+    href: 'https://www.nctsa.org',
     category: 'TSA',
   },
   {
-    title: 'NCSSM Calendar',
-    description: 'Keep track of important academic and campus dates.',
-    href: 'https://www.ncssm.edu/events',
+    title: 'Themes & Problems',
+    description: 'Topics for specific events',
+    href: 'https://tsaweb.org/competitions/themes-and-problems',
+    category: 'TSA',
+  },
+  {
+    title: 'NCSSM TSA Google Chat',
+    description: 'Communication & accouncements',
+    href: 'https://chat.google.com/room/AAQAEn_YmoA?cls=7',
     category: 'NCSSM',
+  },
+  {
+    title: 'NCTSA App',
+    description: 'Competition-day app, developed by our own chapter',
+    href: 'https://apps.apple.com/us/app/north-carolina-tsa-conference/id6743861783',
+    category: 'TSA',
+  },
+  {
+    title: 'TSA Student Member Site',
+    description: 'Submit projects here',
+    href: 'https://tsamembership.registermychapter.com/members#',
+    category: 'TSA',
   },
 ]
 
