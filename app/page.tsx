@@ -144,12 +144,12 @@ export default function Home(): JSX.Element {
       </section>
 
       {/* Photo Showcase Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white">
+      <section className="py-20 bg-blue-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6 font-serif">Our Journey in Photos</h2>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              See the innovation, teamwork, and achievements that define our TSA chapter
+            <h2 className="text-4xl font-bold mb-6 font-serif">Gallery</h2>
+            <p className="text-xl text-blue-200 max-w-3xl mx-auto">
+              Moments from competitions, workshops, and chapter activities
             </p>
           </div>
           
@@ -212,15 +212,11 @@ export default function Home(): JSX.Element {
           <div className="text-center">
             <Link
               href="/gallery"
-              className="inline-flex items-center bg-white text-blue-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="inline-flex items-center bg-white text-blue-900 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
             >
-              <Camera className="h-6 w-6 mr-3" />
-              See More Photos
-              <ArrowRight className="h-5 w-5 ml-3" />
+              View Gallery
+              <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
-            <p className="text-blue-200 mt-4 text-sm">
-              Explore our complete gallery of memories and achievements
-            </p>
           </div>
         </div>
       </section>
