@@ -12,7 +12,7 @@ export default function Home(): JSX.Element {
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             NCSSM TSA
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed text-white/90">
             Empowering students through technology, innovation, and competition
             at the North Carolina School of Science and Mathematics
           </p>
@@ -39,9 +39,6 @@ export default function Home(): JSX.Element {
             <h2 className="text-4xl font-bold text-gray-900 mb-4 font-serif">
               Meet the Officers
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our dedicated leadership team working to make NCSSM TSA the best it can be
-            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* President */}
@@ -56,7 +53,7 @@ export default function Home(): JSX.Element {
                 President
               </p>
               <p className="text-sm text-gray-600">
-                muhilian.krishnan@ncssm.edu
+                krishnan26m@ncssm.edu
               </p>
             </div>
 
@@ -72,7 +69,7 @@ export default function Home(): JSX.Element {
                 Vice President
               </p>
               <p className="text-sm text-gray-600">
-                aaditya.sah@ncssm.edu
+                sah26a@ncssm.edu
               </p>
             </div>
 
@@ -88,7 +85,7 @@ export default function Home(): JSX.Element {
                 Secretary
               </p>
               <p className="text-sm text-gray-600">
-                kerry.luo@ncssm.edu
+                luo26k@ncssm.edu
               </p>
             </div>
 
@@ -104,7 +101,7 @@ export default function Home(): JSX.Element {
                 Treasurer
               </p>
               <p className="text-sm text-gray-600">
-                hasita.alluri@ncssm.edu
+                alluri26h@ncssm.edu
               </p>
             </div>
 
@@ -120,7 +117,7 @@ export default function Home(): JSX.Element {
                 Reporter
               </p>
               <p className="text-sm text-gray-600">
-                lily.galapon@ncssm.edu
+                galapon26l@ncssm.edu
               </p>
             </div>
 
@@ -136,7 +133,7 @@ export default function Home(): JSX.Element {
                 Sergeant at Arms
               </p>
               <p className="text-sm text-gray-600">
-                james.nguyen@ncssm.edu
+                nguyen26j@ncssm.edu
               </p>
             </div>
           </div>
@@ -149,7 +146,7 @@ export default function Home(): JSX.Element {
           <div className="text-center mb-16">
             <h2 className="text-5xl font-bold mb-6 font-serif">Our Journey in Photos</h2>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              See the innovation, teamwork, and achievements that define our TSA chapter
+              See the innovation, teamwork, and achievements that define our chapter
             </p>
           </div>
           
@@ -215,12 +212,9 @@ export default function Home(): JSX.Element {
               className="inline-flex items-center bg-white text-blue-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <Camera className="h-6 w-6 mr-3" />
-              See More Photos
+              All Photos
               <ArrowRight className="h-5 w-5 ml-3" />
             </Link>
-            <p className="text-blue-200 mt-4 text-sm">
-              Explore our complete gallery of memories and achievements
-            </p>
           </div>
         </div>
       </section>
