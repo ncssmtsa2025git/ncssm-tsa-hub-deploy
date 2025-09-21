@@ -142,9 +142,8 @@ export default function GalleryPage(): JSX.Element {
             <Camera className="h-16 w-16 text-blue-200" />
           </div>
           <h1 className="text-5xl font-bold mb-6">NCSSM TSA Gallery</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
+          <p className="text-xl mb-8 max-w-4xl mx-auto">
             Explore moments from our competitions, workshops, meetings, and celebrations. 
-            See the innovation and teamwork that defines our TSA chapter.
           </p>
         </div>
       </section>

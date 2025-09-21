@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
 import { JSX, useEffect, useRef, useState } from "react";
+import { Menu, X } from "lucide-react"; // NEW
 
 export default function Header(): JSX.Element {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [visible, setVisible] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false); // NEW
   const lastY = useRef(0);
   const barRef = useRef<HTMLDivElement | null>(null);
 
@@ -15,19 +17,12 @@ export default function Header(): JSX.Element {
       const h = barRef.current?.offsetHeight ?? 0;
       document.documentElement.style.setProperty("--header-h", `${h}px`);
     };
-
-    // Initial measurement
     updateHeaderVar();
-
-    // Update on resize & font/layout changes
     const ro = new ResizeObserver(updateHeaderVar);
     if (barRef.current) ro.observe(barRef.current);
-
     window.addEventListener("resize", updateHeaderVar);
-    // Re-measure after fonts/content settle
     const raf = requestAnimationFrame(updateHeaderVar);
     const tmo = setTimeout(updateHeaderVar, 300);
-
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", updateHeaderVar);
@@ -36,9 +31,10 @@ export default function Header(): JSX.Element {
     };
   }, []);
 
-  // Scroll hide/show
+  // Scroll hide/show (don’t hide while mobile menu is open)
   useEffect(() => {
     const handleScroll = () => {
+      if (mobileOpen) return; // NEW
       const y = window.scrollY;
       if (y < lastY.current - 5) setVisible(true);        // up
       else if (y > lastY.current + 5 && y > 64) setVisible(false); // down
@@ -46,7 +42,7 @@ export default function Header(): JSX.Element {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [mobileOpen]); // CHANGED
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("isLoggedIn");
@@ -71,9 +67,7 @@ export default function Header(): JSX.Element {
     "after:transition-transform after:duration-300 hover:after:scale-x-100";
 
   return (
-    // Sticky wrapper (no fixed height here; height is measured live)
     <header className="sticky top-0 z-50">
-      {/* This inner bar is what we measure */}
       <div
         ref={barRef}
         className={`bg-blue-900 text-white shadow-lg transition-transform duration-300 ${
@@ -81,8 +75,9 @@ export default function Header(): JSX.Element {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-18">
-            {/* Left: Logo + Title */}
+          {/* Top row */}
+          <div className="flex justify-between items-center h-[72px]"> {/* CHANGED height */}
+            {/* Logo + title */}
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="bg-white rounded-full flex items-center justify-center">
                 <img
@@ -96,7 +91,7 @@ export default function Header(): JSX.Element {
               </h1>
             </div>
 
-            {/* Right: Nav + Auth */}
+            {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8 text-lg">
               <Link href="/" className={iloveyitian}>Home</Link>
               <Link href="/events" className={iloveyitian}>Events</Link>
@@ -135,6 +130,62 @@ export default function Header(): JSX.Element {
                 </Link>
               )}
             </div>
+
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+              aria-label="Toggle navigation"
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen((v) => !v)}
+            >
+              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+
+          {/* Mobile dropdown */}
+          <div
+            className={`
+              md:hidden overflow-hidden transition-[max-height,opacity]
+              duration-300 ${mobileOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}
+            `}
+          >
+            <nav className="py-3 border-t border-white/15 space-y-2">
+              <Link href="/" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded hover:bg-white/10">
+                Home
+              </Link>
+              <Link href="/events" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded hover:bg-white/10">
+                Events
+              </Link>
+              <Link href="/gallery" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded hover:bg-white/10">
+                Gallery
+              </Link>
+              <Link href="/resources" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded hover:bg-white/10">
+                Resources
+              </Link>
+
+              <div className="pt-2 border-top border-white/10 mt-2">
+                {isLoggedIn ? (
+                  <div className="flex items-center justify-between px-2">
+                    <span className="text-sm text-blue-100">Welcome, {userName}</span>
+                    <button
+                      onClick={() => { setMobileOpen(false); handleLogout(); }}
+                      className="text-sm px-3 py-2 rounded bg-white/20 hover:bg-white/30"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="block w-full text-center mt-2 px-4 py-2 rounded 
+                               bg-white/20 hover:bg-white/30 border border-white/30"
+                  >
+                    Login
+                  </Link>
+                )}
+              </div>
+            </nav>
           </div>
         </div>
       </div>

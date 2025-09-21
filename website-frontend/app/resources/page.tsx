@@ -35,18 +35,18 @@ const resources: Resource[] = [
 export default function ResourcesPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 mb-4">
-            <BookOpen className="h-10 w-10 text-blue-200" />
-            <h1 className="text-4xl font-bold">Resources</h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex justify-center mb-6">
+            <BookOpen className="h-16 w-16 text-blue-200" />
           </div>
-          <p className="text-blue-100 max-w-2xl">
+          <h1 className="text-5xl font-bold mb-6">Resources</h1>
+          <p className="text-xl mb-8 max-w-4xl mx-auto">
             Helpful links for NCSSM students and TSA members: guides, calendars, and official sites.
           </p>
         </div>
-      </section>
+      </section>    
 
       {/* Content */}
       <section className="py-12">
