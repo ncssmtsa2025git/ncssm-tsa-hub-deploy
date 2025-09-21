@@ -31,12 +31,6 @@ const resources: Resource[] = [
     category: 'TSA',
   },
   {
-    title: 'NCSSM TSA Google Chat',
-    description: 'Communication & accouncements',
-    href: 'https://chat.google.com/room/AAQAEn_YmoA?cls=7',
-    category: 'NCSSM',
-  },
-  {
     title: 'NCTSA App',
     description: 'Competition-day app, developed by our own chapter',
     href: 'https://apps.apple.com/us/app/north-carolina-tsa-conference/id6743861783',
@@ -46,6 +40,12 @@ const resources: Resource[] = [
     title: 'TSA Student Member Site',
     description: 'Submit projects here',
     href: 'https://tsamembership.registermychapter.com/members#',
+    category: 'TSA',
+  },
+    {
+    title: 'TSACE',
+    description: 'Database of past projects from across the nation',
+    href: 'https://www.tsace.org/projects',
     category: 'TSA',
   },
 ]
