@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 export default function Header(): JSX.Element {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
   const [visible, setVisible] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const lastY = useRef(0);
@@ -37,6 +35,16 @@ export default function Header(): JSX.Element {
       </Link>
     );
   };
+
+  async function startGoogleLogin() {
+    const BACKEND = "http://127.0.0.1:8000";
+    const res = await fetch(`${BACKEND}/auth/login`);
+    if (!res.ok) throw new Error("Failed to start login");
+    const data = await res.json();
+    console.log("Auth URL:", data.auth_url);
+    // Open the auth URL in a popup so the main app remains loaded.
+    const popup = window.open(data.auth_url, "google_oauth", "width=600,height=700");
+  }
 
   // Measure header height and expose as CSS var --header-h
   useEffect(() => {
@@ -71,22 +79,6 @@ export default function Header(): JSX.Element {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [mobileOpen]);
 
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn");
-    const name = localStorage.getItem("userName");
-    setIsLoggedIn(loggedIn === "true");
-    setUserName(name || "");
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userEmail");
-    setIsLoggedIn(false);
-    setUserName("");
-    window.location.href = "/";
-  };
-
   return (
     <header className="sticky top-0 z-50">
       <div
@@ -118,42 +110,14 @@ export default function Header(): JSX.Element {
               <NavLink href="/events">Events</NavLink>
               <NavLink href="/gallery">Gallery</NavLink>
               <NavLink href="/resources">Resources</NavLink>
-
-              {isLoggedIn ? (
-                <div className="flex items-center gap-4 pl-4 border-l border-white/20">
-                  <Link
-                    href="/portal"
-                    className={`bg-blue-700/90 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md ${
-                      isActive("/portal") ? "ring-2 ring-blue-300" : ""
-                    }`}
+              <button
+                    onClick={startGoogleLogin}
+                    className="ml-2 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
+                              text-white font-medium backdrop-blur-md 
+                              border-2 border-white/30 transition-all duration-300 shadow-sm hover:shadow-md"
                   >
-                    Portal
-                  </Link>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-blue-200">Welcome, {userName}</span>
-                    <button
-                      onClick={handleLogout}
-                      className="text-blue-200 hover:text-white transition-colors text-sm"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  href="/login"
-                  className={`ml-2 px-4 py-2 rounded-lg 
-                              bg-white/20 hover:bg-white/30 
-                              text-white font-medium 
-                              backdrop-blur-md 
-                              border-2 border-white/30 
-                              transition-all duration-300 shadow-sm hover:shadow-md ${
-                                isActive("/login") ? "ring-2 ring-blue-300" : ""
-                              }`}
-                >
-                  Login
-                </Link>
-              )}
+                    Login with Google
+                  </button>
             </div>
 
             {/* Mobile hamburger */}
@@ -207,32 +171,14 @@ export default function Header(): JSX.Element {
               </Link>
 
               <div className="pt-2 border-t border-white/10 mt-2">
-                {isLoggedIn ? (
-                  <div className="flex items-center justify-between px-2">
-                    <span className="text-sm text-blue-100">Welcome, {userName}</span>
-                    <button
-                      onClick={() => {
-                        setMobileOpen(false);
-                        handleLogout();
-                      }}
-                      className="text-sm px-3 py-2 rounded bg-white/20 hover:bg-white/30"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileOpen(false)}
-                    aria-current={isActive("/login") ? "page" : undefined}
-                    className={`block w-full text-center mt-2 px-4 py-2 rounded 
-                               bg-white/20 hover:bg-white/30 border border-white/30 ${
-                                 isActive("/login") ? "ring-2 ring-blue-300" : ""
-                               }`}
+                  <button
+                    onClick={startGoogleLogin}
+                    className="ml-2 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
+                              text-white font-medium backdrop-blur-md 
+                              border-2 border-white/30 transition-all duration-300 shadow-sm hover:shadow-md"
                   >
-                    Login
-                  </Link>
-                )}
+                    Login with Google
+                  </button>
               </div>
             </nav>
           </div>
