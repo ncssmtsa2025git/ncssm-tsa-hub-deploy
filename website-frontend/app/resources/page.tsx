@@ -13,40 +13,58 @@ type Resource = {
 
 const resources: Resource[] = [
   {
-    title: 'NCSSM Official Site',
-    description: 'Programs, admissions, calendars, and news from NCSSM.',
-    href: 'https://www.ncssm.edu/',
+    title: 'Events Manager',
+    description: 'See & sign up for events.',
+    href: 'https://docs.google.com/spreadsheets/d/1TbLTrIRu7-l_Uhu94ux0SDNcvHvIvzpCRTqWR_-HfA8/edit?usp=sharing',
     category: 'NCSSM',
   },
   {
-    title: 'TSA Competitive Events Guide',
-    description: 'Rules, themes, and updates for TSA competitive events.',
-    href: 'https://tsaweb.org/competitions-programs/tsa',
+    title: 'NCTSA Website',
+    description: 'Resources for NCTSA',
+    href: 'https://www.nctsa.org',
     category: 'TSA',
   },
   {
-    title: 'NCSSM Calendar',
-    description: 'Keep track of important academic and campus dates.',
-    href: 'https://www.ncssm.edu/events',
-    category: 'NCSSM',
+    title: 'Themes & Problems',
+    description: 'Topics for specific events',
+    href: 'https://tsaweb.org/competitions/themes-and-problems',
+    category: 'TSA',
+  },
+  {
+    title: 'NCTSA App',
+    description: 'Competition-day app, developed by our own chapter',
+    href: 'https://apps.apple.com/us/app/north-carolina-tsa-conference/id6743861783',
+    category: 'TSA',
+  },
+  {
+    title: 'TSA Student Member Site',
+    description: 'Submit projects here',
+    href: 'https://tsamembership.registermychapter.com/members#',
+    category: 'TSA',
+  },
+    {
+    title: 'TSACE',
+    description: 'Database of past projects from across the nation',
+    href: 'https://www.tsace.org/projects',
+    category: 'TSA',
   },
 ]
 
 export default function ResourcesPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 mb-4">
-            <BookOpen className="h-10 w-10 text-blue-200" />
-            <h1 className="text-4xl font-bold">Resources</h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex justify-center mb-6">
+            <BookOpen className="h-16 w-16 text-blue-200" />
           </div>
-          <p className="text-blue-100 max-w-2xl">
+          <h1 className="text-5xl font-bold mb-6">Resources</h1>
+          <p className="text-xl mb-8 max-w-4xl mx-auto">
             Helpful links for NCSSM students and TSA members: guides, calendars, and official sites.
           </p>
         </div>
-      </section>
+      </section>    
 
       {/* Content */}
       <section className="py-12">

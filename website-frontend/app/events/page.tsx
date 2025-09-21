@@ -1,6 +1,7 @@
 'use client'
 import { JSX, useState, useEffect } from 'react'
-import { Search, Download, Users, X, ExternalLink } from 'lucide-react'
+import { Search, Download, Calendar, Users, X, ExternalLink } from 'lucide-react'
+
 
 interface Event {
   id: string
@@ -132,10 +133,14 @@ export default function EventsPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-blue-900 text-white py-16">
+
+      <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold mb-6 font-serif">TSA Events & Competitions</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto text-blue-200">
+          <div className="flex justify-center mb-6">
+            <Calendar className="h-16 w-16 text-blue-200" />
+          </div>
+          <h1 className="text-5xl font-bold mb-6">TSA Events & Competitions</h1>
+          <p className="text-xl mb-8 max-w-3xl mx-auto text-blue-100">
             Discover competitions across engineering, programming, design, and more.
           </p>
           <button className="bg-white text-blue-900 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center mx-auto">
@@ -144,6 +149,7 @@ export default function EventsPage(): JSX.Element {
           </button>
         </div>
       </section>
+
 
       {/* Search and Filter Section */}
       <section className="py-8 bg-white border-b">

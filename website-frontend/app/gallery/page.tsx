@@ -142,9 +142,8 @@ export default function GalleryPage(): JSX.Element {
             <Camera className="h-16 w-16 text-blue-200" />
           </div>
           <h1 className="text-5xl font-bold mb-6">NCSSM TSA Gallery</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
+          <p className="text-xl mb-8 max-w-4xl mx-auto">
             Explore moments from our competitions, workshops, meetings, and celebrations. 
-            See the innovation and teamwork that defines our TSA chapter.
           </p>
         </div>
       </section>
@@ -152,71 +151,125 @@ export default function GalleryPage(): JSX.Element {
 
       {/* Gallery Carousel */}
       <section className="py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8 text-center">
+            Highlights
+          </h2>
+
+          {/* Carousel viewport */}
           <div className="relative">
-            <div className="relative h-[500px] sm:h-[600px] lg:h-[700px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 shadow-2xl">
-              {filteredItems.map((item, idx) => (
-                <div
-                  key={item.id}
-                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                    idx === currentIndex 
-                      ? 'opacity-100 scale-100' 
-                      : 'opacity-0 scale-105'
-                  }`}
-                >
-                  {/* Replace with real images */}
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
-                    <div className="text-center">
-                      <Camera className="h-20 w-20 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500 text-sm">Photo {idx + 1}</p>
+            {/* Slides (responsive: 1 / 2 / 3 visible) */}
+            <div className="
+              grid gap-6
+              grid-cols-1
+              sm:grid-cols-2
+              lg:grid-cols-3
+              items-stretch
+            ">
+              {[-1, 0, 1].map((offset) => {
+                const idx = (currentIndex + offset + filteredItems.length) % filteredItems.length;
+                const item = filteredItems[idx];
+                const isCenter = offset === 0;
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`group relative rounded-2xl overflow-hidden shadow-lg transition-all duration-300
+                      ${isCenter ? "ring-2 ring-blue-600 scale-[1.02]" : "opacity-95"}
+                    `}
+                  >
+                    {/* Image area (replace placeholder with real images when ready) */}
+                    <div className="aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                      {/* If you have real images, uncomment Image below and remove the placeholder block */}
+
+                      {/* 
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      */}
+
+                      {/* Placeholder visual */}
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
+                        <Camera className="h-16 w-16 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Card content */}
+                    <div className="p-5 bg-white">
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className={`text-xs font-semibold px-2 py-1 rounded ${getCategoryColor(item.category)}`}>
+                          {item.category}
+                        </span>
+                        <span className="text-xs text-gray-500">{item.date}</span>
+                      </div>
+
+                      <h3 className="text-lg font-bold text-gray-900">
+                        {item.title}
+                      </h3>
+                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                        {item.description}
+                      </p>
+
+                      {item.participants !== undefined && (
+                        <div className="mt-3 text-sm text-gray-500 flex items-center gap-2">
+                          <Users className="h-4 w-4" />
+                          {item.participants} participants
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              ))}
-              
-              {/* Navigation Arrows */}
+                );
+              })}
+            </div>
+
+            {/* Navigation Arrows */}
+            <button
+              className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 hover:bg-white
+                        rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-gray-900
+                        transition-all duration-200 group"
+              onClick={() => setCurrentIndex(prev => (prev - 1 + filteredItems.length) % filteredItems.length)}
+              aria-label="Previous"
+            >
+              <div className="text-xl sm:text-2xl font-light group-hover:scale-110 transition-transform">‹</div>
+            </button>
+
+            <button
+              className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 hover:bg-white
+                        rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-gray-900
+                        transition-all duration-200 group"
+              onClick={() => setCurrentIndex(prev => (prev + 1) % filteredItems.length)}
+              aria-label="Next"
+            >
+              <div className="text-xl sm:text-2xl font-light group-hover:scale-110 transition-transform">›</div>
+            </button>
+          </div>
+
+          {/* Dot Indicators */}
+          <div className="flex items-center justify-center gap-3 mt-8">
+            {filteredItems.map((_, i) => (
               <button
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-gray-900 transition-all duration-200 group"
-                onClick={() => setCurrentIndex(prev => (prev - 1 + filteredItems.length) % filteredItems.length)}
-                aria-label="Previous image"
-              >
-                <div className="text-2xl font-light group-hover:scale-110 transition-transform">‹</div>
-              </button>
-              
-              <button
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-gray-900 transition-all duration-200 group"
-                onClick={() => setCurrentIndex(prev => (prev + 1) % filteredItems.length)}
-                aria-label="Next image"
-              >
-                <div className="text-2xl font-light group-hover:scale-110 transition-transform">›</div>
-              </button>
-            </div>
-            
-            {/* Dot Indicators */}
-            <div className="flex items-center justify-center gap-3 mt-8">
-              {filteredItems.map((_, i) => (
-                <button
-                  key={i}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    i === currentIndex 
-                      ? 'bg-blue-600 scale-125' 
-                      : 'bg-gray-300 hover:bg-gray-400'
-                  }`}
-                  onClick={() => setCurrentIndex(i)}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
-            </div>
-            
-            {/* Image Counter */}
-            <div className="text-center mt-4">
-              <span className="text-sm text-gray-500">
-                {currentIndex + 1} of {filteredItems.length}
-              </span>
-            </div>
+                key={i}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  i === currentIndex ? "bg-blue-600 scale-125" : "bg-gray-300 hover:bg-gray-400"
+                }`}
+                onClick={() => setCurrentIndex(i)}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Counter */}
+          <div className="text-center mt-4">
+            <span className="text-sm text-gray-500">
+              {currentIndex + 1} of {filteredItems.length}
+            </span>
           </div>
         </div>
       </section>
+
     </div>
   )
 }
