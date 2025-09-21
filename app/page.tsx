@@ -6,7 +6,12 @@ export default function Home(): JSX.Element {
   return (
     <div className="min-h-screen bg-white">  
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-teal-600">
+      <section className="relative 
+        min-h-[calc(100svh-var(--header-h))] 
+        md:min-h-[calc(100vh-var(--header-h))] 
+        flex items-center justify-center 
+        bg-gradient-to-br from-blue-900 via-blue-700 to-teal-600">
+
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">

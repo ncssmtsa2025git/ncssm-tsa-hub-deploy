@@ -7,30 +7,52 @@ export default function Header(): JSX.Element {
   const [userName, setUserName] = useState("");
   const [visible, setVisible] = useState(true);
   const lastY = useRef(0);
+  const barRef = useRef<HTMLDivElement | null>(null);
+
+  // Measure header height and expose as CSS var --header-h
+  useEffect(() => {
+    const updateHeaderVar = () => {
+      const h = barRef.current?.offsetHeight ?? 0;
+      document.documentElement.style.setProperty("--header-h", `${h}px`);
+    };
+
+    // Initial measurement
+    updateHeaderVar();
+
+    // Update on resize & font/layout changes
+    const ro = new ResizeObserver(updateHeaderVar);
+    if (barRef.current) ro.observe(barRef.current);
+
+    window.addEventListener("resize", updateHeaderVar);
+    // Re-measure after fonts/content settle
+    const raf = requestAnimationFrame(updateHeaderVar);
+    const tmo = setTimeout(updateHeaderVar, 300);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", updateHeaderVar);
+      cancelAnimationFrame(raf);
+      clearTimeout(tmo);
+    };
+  }, []);
+
+  // Scroll hide/show
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY;
+      if (y < lastY.current - 5) setVisible(true);        // up
+      else if (y > lastY.current + 5 && y > 64) setVisible(false); // down
+      lastY.current = y;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
-    // Check if user is logged in
     const loggedIn = localStorage.getItem("isLoggedIn");
     const name = localStorage.getItem("userName");
     setIsLoggedIn(loggedIn === "true");
     setUserName(name || "");
-
-    const handleScroll = () => {
-      const currentY = window.scrollY;
-
-      if (currentY < lastY.current) {
-        // scrolling up
-        setVisible(true);
-      } else if (currentY > lastY.current) {
-        // scrolling down (added threshold for stability)
-        setVisible(false);
-      }
-
-      lastY.current = currentY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleLogout = () => {
@@ -49,77 +71,73 @@ export default function Header(): JSX.Element {
     "after:transition-transform after:duration-300 hover:after:scale-x-100";
 
   return (
-    <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 bg-blue-900 text-white shadow-lg ${
-        visible ? "translate-y-0" : "-translate-y-full"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <div className="flex items-center space-x-4">
-            <div className="bg-white rounded-full flex items-center justify-center">
-              <img
-                src="ncssm_tsa_logo.jpg"
-                alt="NCSSM TSA Logo"
-                className="w-14 h-14 rounded-full"
-              />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">
+    // Sticky wrapper (no fixed height here; height is measured live)
+    <header className="sticky top-0 z-50">
+      {/* This inner bar is what we measure */}
+      <div
+        ref={barRef}
+        className={`bg-blue-900 text-white shadow-lg transition-transform duration-300 ${
+          visible ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3 md:py-4">
+            {/* Left: Logo + Title */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="bg-white rounded-full flex items-center justify-center">
+                <img
+                  src="/ncssm_tsa_logo.jpg"
+                  alt="NCSSM TSA Logo"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full"
+                />
+              </div>
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold whitespace-nowrap">
                 NCSSM Technology Student Association
               </h1>
             </div>
-          </div>
-          <div className="hidden md:flex space-x-8 items-center text-lg">
-            <Link href="/" className={iloveyitian}>
-              Home
-            </Link>
-            <Link href="/events" className={iloveyitian}>
-              Events
-            </Link>
-            <Link href="/gallery" className={iloveyitian}>
-              Gallery
-            </Link>
-            <Link href="/resources" className={iloveyitian}>
-              Resources
-            </Link>
-            {isLoggedIn ? (
-              <div className="flex items-center space-x-4">
-                <Link
-                  href="/portal"
-                  className="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded-lg transition-colors"
-                >
-                  Portal
-                </Link>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-blue-200">
-                    Welcome, {userName}
-                  </span>
-                  <button
-                    onClick={handleLogout}
-                    className="text-blue-200 hover:text-white transition-colors text-sm"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className="ml-2 px-4 py-2 rounded-lg 
-                            bg-white/20 hover:bg-white/30 
-                            text-white font-medium 
-                            backdrop-blur-md 
-                            border-2 border-white/30 
-                            transition-all duration-300 shadow-sm hover:shadow-md"
 
-              >
-                Login
-              </Link>
-            )}
+            {/* Right: Nav + Auth */}
+            <div className="hidden md:flex items-center gap-8 text-lg">
+              <Link href="/" className={iloveyitian}>Home</Link>
+              <Link href="/events" className={iloveyitian}>Events</Link>
+              <Link href="/gallery" className={iloveyitian}>Gallery</Link>
+              <Link href="/resources" className={iloveyitian}>Resources</Link>
+
+              {isLoggedIn ? (
+                <div className="flex items-center gap-4 pl-4 border-l border-white/20">
+                  <Link
+                    href="/portal"
+                    className="bg-blue-700/90 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
+                  >
+                    Portal
+                  </Link>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-blue-200">Welcome, {userName}</span>
+                    <button
+                      onClick={handleLogout}
+                      className="text-blue-200 hover:text-white transition-colors text-sm"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="ml-2 px-4 py-2 rounded-lg 
+                             bg-white/20 hover:bg-white/30 
+                             text-white font-medium 
+                             backdrop-blur-md 
+                             border-2 border-white/30 
+                             transition-all duration-300 shadow-sm hover:shadow-md"
+                >
+                  Login
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }
