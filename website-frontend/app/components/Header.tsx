@@ -37,14 +37,22 @@ export default function Header(): JSX.Element {
   };
 
   async function startGoogleLogin() {
-    const BACKEND = "http://127.0.0.1:8000";
+    const BACKEND = "http://localhost:8000";
     const res = await fetch(`${BACKEND}/auth/login`);
     if (!res.ok) throw new Error("Failed to start login");
     const data = await res.json();
-    console.log("Auth URL:", data.auth_url);
     // Open the auth URL in a popup so the main app remains loaded.
     const popup = window.open(data.auth_url, "google_oauth", "width=600,height=700");
   }
+
+  async function fetchUser() {
+    const BACKEND = "http://localhost:8000";
+    const res = await fetch(`${BACKEND}/auth/me`, {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Not logged in");
+    console.log(await res.json());
+  } 
 
   // Measure header height and expose as CSS var --header-h
   useEffect(() => {
@@ -96,6 +104,7 @@ export default function Header(): JSX.Element {
                 <img
                   src="/ncssm_tsa_logo.jpg"
                   alt="NCSSM TSA Logo"
+                  onClick={fetchUser}
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full"
                 />
               </div>
@@ -116,7 +125,7 @@ export default function Header(): JSX.Element {
                               text-white font-medium backdrop-blur-md 
                               border-2 border-white/30 transition-all duration-300 shadow-sm hover:shadow-md"
                   >
-                    Login with Google
+                    Login
                   </button>
             </div>
 

@@ -3,7 +3,7 @@ import httpx
 import jwt
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Depends, status, Request
+from fastapi import FastAPI, HTTPException, Depends, status, Request, Response, Cookie
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import RedirectResponse
@@ -41,7 +41,8 @@ SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", secrets.token_urlsafe(32))
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
-
+ACCESS_COOKIE_NAME = "access_token"
+ACCESS_COOKIE_MAX_AGE = JWT_EXPIRATION_HOURS * 3600
 # Initialize Supabase client
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -88,22 +89,19 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return encoded_jwt
 
-def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Verify JWT token"""
+def verify_token(access_token: Optional[str] = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     try:
-        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(access_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id: str = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials"
-            )
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
         return user_id
     except jwt.PyJWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials"
-        )
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
 
 # User database functions
 async def get_user_by_google_id(google_id: str) -> Optional[User]:
@@ -220,52 +218,51 @@ async def login():
     return {"auth_url": google_auth_url, "state": state}
 
 @app.get("/auth/callback")
-async def auth_callback(code: str, state: str):
-    """Handle OAuth callback"""
+async def auth_callback(code: str, state: str, response: Response):
     if not code:
         raise HTTPException(status_code=400, detail="Authorization code not provided")
-    
-    try:
-        # Exchange code for token
-        token_data = await exchange_code_for_token(code)
-        access_token = token_data["access_token"]
-        
-        # Get user info from Google
-        google_user = await get_google_user_info(access_token)
-        
-        # Check if user exists
-        existing_user = await get_user_by_google_id(google_user.id)
-        
-        if existing_user:
-            # Update existing user info
-            updated_data = {
-                "name": google_user.name,
-                "email": google_user.email,
-                "picture": google_user.picture,
-            }
-            user = await update_user(existing_user.id, updated_data)
-        else:
-            # Create new user
-            user_data = {
-                "email": google_user.email,
-                "name": google_user.name,
-                "picture": google_user.picture,
-                "google_id": google_user.id,
-            }
-            user = await create_user(user_data)
-        
-        # Create JWT token
-        jwt_token = create_access_token({"sub": user.id, "email": user.email})
-        
-        return Token(
-            access_token=jwt_token,
-            token_type="bearer",
-            expires_in=JWT_EXPIRATION_HOURS * 3600
-        )
-        
-    except Exception as e:
-        print(f"OAuth callback error: {e}")
-        raise HTTPException(status_code=400, detail="Authentication failed")
+
+    # Exchange code for token
+    token_data = await exchange_code_for_token(code)
+    access_token = token_data["access_token"]
+
+    # Get user info
+    google_user = await get_google_user_info(access_token)
+
+    # Find or create user
+    existing_user = await get_user_by_google_id(google_user.id)
+    if existing_user:
+        user = await update_user(existing_user.id, {
+            "name": google_user.name,
+            "email": google_user.email,
+            "picture": google_user.picture,
+        })
+    else:
+        user = await create_user({
+            "email": google_user.email,
+            "name": google_user.name,
+            "picture": google_user.picture,
+            "google_id": google_user.id,
+        })
+
+    jwt_token = create_access_token({"sub": user.id, "email": user.email})
+
+    # Redirect back to frontend
+    redirect = RedirectResponse(url="http://localhost:3000/auth/success")
+
+    # Attach cookie here
+    redirect.set_cookie(
+        key=ACCESS_COOKIE_NAME,
+        value=jwt_token,
+        httponly=True,
+        secure=False,   # must be False for local dev over http
+        samesite="lax", # "none" if using different domains + https
+        max_age=ACCESS_COOKIE_MAX_AGE,
+        expires=ACCESS_COOKIE_MAX_AGE,
+    )
+
+    # Redirect popup back to frontend
+    return redirect
 
 @app.get("/auth/me", response_model=User)
 async def get_current_user(user_id: str = Depends(verify_token)):
@@ -276,10 +273,8 @@ async def get_current_user(user_id: str = Depends(verify_token)):
     return user
 
 @app.post("/auth/logout")
-async def logout(user_id: str = Depends(verify_token)):
-    """Logout user (invalidate token - client-side handling)"""
-    # In a real application, you might want to maintain a blacklist of tokens
-    # or use shorter-lived tokens with refresh tokens
+async def logout(response: Response):
+    response.delete_cookie(ACCESS_COOKIE_NAME)
     return {"message": "Logged out successfully"}
 
 @app.get("/users/profile", response_model=User)
