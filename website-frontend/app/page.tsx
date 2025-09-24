@@ -1,18 +1,33 @@
 import Link from "next/link";
 import { ArrowRight, Users, Calendar, BookOpen, Award, User, Camera } from "lucide-react";
 import { JSX } from "react";
+import Image from "next/image";
 
 export default function Home(): JSX.Element {
   return (
-    <div className="min-h-screen bg-white">  
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative 
-        min-h-[calc(100svh-var(--header-h))] 
-        md:min-h-[calc(100vh-var(--header-h))] 
-        flex items-center justify-center 
-        bg-gradient-to-br from-blue-900 via-blue-700 to-teal-600">
+      <section
+        className="relative 
+          min-h-[calc(100svh-var(--header-h))] 
+          md:min-h-[calc(100vh-var(--header-h))] 
+          flex items-center justify-center"
+      >
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Background image */}
+          <Image
+            src="/front_page/background.jpg" // <-- put your image in /public folder
+            alt="Hero Background"
+            fill
+            className="object-cover blur-sm scale-110 transform-gpu" // lg works too?
+            priority
+          />
+        </div>
+        
+        {/* Readability overlay */}
+        <div className="absolute inset-0 bg-black/45" />
 
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        {/* Hero Content */}
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             NCSSM TSA
@@ -30,6 +45,8 @@ export default function Home(): JSX.Element {
             </Link>
           </div>
         </div>
+
+        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
             <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
@@ -48,7 +65,7 @@ export default function Home(): JSX.Element {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* President */}
             <div className="text-center">
-              <div className="aspect-[4/3] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
                 <User className="h-16 w-16 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -64,7 +81,7 @@ export default function Home(): JSX.Element {
 
             {/* Vice President */}
             <div className="text-center">
-              <div className="aspect-[4/3] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
                 <User className="h-16 w-16 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -80,7 +97,7 @@ export default function Home(): JSX.Element {
 
             {/* Secretary */}
             <div className="text-center">
-              <div className="aspect-[4/3] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
                 <User className="h-16 w-16 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -96,7 +113,7 @@ export default function Home(): JSX.Element {
 
             {/* Treasurer */}
             <div className="text-center">
-              <div className="aspect-[4/3] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
                 <User className="h-16 w-16 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -112,7 +129,7 @@ export default function Home(): JSX.Element {
 
             {/* Reporter */}
             <div className="text-center">
-              <div className="aspect-[4/3] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
                 <User className="h-16 w-16 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -128,7 +145,7 @@ export default function Home(): JSX.Element {
 
             {/* Sergeant at Arms */}
             <div className="text-center">
-              <div className="aspect-[4/3] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
                 <User className="h-16 w-16 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
