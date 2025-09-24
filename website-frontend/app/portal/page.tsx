@@ -4,8 +4,27 @@ import { Calendar, Clock, Users } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
 
+// Type definitions
+interface CardProps {
+  className?: string;
+  children: React.ReactNode;
+}
+
+interface Team {
+  name: string;
+  conference: string;
+  members: string[];
+  captain: string;
+  checkIn: string;
+}
+
+interface UpcomingDate {
+  date: string;
+  event: string;
+  type: string;
+}
 // Card Components
-function Card({ className = "", children }) {
+function Card({ className = "", children }: CardProps): JSX.Element {
   return (
     <div
       className={`rounded-lg border border-gray-200 bg-white shadow-sm ${className}`}
@@ -15,7 +34,7 @@ function Card({ className = "", children }) {
   );
 }
 
-function CardHeader({ className = "", children }) {
+function CardHeader({ className = "", children }: CardProps): JSX.Element {
   return (
     <div className={`border-b border-gray-100 p-4 ${className}`}>
       {children}
@@ -23,7 +42,7 @@ function CardHeader({ className = "", children }) {
   );
 }
 
-function CardTitle({ className = "", children }) {
+function CardTitle({ className = "", children }: CardProps): JSX.Element {
   return (
     <h3 className={`text-lg font-semibold text-gray-800 ${className}`}>
       {children}
@@ -31,17 +50,17 @@ function CardTitle({ className = "", children }) {
   );
 }
 
-function CardContent({ className = "", children }) {
+function CardContent({ className = "", children }: CardProps): JSX.Element {
   return <div className={`p-4 ${className}`}>{children}</div>;
 }
 
 // Mock user data
 const mockUser = { name: "Alex Johnson" };
 
-export default function Portal() {
+export default function Portal(): JSX.Element {
   const { user } = useAuth();
 
-  const teams = [
+  const teams: Team[] = [
     {
       name: "Animatronics Team 1",
       conference: "State TSA Conference 2025",
@@ -65,7 +84,7 @@ export default function Portal() {
     },
   ];
 
-  const upcomingDates = [
+  const upcomingDates: UpcomingDate[] = [
     { date: "Feb 15", event: "3D Printing Workshop", type: "Workshop" },
     {
       date: "Feb 20-22",
@@ -81,7 +100,7 @@ export default function Portal() {
     { date: "Mar 18", event: "Public Speaking Workshop", type: "Workshop" },
   ];
 
-  const actionItems = [
+  const actionItems: string[] = [
     "Submit transportation form",
     "Complete liability waiver",
     "Upload team portfolio",
@@ -89,6 +108,11 @@ export default function Portal() {
     "Confirm hotel roommate preferences",
     "Submit project documentation",
   ];
+
+  const handleUploadCheckIn = (): void => {
+    // Implementation for upload check-in functionality
+    console.log("Upload check-in info clicked");
+  };
 
   return (
     <ProtectedRoute>
@@ -112,7 +136,7 @@ export default function Portal() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {teams.map((team, index) => (
+                {teams.map((team: Team, index: number) => (
                   <div
                     key={index}
                     className="border border-gray-200 rounded-lg p-4 bg-gray-50"
@@ -129,7 +153,7 @@ export default function Portal() {
                         Team Members:
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {team.members.map((member, memberIndex) => (
+                        {team.members.map((member: string, memberIndex: number) => (
                           <span
                             key={memberIndex}
                             className={`px-2 py-1 rounded text-sm border ${
@@ -149,7 +173,11 @@ export default function Portal() {
                         <Calendar className="w-4 h-4" />
                         <span>Check-in: {team.checkIn}</span>
                       </div>
-                      <button className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
+                      <button 
+                        className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                        onClick={handleUploadCheckIn}
+                        type="button"
+                      >
                         Upload Check-In Info
                       </button>
                     </div>
@@ -169,7 +197,7 @@ export default function Portal() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {upcomingDates.map((item, index) => (
+                {upcomingDates.map((item: UpcomingDate, index: number) => (
                   <div key={index} className="border-l-4 border-blue-400 pl-3">
                     <div className="font-medium text-sm text-blue-600">
                       {item.date}
