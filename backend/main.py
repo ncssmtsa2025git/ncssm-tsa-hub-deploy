@@ -247,10 +247,8 @@ async def auth_callback(code: str, state: str, response: Response):
 
     jwt_token = create_access_token({"sub": user.id, "email": user.email})
 
-    # Redirect back to frontend
     redirect = RedirectResponse(url="http://localhost:3000/auth/success")
 
-    # Attach cookie here
     redirect.set_cookie(
         key=ACCESS_COOKIE_NAME,
         value=jwt_token,
@@ -261,7 +259,6 @@ async def auth_callback(code: str, state: str, response: Response):
         expires=ACCESS_COOKIE_MAX_AGE,
     )
 
-    # Redirect popup back to frontend
     return redirect
 
 @app.get("/auth/me", response_model=User)

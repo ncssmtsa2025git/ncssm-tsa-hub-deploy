@@ -1,8 +1,14 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
+import AuthActionBar from "./AuthActionBar";
 import { JSX, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { User } from "../models/user";
+import { startGoogleLogin, fetchUser, logout } from "../services/auth";
+import { useAuth } from "../contexts/AuthContext";
+
 
 export default function Header(): JSX.Element {
   const [visible, setVisible] = useState(true);
@@ -10,6 +16,8 @@ export default function Header(): JSX.Element {
   const lastY = useRef(0);
   const barRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
+
+  const { user, login, logoutUser } = useAuth();  
 
   // Base link style w/ hover underline animation
   const baseLink =
@@ -23,36 +31,47 @@ export default function Header(): JSX.Element {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   // Helper to render a nav link with active highlight + underline
-  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  const NavLink = ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => {
     const active = isActive(href);
     return (
       <Link
         href={href}
         aria-current={active ? "page" : undefined}
-        className={`${baseLink} ${active ? "text-blue-200 after:scale-x-100" : ""}`}
+        className={`${baseLink} ${
+          active ? "text-blue-200 after:scale-x-100" : ""
+        }`}
       >
         {children}
       </Link>
     );
   };
 
-  async function startGoogleLogin() {
-    const BACKEND = "http://localhost:8000";
-    const res = await fetch(`${BACKEND}/auth/login`);
-    if (!res.ok) throw new Error("Failed to start login");
-    const data = await res.json();
-    // Open the auth URL in a popup so the main app remains loaded.
-    const popup = window.open(data.auth_url, "google_oauth", "width=600,height=700");
-  }
+  // useEffect(() => {
+  //   fetchUser()
+  //     .then((u) => {setUser(u as unknown as User); console.log(u)}) // u is User | null
+  //     .catch(() => setUser(null));
+  // }, []);
 
-  async function fetchUser() {
-    const BACKEND = "http://localhost:8000";
-    const res = await fetch(`${BACKEND}/auth/me`, {
-      credentials: "include",
-    });
-    if (!res.ok) throw new Error("Not logged in");
-    console.log(await res.json());
-  } 
+  // useEffect(() => {
+  //   const channel = new BroadcastChannel("auth");
+  //   channel.onmessage = () => {
+  //     fetchUser()
+  //       .then(setUser)
+  //       .catch(() => setUser(null));
+  //   };
+  //   return () => channel.close();
+  // }, []);
+
+  // async function handleLogout() {
+  //   await logout();
+  //   setUser(null);
+  // }
 
   // Measure header height and expose as CSS var --header-h
   useEffect(() => {
@@ -96,15 +115,14 @@ export default function Header(): JSX.Element {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top row */}
           <div className="flex justify-between items-center h-[72px]">
-            {/* Logo + title */}
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="bg-white rounded-full flex items-center justify-center">
-                <img
-                  src="/ncssm_tsa_logo.jpg"
+                <Image
+                  width={56}
+                  height={56}
+                  src={"/ncssm_tsa_logo.jpg"}
                   alt="NCSSM TSA Logo"
-                  onClick={fetchUser}
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full"
                 />
               </div>
@@ -113,20 +131,12 @@ export default function Header(): JSX.Element {
               </h1>
             </div>
 
-            {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8 text-lg">
               <NavLink href="/">Home</NavLink>
               <NavLink href="/events">Events</NavLink>
               <NavLink href="/gallery">Gallery</NavLink>
               <NavLink href="/resources">Resources</NavLink>
-              <button
-                    onClick={startGoogleLogin}
-                    className="ml-2 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
-                              text-white font-medium backdrop-blur-md 
-                              border-2 border-white/30 transition-all duration-300 shadow-sm hover:shadow-md"
-                  >
-                    Login
-                  </button>
+              <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
             </div>
 
             {/* Mobile hamburger */}
@@ -136,21 +146,29 @@ export default function Header(): JSX.Element {
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((v) => !v)}
             >
-              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
 
           {/* Mobile dropdown */}
           <div
             className={`md:hidden overflow-hidden transition-[max-height,opacity]
-              duration-300 ${mobileOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"}`}
+              duration-300 ${
+                mobileOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
+              }`}
           >
             <nav className="py-3 border-t border-white/15 space-y-2">
               <Link
                 href="/"
                 onClick={() => setMobileOpen(false)}
                 aria-current={isActive("/") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${isActive("/") ? "bg-white/10 text-blue-200" : ""}`}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${
+                  isActive("/") ? "bg-white/10 text-blue-200" : ""
+                }`}
               >
                 Home
               </Link>
@@ -158,7 +176,9 @@ export default function Header(): JSX.Element {
                 href="/events"
                 onClick={() => setMobileOpen(false)}
                 aria-current={isActive("/events") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${isActive("/events") ? "bg-white/10 text-blue-200" : ""}`}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${
+                  isActive("/events") ? "bg-white/10 text-blue-200" : ""
+                }`}
               >
                 Events
               </Link>
@@ -166,7 +186,9 @@ export default function Header(): JSX.Element {
                 href="/gallery"
                 onClick={() => setMobileOpen(false)}
                 aria-current={isActive("/gallery") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${isActive("/gallery") ? "bg-white/10 text-blue-200" : ""}`}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${
+                  isActive("/gallery") ? "bg-white/10 text-blue-200" : ""
+                }`}
               >
                 Gallery
               </Link>
@@ -174,20 +196,15 @@ export default function Header(): JSX.Element {
                 href="/resources"
                 onClick={() => setMobileOpen(false)}
                 aria-current={isActive("/resources") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${isActive("/resources") ? "bg-white/10 text-blue-200" : ""}`}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${
+                  isActive("/resources") ? "bg-white/10 text-blue-200" : ""
+                }`}
               >
                 Resources
               </Link>
 
               <div className="pt-2 border-t border-white/10 mt-2">
-                  <button
-                    onClick={startGoogleLogin}
-                    className="ml-2 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
-                              text-white font-medium backdrop-blur-md 
-                              border-2 border-white/30 transition-all duration-300 shadow-sm hover:shadow-md"
-                  >
-                    Login with Google
-                  </button>
+                <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
               </div>
             </nav>
           </div>
