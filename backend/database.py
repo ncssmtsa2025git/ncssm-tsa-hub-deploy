@@ -25,7 +25,6 @@ async def get_user_by_google_id(google_id: str) -> Optional[User]:
         print(f"Error fetching user by Google ID: {e}")
         return None
 
-
 async def get_user_by_id(user_id: str) -> Optional[User]:
     try:
         response = supabase.table("users").select("*").eq("id", user_id).execute()
@@ -35,7 +34,6 @@ async def get_user_by_id(user_id: str) -> Optional[User]:
     except Exception as e:
         print(f"Error fetching user by ID: {e}")
         return None
-
 
 async def create_user(user_data: dict) -> User:
     try:
@@ -51,7 +49,6 @@ async def create_user(user_data: dict) -> User:
         print(f"Error creating user: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-
 async def update_user(user_id: str, user_data: dict) -> User:
     try:
         user_data["updated_at"] = datetime.utcnow().isoformat()
@@ -64,7 +61,6 @@ async def update_user(user_id: str, user_data: dict) -> User:
     except Exception as e:
         print(f"Error updating user: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-    
 
 async def create_event(event_data: dict) -> Event:
     try:
@@ -77,7 +73,6 @@ async def create_event(event_data: dict) -> Event:
         print(f"Error creating event: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-
 async def get_event_by_id(event_id: str) -> Optional[Event]:
     try:
         response = supabase.table("events").select("*").eq("id", event_id).execute()
@@ -87,7 +82,6 @@ async def get_event_by_id(event_id: str) -> Optional[Event]:
     except Exception as e:
         print(f"Error fetching event: {e}")
         return None
-
 
 async def list_events() -> list[Event]:
     try:
