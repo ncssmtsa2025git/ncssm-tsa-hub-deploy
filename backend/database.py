@@ -5,6 +5,7 @@ from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 
+from models.team import Team
 from models.user import User
 from models.event import Event
 
@@ -89,4 +90,123 @@ async def list_events() -> list[Event]:
         return [Event(**e) for e in response.data] if response.data else []
     except Exception as e:
         print(f"Error listing events: {e}")
+        return []
+    
+async def create_team(team_data: dict) -> Team:
+    """
+    Expects team_data to have:
+    {
+        "event_id": str,
+        "team_number": str,
+        "conference": str,
+        "captain_id": str,
+        "check_in_date": Optional[str],
+        "member_ids": List[str]
+    }
+    """
+    try:
+        # Insert team
+        response = supabase.table("teams").insert({
+            "event_id": team_data["event_id"],
+            "team_number": team_data["team_number"],
+            "conference": team_data["conference"],
+            "captain_id": team_data["captain_id"],
+            "check_in_date": team_data.get("check_in_date")
+        }).execute()
+
+        if not response.data:
+            raise HTTPException(status_code=500, detail="Failed to create team")
+
+        team_row = response.data[0]
+        team_id = team_row["id"]
+
+        # Insert members
+        member_ids = team_data.get("member_ids", [])
+        for uid in member_ids:
+            supabase.table("team_members").insert({
+                "team_id": team_id,
+                "user_id": uid
+            }).execute()
+
+        # Return hydrated team
+        return await get_team_by_id(team_id)
+
+    except Exception as e:
+        print(f"Error creating team: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+async def get_team_by_id(team_id: str) -> Optional[Team]:
+    try:
+        # Base team row
+        team_res = supabase.table("teams").select("*").eq("id", team_id).execute()
+        if not team_res.data:
+            return None
+        team_row = team_res.data[0]
+
+        # Event
+        event = await get_event_by_id(team_row["event_id"])
+
+        # Captain
+        captain = await get_user_by_id(team_row["captain_id"])
+
+        # Members
+        member_links = supabase.table("team_members").select("*").eq("team_id", team_id).execute()
+        members = []
+        for ml in member_links.data:
+            u = await get_user_by_id(ml["user_id"])
+            if u:
+                members.append(u)
+
+        return Team(
+            id=team_row["id"],
+            event=event,
+            teamNumber=team_row["team_number"],
+            conference=team_row["conference"],
+            captain=captain,
+            members=members,
+            checkInDate=team_row.get("check_in_date")
+        )
+    except Exception as e:
+        print(f"Error fetching team by ID: {e}")
+        return None
+
+
+async def list_teams() -> list[Team]:
+    try:
+        response = supabase.table("teams").select("id").execute()
+        team_ids = [row["id"] for row in response.data] if response.data else []
+        teams = []
+        for tid in team_ids:
+            team = await get_team_by_id(tid)
+            if team:
+                teams.append(team)
+        return teams
+    except Exception as e:
+        print(f"Error listing teams: {e}")
+        return []
+
+
+async def list_user_teams(user_id: str) -> list[Team]:
+    """
+    Get all teams where user is a captain or a member
+    """
+    try:
+        # Teams where user is captain
+        captain_res = supabase.table("teams").select("id").eq("captain_id", user_id).execute()
+        captain_team_ids = [r["id"] for r in captain_res.data] if captain_res.data else []
+
+        # Teams where user is a member
+        member_res = supabase.table("team_members").select("team_id").eq("user_id", user_id).execute()
+        member_team_ids = [r["team_id"] for r in member_res.data] if member_res.data else []
+
+        all_ids = set(captain_team_ids + member_team_ids)
+        teams = []
+        for tid in all_ids:
+            team = await get_team_by_id(tid)
+            if team:
+                teams.append(team)
+        return teams
+    except Exception as e:
+        print(f"Error listing user teams: {e}")
         return []

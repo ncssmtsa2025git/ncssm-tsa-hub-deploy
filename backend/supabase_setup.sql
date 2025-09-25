@@ -24,3 +24,24 @@ CREATE TABLE IF NOT EXISTS events (
 );
 
 CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
+
+CREATE TABLE IF NOT EXISTS teams (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    team_number VARCHAR(50) NOT NULL,
+    conference VARCHAR(255) NOT NULL,
+    captain_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    check_in_date TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_teams_event_id ON teams(event_id);
+CREATE INDEX IF NOT EXISTS idx_teams_captain_id ON teams(captain_id);
+
+-- Join table for team members
+CREATE TABLE IF NOT EXISTS team_members (
+    team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (team_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_team_members_user_id ON team_members(user_id);

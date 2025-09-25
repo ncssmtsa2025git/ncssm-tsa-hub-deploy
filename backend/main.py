@@ -5,6 +5,7 @@ from datetime import datetime
 
 from routes.auth import router as auth_router
 from routes.events import router as event_router
+from routes.teams import router as team_router
 
 app = FastAPI(title="Google OAuth 2 API", version="1.0.0")
 
@@ -24,6 +25,7 @@ app.add_middleware(
 # Register routers
 app.include_router(auth_router)
 app.include_router(event_router)
+app.include_router(team_router)
 
 
 @app.get("/")

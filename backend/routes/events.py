@@ -8,10 +8,10 @@ from utils import verify_token
 router = APIRouter(prefix="/events", tags=["events"])
 
 @router.post("/", response_model=Event)
-async def add_event(event: Event):
+# async def add_event(event: Event):
+#     return await create_event(event.model_dump(exclude_unset=True))
+async def add_event(event: Event, user_id: str = Depends(verify_token)):
     return await create_event(event.model_dump(exclude_unset=True))
-# async def add_event(event: Event, user_id: str = Depends(verify_token)):
-#     return await create_event(event.dict(exclude_unset=True))
 
 @router.get("/{event_id}", response_model=Event)
 async def fetch_event(event_id: str):
