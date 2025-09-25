@@ -65,8 +65,14 @@ export default function Home(): JSX.Element {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* President */}
             <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
-                <User className="h-16 w-16 text-gray-400" />
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/officers/muhilan.JPEG"
+                  alt="Muhilian Krishnan"
+                  width={400}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
                 Muhilian Krishnan
@@ -74,93 +80,92 @@ export default function Home(): JSX.Element {
               <p className="text-base font-medium text-blue-600 mb-2">
                 President
               </p>
-              <p className="text-sm text-gray-600">
-                krishnan26m@ncssm.edu
-              </p>
+              <p className="text-sm text-gray-600">krishnan26m@ncssm.edu</p>
             </div>
 
             {/* Vice President */}
             <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
-                <User className="h-16 w-16 text-gray-400" />
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/officers/aaditya.JPEG"
+                  alt="Aaditya Sah"
+                  width={400}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                Aaditya Sah
-              </h3>
-              <p className="text-base font-medium text-blue-600 mb-2">
-                Vice President
-              </p>
-              <p className="text-sm text-gray-600">
-                sah26a@ncssm.edu
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Aaditya Sah</h3>
+              <p className="text-base font-medium text-blue-600 mb-2">Vice President</p>
+              <p className="text-sm text-gray-600">sah26a@ncssm.edu</p>
             </div>
 
             {/* Secretary */}
             <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
-                <User className="h-16 w-16 text-gray-400" />
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/officers/kerry.JPEG"
+                  alt="Kerry Luo"
+                  width={400}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                Kerry Luo
-              </h3>
-              <p className="text-base font-medium text-blue-600 mb-2">
-                Secretary
-              </p>
-              <p className="text-sm text-gray-600">
-                luo26k@ncssm.edu
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Kerry Luo</h3>
+              <p className="text-base font-medium text-blue-600 mb-2">Secretary</p>
+              <p className="text-sm text-gray-600">luo26k@ncssm.edu</p>
             </div>
 
             {/* Treasurer */}
             <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
-                <User className="h-16 w-16 text-gray-400" />
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/officers/hasita.JPEG"
+                  alt="Hasita Alluri"
+                  width={400}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                Hasita Alluri
-              </h3>
-              <p className="text-base font-medium text-blue-600 mb-2">
-                Treasurer
-              </p>
-              <p className="text-sm text-gray-600">
-                alluri26h@ncssm.edu
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Hasita Alluri</h3>
+              <p className="text-base font-medium text-blue-600 mb-2">Treasurer</p>
+              <p className="text-sm text-gray-600">alluri26h@ncssm.edu</p>
             </div>
 
             {/* Reporter */}
             <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
-                <User className="h-16 w-16 text-gray-400" />
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/officers/lily.JPEG"
+                  alt="Lily Galapon"
+                  width={400}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                Lily Galapon
-              </h3>
-              <p className="text-base font-medium text-blue-600 mb-2">
-                Reporter
-              </p>
-              <p className="text-sm text-gray-600">
-                galapon26l@ncssm.edu
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Lily Galapon</h3>
+              <p className="text-base font-medium text-blue-600 mb-2">Reporter</p>
+              <p className="text-sm text-gray-600">galapon26l@ncssm.edu</p>
             </div>
 
             {/* Sergeant at Arms */}
             <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
-                <User className="h-16 w-16 text-gray-400" />
+              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/officers/james.JPEG"
+                  alt="James Nguyen"
+                  width={400}
+                  height={400}
+                  className="object-cover w-full h-full"
+                />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                James Nguyen
-              </h3>
-              <p className="text-base font-medium text-blue-600 mb-2">
-                Sergeant at Arms
-              </p>
-              <p className="text-sm text-gray-600">
-                nguyen26j@ncssm.edu
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">James Nguyen</h3>
+              <p className="text-base font-medium text-blue-600 mb-2">Sergeant at Arms</p>
+              <p className="text-sm text-gray-600">nguyen26j@ncssm.edu</p>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* Photo Showcase Section */}
       <section className="py-20 bg-blue-900 text-white">
