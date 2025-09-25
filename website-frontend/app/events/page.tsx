@@ -183,6 +183,7 @@ export default function EventsPage(): JSX.Element {
         </div>
       </section>
 
+      {/* TEST */}
       {/* Event Modal */}
       {selectedEvent && (
         <div
