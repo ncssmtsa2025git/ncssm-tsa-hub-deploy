@@ -10,115 +10,37 @@ import {
 } from "lucide-react";
 import { Event } from "../models/event";
 
-const events: Event[] = [
-  {
-    id: "animatronics",
-    title: "Animatronics",
-    theme: "Time Travelers' Museum",
-    fullThemeUrl: "https://example.com/full-theme/animatronics",
-    description:
-      'Create an animatronic figure or scene from a key moment in American history. The character should "come to life" to explain their world to a young audience.',
-    category: "Engineering",
-    teamSize: "1-3 members",
-    types: ["onsite testing", "poster"],
-    rubricUrl: "#",
-  },
-  {
-    id: "coding",
-    title: "Coding",
-    // no fullThemeUrl provided for coding (will hide button)
-    theme: "Programming Challenge",
-    description:
-      "Solve complex programming problems using various programming languages including Python, Java, C++, and more.",
-    category: "Programming",
-    teamSize: "1 member",
-    types: ["prelim submission", "testing"],
-    rubricUrl: "#",
-  },
-  {
-    id: "video-game-design",
-    title: "Video Game Design",
-    theme: "Retro Revival",
-    fullThemeUrl: "https://example.com/full-theme/video-game-design",
-    description:
-      "Reimagine an 8-bit or 16-bit era type of game with a modern twist. Create engaging gameplay with contemporary elements.",
-    category: "Design",
-    teamSize: "1-6 members",
-    types: ["prelim submission", "portfolio"],
-    rubricUrl: "#",
-  },
-  {
-    id: "robotics",
-    title: "Robotics",
-    theme: "Design Problem",
-    description:
-      "Design, build, and program a robot to complete specific tasks and challenges outlined in the official competition rules.",
-    category: "Engineering",
-    teamSize: "2-6 members",
-    types: ["onsite challenge", "testing"],
-    rubricUrl: "#",
-  },
-  {
-    id: "digital-video-production",
-    title: "Digital Video Production",
-    theme: "A Twist in Time",
-    fullThemeUrl: "https://example.com/full-theme/digital-video-production",
-    description:
-      "Create a story that alters a key historical moment—or imagines a character from the past suddenly appearing in the modern day.",
-    category: "Media",
-    teamSize: "1-6 members",
-    types: ["prelim submission", "video"],
-    rubricUrl: "#",
-  },
-  {
-    id: "webmaster",
-    title: "Webmaster",
-    theme: "Community Resource Hub",
-    description:
-      "Create a website that will serve as a community resource hub to highlight resources available to residents within the community.",
-    category: "Programming",
-    teamSize: "1-6 members",
-    types: ["portfolio", "website"],
-    rubricUrl: "#",
-  },
-  {
-    id: "biotechnology-design",
-    title: "Biotechnology Design",
-    theme: "Bioconjugation",
-    description:
-      "Highlight the science behind bioconjugation and demonstrate one of its many uses in medicine, diagnostics, or materials.",
-    category: "Science",
-    teamSize: "1-6 members",
-    types: ["testing", "research"],
-    rubricUrl: "#",
-  },
-  {
-    id: "music-production",
-    title: "Music Production",
-    // intentionally no fullThemeUrl here
-    theme: "USA 250th Birthday",
-    description:
-      "Create a musical piece that can be played as the opening number at a July 4th fireworks show celebrating America's 250th birthday.",
-    category: "Media",
-    teamSize: "1-6 members",
-    types: ["prelim submission", "music"],
-    rubricUrl: "#",
-  },
-];
-
-const categories = [
-  "All",
-  "Engineering",
-  "Programming",
-  "Design",
-  "Media",
-  "Science",
-];
-
 export default function EventsPage(): JSX.Element {
+  const [events, setEvents] = useState<Event[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch events from backend
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch("http://localhost:8000/events/"); // adjust URL if needed
+        if (!res.ok) {
+          throw new Error(`Failed to fetch events: ${res.status}`);
+        }
+        const data: Event[] = await res.json();
+        setEvents(data);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEvents();
+  }, []);
+
+  // Derive categories dynamically from events
+  const categories = ["All", ...new Set(events.map((e) => e.category))];
 
   // Close modal when Escape is pressed
   useEffect(() => {
@@ -145,7 +67,6 @@ export default function EventsPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center mb-6">
@@ -195,62 +116,69 @@ export default function EventsPage(): JSX.Element {
       {/* Events Grid */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {filteredEvents.length} Event
-              {filteredEvents.length !== 1 ? "s" : ""} Available
-            </h2>
-          </div>
+          {loading && <p className="text-center text-gray-500">Loading events...</p>}
+          {error && <p className="text-center text-red-600">{error}</p>}
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEvents.map((event) => (
-              <div
-                key={event.id}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => setSelectedEvent(event)}
-              >
-                <div className="mb-4">
-                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    {event.category}
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  {event.title}
-                </h3>
-                <p className="text-sm font-medium text-blue-600 mb-3">
-                  Theme: {event.theme ?? "N/A"}
-                </p>
-                <p className="text-gray-600 mb-4 line-clamp-2">
-                  {event.description}
-                </p>
-
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Users className="h-4 w-4 mr-2" />
-                    {event.teamSize}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-500 flex-wrap gap-2 mt-2">
-                    {event.types.map((t) => (
-                      <span key={t} className="tag-badge">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+          {!loading && !error && (
+            <>
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {filteredEvents.length} Event
+                  {filteredEvents.length !== 1 ? "s" : ""} Available
+                </h2>
               </div>
-            ))}
-          </div>
 
-          {filteredEvents.length === 0 && (
-            <div className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No events found
-              </h3>
-              <p className="text-gray-500">
-                Try adjusting your search criteria
-              </p>
-            </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => setSelectedEvent(event)}
+                  >
+                    <div className="mb-4">
+                      <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                        {event.category}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      {event.title}
+                    </h3>
+                    <p className="text-sm font-medium text-blue-600 mb-3">
+                      Theme: {event.theme ?? "N/A"}
+                    </p>
+                    <p className="text-gray-600 mb-4 line-clamp-2">
+                      {event.description}
+                    </p>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Users className="h-4 w-4 mr-2" />
+                        {event.teamSize}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500 flex-wrap gap-2 mt-2">
+                        {event.types.map((t) => (
+                          <span key={t} className="tag-badge">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filteredEvents.length === 0 && (
+                <div className="text-center py-12">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No events found
+                  </h3>
+                  <p className="text-gray-500">
+                    Try adjusting your search criteria
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
