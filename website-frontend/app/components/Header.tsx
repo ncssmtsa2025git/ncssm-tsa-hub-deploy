@@ -5,8 +5,6 @@ import AuthActionBar from "./AuthActionBar";
 import { JSX, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { User } from "../models/user";
-import { startGoogleLogin, fetchUser, logout } from "../services/auth";
 import { useAuth } from "../contexts/AuthContext";
 
 
