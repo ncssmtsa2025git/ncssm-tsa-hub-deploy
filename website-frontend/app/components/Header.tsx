@@ -136,6 +136,7 @@ export default function Header(): JSX.Element {
               <NavLink href="/events">Events</NavLink>
               <NavLink href="/gallery">Gallery</NavLink>
               <NavLink href="/resources">Resources</NavLink>
+              <NavLink href="/projects">Past Projects</NavLink>
               <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
             </div>
 

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "aaditya-sah",
+    "title": "Aaditya Sah",
+    "eventName": "Systems Control Technology",
+    "year": 2025,
+    "description": "cheese.",
+    "team": ["Kerry Luo", "Teammate A"],
+    "placement": "States – 1st",
+    "tags": ["Python", "PyTorch", "SAC", "MC Dropout", "F1TENTH"],
+    "links": [
+      { "type": "repo", "label": "GitHub Repo", "url": "https://github.com/acme/f1tenth-simplex" },
+      { "type": "slides", "url": "https://drive.google.com/your-slides" },
+      { "type": "video", "url": "https://youtu.be/your-demo" }
+    ],
+    "coverImageUrl": "/images/projects/simplex-cover.jpg"
+  },
+  {
+    "id": "sd-2024-web-portal",
+    "title": "Chapter Web Portal",
+    "eventName": "Software Development",
+    "year": 2024,
+    "description": "Next.js portal for announcements, gallery, events, and officer tools.",
+    "team": ["Member A", "Member B"],
+    "placement": "States – Finalist",
+    "tags": ["Next.js", "Tailwind", "Vercel"],
+    "links": [
+      { "type": "site", "label": "Live Site", "url": "https://ncssm-tsa.example.org" },
+      { "type": "repo", "url": "https://github.com/acme/tsa-portal" }
+    ]
+  }
+]
