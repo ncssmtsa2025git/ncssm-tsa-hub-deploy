@@ -1,23 +1,40 @@
 "use client";
 import { JSX, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { Search, Download, Calendar, Users, ExternalLink, Trophy } from "lucide-react";
+import { Search, Calendar, Users, ExternalLink, Trophy } from "lucide-react";
 import type { Project } from "../models/project";
 
+// ---- optional: CSV helper kept in case you re-add Export later ----
 function toCSV(rows: Record<string, unknown>[]): string {
   if (!rows.length) return "";
   const headers = Object.keys(rows[0]);
   const escape = (v: unknown) => {
     const s = String(v ?? "");
-    // Escape quotes and wrap fields with commas/newlines/quotes
-    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-    return s;
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const headerLine = headers.map(escape).join(",");
   const body = rows
     .map((row) => headers.map((h) => escape((row as any)[h])).join(","))
     .join("\n");
   return `${headerLine}\n${body}`;
+}
+
+// Normalize partially-specified JSON objects into full Project objects
+type PartialProject = Partial<Project> & { id: string; title: string };
+
+function normalizeProject(p: PartialProject): Project {
+  return {
+    id: p.id,
+    title: p.title,
+    eventName: p.eventName ?? "",
+    year: p.year ?? new Date().getFullYear(),
+    description: p.description ?? "",
+    team: p.team ?? [],
+    placement: p.placement ?? undefined,
+    tags: p.tags ?? [],
+    coverImageUrl: p.coverImageUrl ?? undefined,
+    links: p.links ?? [],
+  };
 }
 
 export default function ProjectsPage(): JSX.Element {
@@ -28,7 +45,7 @@ export default function ProjectsPage(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch JSON from /public
+  // Fetch JSON from /public and normalize
   useEffect(() => {
     (async () => {
       try {
@@ -36,7 +53,9 @@ export default function ProjectsPage(): JSX.Element {
         setError(null);
         const res = await fetch("/data/past_projects.json", { cache: "no-store" });
         if (!res.ok) throw new Error(`Failed to fetch projects: ${res.status}`);
-        const data: Project[] = await res.json();
+        const raw = await res.json();
+        if (!Array.isArray(raw)) throw new Error("projects file must be a JSON array");
+        const data: Project[] = (raw as PartialProject[]).map(normalizeProject);
         setProjects(data);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : String(e));
@@ -47,7 +66,7 @@ export default function ProjectsPage(): JSX.Element {
   }, []);
 
   const eventOptions = useMemo(
-    () => ["All", ...Array.from(new Set(projects.map((p) => p.eventName)))],
+    () => ["All", ...Array.from(new Set(projects.map((p) => p.eventName || "")))],
     [projects]
   );
 
@@ -64,41 +83,18 @@ export default function ProjectsPage(): JSX.Element {
     return projects.filter((p) => {
       const matchesSearch =
         !q ||
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.eventName.toLowerCase().includes(q) ||
-        String(p.year).includes(q) ||
+        (p.title ?? "").toLowerCase().includes(q) ||
+        (p.description ?? "").toLowerCase().includes(q) ||
+        (p.eventName ?? "").toLowerCase().includes(q) ||
+        String(p.year ?? "").includes(q) ||
         (p.placement ?? "").toLowerCase().includes(q) ||
-        p.tags.some((t) => t.toLowerCase().includes(q)) ||
-        p.team.some((name) => name.toLowerCase().includes(q));
-      const matchesEvent =
-        selectedEventName === "All" || p.eventName === selectedEventName;
+        (p.tags ?? []).some((t) => (t ?? "").toLowerCase().includes(q)) ||
+        (p.team ?? []).some((name) => (name ?? "").toLowerCase().includes(q));
+
+      const matchesEvent = selectedEventName === "All" || (p.eventName ?? "") === selectedEventName;
       return matchesSearch && matchesEvent;
     });
   }, [projects, searchTerm, selectedEventName]);
-
-  const exportCSV = () => {
-    const rows = filtered.map((p) => ({
-      id: p.id,
-      title: p.title,
-      eventName: p.eventName,
-      year: p.year,
-      description: p.description,
-      team: p.team.join("; "),
-      placement: p.placement ?? "",
-      tags: p.tags.join("; "),
-      coverImageUrl: p.coverImageUrl ?? "",
-      links: p.links.map((l) => `${l.label ?? l.type}:${l.url}`).join("; ")
-    }));
-    const csv = toCSV(rows);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "projects.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -137,7 +133,7 @@ export default function ProjectsPage(): JSX.Element {
             >
               {eventOptions.map((opt) => (
                 <option key={opt} value={opt}>
-                  {opt}
+                  {opt || "Uncategorized"}
                 </option>
               ))}
             </select>
@@ -182,7 +178,7 @@ export default function ProjectsPage(): JSX.Element {
 
                     <div className="mb-3 flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                        {p.eventName}
+                        {p.eventName || "Uncategorized"}
                       </span>
                       <span className="text-sm text-gray-500">{p.year}</span>
                     </div>
@@ -199,14 +195,14 @@ export default function ProjectsPage(): JSX.Element {
                     <p className="text-gray-600 mb-4 line-clamp-2">{p.description}</p>
 
                     <div className="space-y-2">
-                      {p.team?.length > 0 && (
+                      {(p.team ?? []).length > 0 && (
                         <div className="flex items-center text-sm text-gray-500">
                           <Users className="h-4 w-4 mr-2" />
-                          {p.team.join(", ")}
+                          {(p.team ?? []).join(", ")}
                         </div>
                       )}
                       <div className="flex items-center text-sm text-gray-500 flex-wrap gap-2 mt-2">
-                        {p.tags.map((tag) => (
+                        {(p.tags ?? []).map((tag) => (
                           <span key={tag} className="tag-badge">
                             {tag}
                           </span>
@@ -242,7 +238,7 @@ export default function ProjectsPage(): JSX.Element {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    {selectedProject.eventName} • {selectedProject.year}
+                    {(selectedProject.eventName || "Uncategorized")} • {selectedProject.year}
                   </span>
                   <h2 className="text-2xl font-bold text-gray-900 mt-1">
                     {selectedProject.title}
@@ -283,16 +279,18 @@ export default function ProjectsPage(): JSX.Element {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  {selectedProject.team?.length > 0 && (
+                  {(selectedProject.team ?? []).length > 0 && (
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Team</h3>
-                      <p className="text-gray-600">{selectedProject.team.join(", ")}</p>
+                      <p className="text-gray-600">
+                        {(selectedProject.team ?? []).join(", ")}
+                      </p>
                     </div>
                   )}
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Tags</h3>
                     <div className="flex items-center text-gray-600 flex-wrap gap-2">
-                      {selectedProject.tags.map((t) => (
+                      {(selectedProject.tags ?? []).map((t) => (
                         <span key={t} className="tag-badge">
                           {t}
                         </span>
@@ -301,9 +299,9 @@ export default function ProjectsPage(): JSX.Element {
                   </div>
                 </div>
 
-                {selectedProject.links?.length > 0 && (
+                {(selectedProject.links ?? []).length > 0 && (
                   <div className="flex flex-wrap gap-3 pt-2">
-                    {selectedProject.links.map((lnk, i) => (
+                    {(selectedProject.links ?? []).map((lnk, i) => (
                       <a
                         key={i}
                         href={lnk.url}
@@ -312,7 +310,7 @@ export default function ProjectsPage(): JSX.Element {
                         rel="noopener noreferrer"
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
-                        {lnk.label ?? lnk.type.toUpperCase()}
+                        {lnk.label ?? (lnk.type?.toUpperCase() ?? "LINK")}
                       </a>
                     ))}
                   </div>

@@ -1,275 +1,347 @@
 'use client'
 
-import { JSX, useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
+import { JSX, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { ArrowLeft, Grid, Calendar, Users, Camera, X, ChevronDown } from 'lucide-react'
+import { Camera, X } from 'lucide-react'
 
-interface GalleryItem {
+/** JSON shape from /public/data/images.json */
+interface AlbumFromJson {
   id: string
   title: string
-  category: 'Competition' | 'Workshop' | 'Meeting' | 'Award'
-  date: string
-  description: string
-  imageUrl: string
-  participants?: number
+  year: number
+  description?: string
+  links: { url: string }[]
 }
 
-const galleryItems: GalleryItem[] = [
-  {
-    id: '1',
-    title: 'State TSA Competition 2024',
-    category: 'Competition',
-    date: 'March 15, 2024',
-    description: 'Our team competing at the North Carolina TSA State Conference, showcasing projects in robotics, coding, and digital design.',
-    imageUrl: '/api/placeholder/600/400',
-    participants: 24
-  },
-  {
-    id: '2',
-    title: 'Robotics Workshop',
-    category: 'Workshop',
-    date: 'February 20, 2024',
-    description: 'Hands-on robotics workshop where students learned programming and mechanical design principles.',
-    imageUrl: '/api/placeholder/600/400',
-    participants: 15
-  },
-  {
-    id: '3',
-    title: 'National TSA Conference',
-    category: 'Competition',
-    date: 'June 25, 2024',
-    description: 'PC TSA members representing North Carolina at the National TSA Conference in Dallas, Texas.',
-    imageUrl: '/api/placeholder/600/400',
-    participants: 8
-  },
-  {
-    id: '4',
-    title: 'Weekly Chapter Meeting',
-    category: 'Meeting',
-    date: 'January 10, 2024',
-    description: 'Regular chapter meeting discussing upcoming events and project progress updates.',
-    imageUrl: '/api/placeholder/600/400',
-    participants: 32
-  },
-  {
-    id: '5',
-    title: 'First Place - Video Game Design',
-    category: 'Award',
-    date: 'March 16, 2024',
-    description: 'Our video game design team receiving first place at the state competition for their innovative retro-style game.',
-    imageUrl: '/api/placeholder/600/400',
-    participants: 3
-  },
-  {
-    id: '6',
-    title: 'Coding Workshop',
-    category: 'Workshop',
-    date: 'November 8, 2024',
-    description: 'Interactive coding session focusing on algorithms and data structures preparation for competitions.',
-    imageUrl: '/api/placeholder/600/400',
-    participants: 18
-  },
-  {
-    id: '7',
-    title: 'Team Building Activity',
-    category: 'Meeting',
-    date: 'September 5, 2024',
-    description: 'Fun team building exercises and icebreakers to welcome new members to PC TSA.',
-    imageUrl: '/api/placeholder/600/400',
-    participants: 28
-  },
-  {
-    id: '8',
-    title: 'Regional Awards Ceremony',
-    category: 'Award',
-    date: 'April 12, 2024',
-    description: 'PC TSA members being recognized for outstanding achievements in various technology competitions.',
-    imageUrl: '/api/placeholder/600/400',
-    participants: 12
-  }
-]
+/** One image inside an album */
+interface AlbumImage {
+  id: string           // imgurId or generated
+  pageUrl: string      // original Imgur page (kept for optional use)
+  imageUrl: string     // direct i.imgur.com URL for rendering
+}
 
-const categories = ['All', 'Competition', 'Workshop', 'Meeting', 'Award'] as const
+/** Card type: one per album (event) */
+interface AlbumCard {
+  id: string
+  title: string
+  year: number
+  description?: string
+  images: AlbumImage[] // first is cover
+}
+
+/** Convert an Imgur page/short link to a direct i.imgur.com URL */
+function toDirectImgur(url: string): { imageUrl: string; pageUrl: string } {
+  try {
+    const u = new URL(url)
+    const host = u.hostname.replace(/^m\./, '')
+    if (host === 'i.imgur.com') {
+      // Already a direct image URL
+      return { imageUrl: u.toString(), pageUrl: url }
+    }
+    // Handle common Imgur paths: /a/ (album), /gallery/, and direct short ids
+    const parts = u.pathname.split('/').filter(Boolean)
+    const last = parts[parts.length - 1] || ''
+    // Remove any extension or hash fragments
+    const id = last.split('.')[0].split('#')[0]
+    // Best-effort: map to a .jpg direct link (Imgur will serve jpeg if available or 404 if not)
+    const direct = `https://i.imgur.com/${id}.jpg`
+    return { imageUrl: direct, pageUrl: url }
+  } catch {
+    return { imageUrl: url, pageUrl: url }
+  }
+}
+
+/** Next/Image wrapper that auto-falls back to <img> for external URLs + has error placeholder */
+function SafeImage(props: {
+  src: string; alt: string; className?: string; sizes?: string; fill?: boolean
+}) {
+  const [src, setSrc] = useState(props.src)
+  const isExternal = /^https?:\/\//i.test(src)
+
+  if (isExternal) {
+    return (
+      <img
+        src={src}
+        alt={props.alt}
+        className={props.className ?? ''}
+        onError={() => setSrc('/api/placeholder/1200/800')}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      />
+    )
+  }
+  return (
+    <Image
+      {...props}
+      src={src}
+      onError={() => setSrc('/api/placeholder/1200/800')}
+      alt={props.alt}
+    />
+  )
+}
 
 type SortKey = 'newest' | 'oldest' | 'title'
 
 export default function GalleryPage(): JSX.Element {
-  const [currentIndex, setCurrentIndex] = useState<number>(0)
-  const [sortBy] = useState<SortKey>('newest')
+  const [albums, setAlbums] = useState<AlbumCard[]>([])
+  const [sortBy, setSortBy] = useState<SortKey>('newest')
+  const [query, setQuery] = useState('')
 
-  const filteredItems = useMemo(() => {
-    const base = galleryItems
-    const withParsedDate = base.map(i => ({ ...i, parsedDate: new Date(i.date) }))
-    if (sortBy === 'title') {
-      return withParsedDate.sort((a, b) => a.title.localeCompare(b.title))
-    }
-    if (sortBy === 'oldest') {
-      return withParsedDate.sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime())
-    }
-    return withParsedDate.sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime())
-  }, [sortBy])
+  // Lightbox state (album-scoped)
+  const [isOpen, setIsOpen] = useState(false)
+  const [activeAlbumIdx, setActiveAlbumIdx] = useState<number>(0)
+  const [activeImageIdx, setActiveImageIdx] = useState<number>(0)
 
-  const getCategoryColor = (category: string): string => {
-    switch (category) {
-      case 'Competition': return 'bg-blue-100 text-blue-800'
-      case 'Workshop': return 'bg-green-100 text-green-800'
-      case 'Meeting': return 'bg-purple-100 text-purple-800'
-      case 'Award': return 'bg-yellow-100 text-yellow-800'
-      default: return 'bg-gray-100 text-gray-800'
+  // Load JSON → album cards (grouped)
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/data/images.json', { cache: 'no-store' })
+        const raw: AlbumFromJson[] = await res.json()
+
+        const grouped: AlbumCard[] = raw.map((a) => {
+          const imgsRaw: AlbumImage[] = (a.links ?? []).map(({ url }) => {
+            const { imageUrl, pageUrl } = toDirectImgur(url)
+            const imgurId = imageUrl.split('/').pop()?.split('.')[0] ?? Math.random().toString(36).slice(2)
+            return { id: imgurId, pageUrl, imageUrl }
+          })
+
+          // ---- DEDUPE by direct imageUrl to avoid repeated cover/album collisions ----
+          const seen = new Set<string>()
+          const imgs: AlbumImage[] = []
+          for (const im of imgsRaw) {
+            if (!im.imageUrl) continue
+            if (seen.has(im.imageUrl)) continue
+            seen.add(im.imageUrl)
+            imgs.push(im)
+          }
+
+          return {
+            id: a.id,
+            title: a.title,
+            year: a.year,
+            description: a.description,
+            images: imgs
+          }
+        }).filter(a => a.images.length > 0)
+
+        if (!cancelled) setAlbums(grouped)
+      } catch (e) {
+        console.error('Failed to load /data/images.json', e)
+        if (!cancelled) setAlbums([])
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    let list = albums
+    if (q) {
+      list = list.filter((a) =>
+        [a.title, String(a.year), a.description ?? ''].some((s) => s.toLowerCase().includes(q))
+      )
     }
+    if (sortBy === 'title') return [...list].sort((a, b) => a.title.localeCompare(b.title))
+    if (sortBy === 'oldest') return [...list].sort((a, b) => a.year - b.year)
+    return [...list].sort((a, b) => b.year - a.year) // newest
+  }, [albums, query, sortBy])
+
+  // Lightbox controls (album-scoped)
+  const openLightbox = (albumIdx: number, startImage = 0) => {
+    setActiveAlbumIdx(albumIdx)
+    setActiveImageIdx(startImage)
+    setIsOpen(true)
+  }
+  const closeLightbox = () => setIsOpen(false)
+
+  const prevImage = () => {
+    const curr = visible[activeAlbumIdx]
+    const n = curr?.images.length ?? 0
+    if (n === 0) return
+    setActiveImageIdx((i) => (i - 1 + n) % n)
+  }
+  const nextImage = () => {
+    const curr = visible[activeAlbumIdx]
+    const n = curr?.images.length ?? 0
+    if (n === 0) return
+    setActiveImageIdx((i) => (i + 1) % n)
   }
 
-  // Keyboard navigation for carousel
+  // Keyboard navigation for lightbox
   useEffect(() => {
+    if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        setCurrentIndex(prev => (prev - 1 + filteredItems.length) % filteredItems.length)
-      } else if (e.key === 'ArrowRight') {
-        setCurrentIndex(prev => (prev + 1) % filteredItems.length)
-      }
+      if (e.key === 'Escape') closeLightbox()
+      if (e.key === 'ArrowLeft') prevImage()
+      if (e.key === 'ArrowRight') nextImage()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [filteredItems.length])
+  }, [isOpen, visible, activeAlbumIdx])
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center mb-6">
             <Camera className="h-16 w-16 text-blue-200" />
           </div>
-          <h1 className="text-5xl font-bold mb-6">NCSSM TSA Gallery</h1>
-          <p className="text-xl mb-8 max-w-4xl mx-auto">
-            Explore moments from our competitions, workshops, meetings, and celebrations. 
-          </p>
+          <h1 className="text-5xl font-bold mb-4">NCSSM TSA Gallery</h1>
+          <p className="text-lg opacity-90">Photos are displayed directly on-site from your <code>images.json</code>.</p>
         </div>
       </section>
 
+      {/* Controls */}
+      <section className="py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by title, year, or description…"
+            className="w-full sm:w-1/2 rounded-xl border border-gray-300 bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Sort:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortKey)}
+              className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="title">Title (A→Z)</option>
+            </select>
+          </div>
+        </div>
+      </section>
 
-      {/* Gallery Carousel */}
-      <section className="py-12">
+      {/* Grid of ALBUM cards (click to open album lightbox) */}
+      <section className="pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8 text-center">
-            Highlights
-          </h2>
-
-          {/* Carousel viewport */}
-          <div className="relative">
-            {/* Slides (responsive: 1 / 2 / 3 visible) */}
-            <div className="
-              grid gap-6
-              grid-cols-1
-              sm:grid-cols-2
-              lg:grid-cols-3
-              items-stretch
-            ">
-              {[-1, 0, 1].map((offset) => {
-                const idx = (currentIndex + offset + filteredItems.length) % filteredItems.length;
-                const item = filteredItems[idx];
-                const isCenter = offset === 0;
-
-                return (
-                  <div
-                    key={item.id}
-                    className={`group relative rounded-2xl overflow-hidden shadow-lg transition-all duration-300
-                      ${isCenter ? "ring-2 ring-blue-600 scale-[1.02]" : "opacity-95"}
-                    `}
-                  >
-                    {/* Image area (replace placeholder with real images when ready) */}
-                    <div className="aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-                      {/* If you have real images, uncomment Image below and remove the placeholder block */}
-
-                      {/* 
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.title}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      */}
-
-                      {/* Placeholder visual */}
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
-                        <Camera className="h-16 w-16 text-gray-400" />
-                      </div>
-                    </div>
-
-                    {/* Card content */}
-                    <div className="p-5 bg-white">
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded ${getCategoryColor(item.category)}`}>
-                          {item.category}
-                        </span>
-                        <span className="text-xs text-gray-500">{item.date}</span>
-                      </div>
-
-                      <h3 className="text-lg font-bold text-gray-900">
-                        {item.title}
-                      </h3>
-                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                        {item.description}
-                      </p>
-
-                      {item.participants !== undefined && (
-                        <div className="mt-3 text-sm text-gray-500 flex items-center gap-2">
-                          <Users className="h-4 w-4" />
-                          {item.participants} participants
-                        </div>
-                      )}
-                    </div>
+          {visible.length === 0 ? (
+            <div className="text-center text-gray-500 py-20">No albums found.</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {visible.map((a, idx) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => openLightbox(idx, 0)}
+                  className="group rounded-2xl overflow-hidden bg-white shadow hover:shadow-lg transition-shadow text-left"
+                  aria-label={`Open ${a.title}`}
+                >
+                  <div className="relative aspect-[16/10] bg-gray-100">
+                    <SafeImage
+                      src={a.images[0]?.imageUrl ?? '/api/placeholder/1200/800'}
+                      alt={a.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    />
+                    {/* Small count pill */}
+                    {a.images.length > 1 && (
+                      <span className="absolute right-2 top-2 rounded-full bg-black/60 text-white text-xs px-2 py-1">
+                        {a.images.length} photos
+                      </span>
+                    )}
                   </div>
-                );
-              })}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-semibold text-gray-900 line-clamp-1">{a.title}</h3>
+                      <span className="text-xs text-gray-500">{a.year}</span>
+                    </div>
+                    {a.description && (
+                      <p className="text-sm text-gray-600 line-clamp-2">{a.description}</p>
+                    )}
+                    <p className="mt-3 text-xs text-blue-700/80 group-hover:text-blue-700">
+                      View photos →
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Lightbox Modal (album-scoped) */}
+      {isOpen && visible.length > 0 && visible[activeAlbumIdx] && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="relative w-full max-w-6xl">
+            {/* Close */}
+            <button
+              onClick={closeLightbox}
+              aria-label="Close"
+              className="absolute -top-10 right-0 text-white/90 hover:text-white transition"
+            >
+              <X className="w-8 h-8" />
+            </button>
+
+            {/* Image area */}
+            <div className="relative w-full rounded-2xl overflow-hidden bg-black">
+              <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
+                <SafeImage
+                  src={visible[activeAlbumIdx].images[activeImageIdx]?.imageUrl ?? '/api/placeholder/1200/800'}
+                  alt={visible[activeAlbumIdx].title}
+                  fill
+                  sizes="100vw"
+                  className="object-contain bg-black"
+                />
+              </div>
+
+              {/* Nav arrows (within album) */}
+              <button
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white text-2xl"
+                onClick={prevImage}
+                aria-label="Previous image"
+              >
+                ‹
+              </button>
+              <button
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white text-2xl"
+                onClick={nextImage}
+                aria-label="Next image"
+              >
+                ›
+              </button>
             </div>
 
-            {/* Navigation Arrows */}
-            <button
-              className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 hover:bg-white
-                        rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-gray-900
-                        transition-all duration-200 group"
-              onClick={() => setCurrentIndex(prev => (prev - 1 + filteredItems.length) % filteredItems.length)}
-              aria-label="Previous"
-            >
-              <div className="text-xl sm:text-2xl font-light group-hover:scale-110 transition-transform">‹</div>
-            </button>
-
-            <button
-              className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 hover:bg-white
-                        rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-gray-900
-                        transition-all duration-200 group"
-              onClick={() => setCurrentIndex(prev => (prev + 1) % filteredItems.length)}
-              aria-label="Next"
-            >
-              <div className="text-xl sm:text-2xl font-light group-hover:scale-110 transition-transform">›</div>
-            </button>
-          </div>
-
-          {/* Dot Indicators */}
-          <div className="flex items-center justify-center gap-3 mt-8">
-            {filteredItems.map((_, i) => (
-              <button
-                key={i}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  i === currentIndex ? "bg-blue-600 scale-125" : "bg-gray-300 hover:bg-gray-400"
-                }`}
-                onClick={() => setCurrentIndex(i)}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
-          </div>
-
-          {/* Counter */}
-          <div className="text-center mt-4">
-            <span className="text-sm text-gray-500">
-              {currentIndex + 1} of {filteredItems.length}
-            </span>
+            {/* Caption */}
+            <div className="mt-3 text-white/90">
+              <div className="flex items-center justify-between">
+                <div className="truncate">
+                  <span className="font-semibold">{visible[activeAlbumIdx].title}</span>
+                  <span className="opacity-80"> · {visible[activeAlbumIdx].year}</span>
+                  {visible[activeAlbumIdx].description && (
+                    <span className="opacity-80"> · {visible[activeAlbumIdx].description}</span>
+                  )}
+                </div>
+                <div className="text-sm opacity-80">
+                  {activeImageIdx + 1} / {visible[activeAlbumIdx].images.length}
+                </div>
+              </div>
+              {/* Optional original Imgur link:
+              <div className="mt-1 text-sm">
+                <a
+                  href={visible[activeAlbumIdx].images[activeImageIdx]?.pageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Open original on Imgur
+                </a>
+              </div>
+              */}
+            </div>
           </div>
         </div>
-      </section>
-
+      )}
     </div>
   )
 }
