@@ -136,7 +136,11 @@ export default function Header(): JSX.Element {
               <NavLink href="/events">Events</NavLink>
               <NavLink href="/gallery">Gallery</NavLink>
               <NavLink href="/resources">Resources</NavLink>
-              <NavLink href="/projects">Past Projects</NavLink>
+              <NavLink href="/projects" >
+                <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                  Past Projects
+                </span>
+              </NavLink>
               <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
             </div>
 
@@ -202,6 +206,17 @@ export default function Header(): JSX.Element {
                 }`}
               >
                 Resources
+              </Link>
+
+              <Link
+                href="/projects"
+                onClick={() => setMobileOpen(false)}
+                aria-current={isActive("/projects") ? "page" : undefined}
+                className={`block px-2 py-2 rounded hover:bg-white/10 ${
+                  isActive("/projects") ? "bg-white/10 text-blue-200" : ""
+                }`}
+              >
+                Past Projects
               </Link>
 
               <div className="pt-2 border-t border-white/10 mt-2">
