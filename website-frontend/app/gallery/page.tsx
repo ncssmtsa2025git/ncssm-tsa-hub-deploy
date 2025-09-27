@@ -38,7 +38,7 @@ export default function Page() {
           </div>
           <h1 className="text-5xl font-bold mb-6">NCSSM TSA Gallery</h1>
           <p className="text-xl mb-8 max-w-4xl mx-auto">
-            Explore highlights from Nationals and workshops, curated from JSON.
+            Highlights from Nationals and workshops.
           </p>
         </div>
       </section>
@@ -46,10 +46,6 @@ export default function Page() {
       {/* Grid */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8 text-center">
-            Highlights
-          </h2>
-
           {items.length === 0 ? (
             <div className="mx-auto max-w-xl text-center text-gray-600">
               No entries found in <code>/public/data/gallery.json</code>.
