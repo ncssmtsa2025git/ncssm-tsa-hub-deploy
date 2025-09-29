@@ -1,1 +1,8 @@
+# Virtual environments
+.venv/
+env/
+
+*.pyc
+__pycache__/
+# Sensitive information
 .env
