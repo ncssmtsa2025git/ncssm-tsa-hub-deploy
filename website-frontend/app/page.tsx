@@ -158,7 +158,7 @@ export default function Home(): React.ReactElement {
               <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
                 <Image
                   src="/officers/muhilan.JPEG"
-                  alt="Muhilian Krishnan"
+                  alt="Muhilan Krishnan"
                   width={400}
                   height={400}
                   className="object-cover w-full h-full"
