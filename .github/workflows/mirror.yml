@@ -61,5 +61,5 @@ jobs:
           # Add Repo B as a remote
           git remote add mirror https://x-access-token:${PAT}@github.com/ncssmtsa2025git/ncssm-tsa-hub-deploy.git
 
-          # Push main branch from Repo A to Repo B
-          git push --force mirror main:main
+          # Push master branch from Repo A to Repo B
+          git push --force mirror master:main
