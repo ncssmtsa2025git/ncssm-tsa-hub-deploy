@@ -110,8 +110,13 @@ async def get_event_by_id(event_id: str) -> Optional[Event]:
 
 async def list_events() -> list[Event]:
     try:
-        response = supabase.table("events").select("*").order("id", desc=True).execute()
-        return [Event(**e) for e in response.data] if response.data else []
+        # Fetch events and sort case-insensitively so 'A' and 'a' both appear at top
+        response = supabase.table("events").select("*").execute()
+        if not response.data:
+            return []
+        rows = response.data
+        rows.sort(key=lambda r: (r.get("title") or "").lower())
+        return [Event(**e) for e in rows]
     except Exception as e:
         print(f"Error listing events: {e}")
         return []
