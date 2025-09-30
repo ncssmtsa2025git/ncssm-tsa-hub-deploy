@@ -74,6 +74,28 @@ async def create_event(event_data: dict) -> Event:
         print(f"Error creating event: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
+
+async def update_event(event_id: str, event_data: dict) -> Event:
+    try:
+        response = supabase.table("events").update(event_data).eq("id", event_id).execute()
+        if response.data:
+            return Event(**response.data[0])
+        else:
+            raise HTTPException(status_code=404, detail="Event not found")
+    except Exception as e:
+        print(f"Error updating event: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+async def delete_event(event_id: str) -> bool:
+    try:
+        response = supabase.table("events").delete().eq("id", event_id).execute()
+        # Supabase returns data for deleted rows; if none, treat as not found
+        return bool(response.data)
+    except Exception as e:
+        print(f"Error deleting event: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 async def get_event_by_id(event_id: str) -> Optional[Event]:
     try:
         response = supabase.table("events").select("*").eq("id", event_id).execute()
@@ -90,6 +112,15 @@ async def list_events() -> list[Event]:
         return [Event(**e) for e in response.data] if response.data else []
     except Exception as e:
         print(f"Error listing events: {e}")
+        return []
+
+
+async def list_users() -> list[User]:
+    try:
+        response = supabase.table("users").select("*").order("created_at", desc=False).execute()
+        return [r for r in response.data] if response.data else []
+    except Exception as e:
+        print(f"Error listing users: {e}")
         return []
     
 async def create_team(team_data: dict) -> Team:
@@ -185,6 +216,44 @@ async def list_teams() -> list[Team]:
     except Exception as e:
         print(f"Error listing teams: {e}")
         return []
+
+
+# Whitelist helpers
+async def is_email_whitelisted(email: str) -> bool:
+    try:
+        response = supabase.table("whitelist").select("email").eq("email", email.lower()).execute()
+        return bool(response.data)
+    except Exception as e:
+        print(f"Error checking whitelist for {email}: {e}")
+        return False
+
+
+async def list_whitelist() -> list[str]:
+    try:
+        response = supabase.table("whitelist").select("email").order("added_at", desc=False).execute()
+        return [row["email"] for row in response.data] if response.data else []
+    except Exception as e:
+        print(f"Error listing whitelist: {e}")
+        return []
+
+
+async def add_whitelist_email(email: str) -> bool:
+    try:
+        row = {"email": email.lower()}
+        response = supabase.table("whitelist").insert(row).execute()
+        return bool(response.data)
+    except Exception as e:
+        print(f"Error adding to whitelist: {e}")
+        return False
+
+
+async def remove_whitelist_email(email: str) -> bool:
+    try:
+        response = supabase.table("whitelist").delete().eq("email", email.lower()).execute()
+        return True
+    except Exception as e:
+        print(f"Error removing from whitelist: {e}")
+        return False
 
 
 async def list_user_teams(user_id: str) -> list[Team]:

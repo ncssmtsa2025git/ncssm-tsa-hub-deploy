@@ -7,6 +7,7 @@ import httpx
 import jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 from models.user import User, GoogleUserInfo
 from database import (
@@ -14,9 +15,14 @@ from database import (
     get_user_by_id,
     create_user,
     update_user,
-    supabase
+    supabase,
+    is_email_whitelisted,
+    list_whitelist,
+    add_whitelist_email,
+    remove_whitelist_email,
+    list_users,
 )
-from utils import create_access_token, verify_token
+from utils import create_access_token, verify_token, verify_admin_password, create_admin_token, verify_admin_jwt
 
 import os
 
@@ -32,7 +38,6 @@ GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/au
 ACCESS_COOKIE_NAME = "access_token"
 JWT_EXPIRATION_HOURS = 24
 ACCESS_COOKIE_MAX_AGE = JWT_EXPIRATION_HOURS * 3600
-
 
 # --- Helper functions ---
 def generate_state() -> str:
@@ -94,6 +99,12 @@ async def auth_callback(code: str, state: str, response: Response):
     # Get user info
     google_user = await get_google_user_info(access_token)
 
+    # Enforce whitelist membership via Supabase
+    allowed = await is_email_whitelisted(google_user.email)
+    if not allowed:
+        print(f"Unauthorized login attempt for: {google_user.email}")
+        raise HTTPException(status_code=403, detail="Email not allowed")
+
     # Find or create user
     existing_user = await get_user_by_google_id(google_user.id)
     if existing_user:
@@ -124,6 +135,47 @@ async def auth_callback(code: str, state: str, response: Response):
     )
     return redirect
 
+@router.get("/users")
+async def admin_list_users(admin: None = Depends(verify_admin_jwt)):
+    """Admin-only: list all users."""
+    users = await list_users()
+    return {"users": users}
+
+@router.get("/whitelist")
+async def get_whitelist(admin: None = Depends(verify_admin_jwt)):
+    """List whitelist entries. Protected by admin JWT in `X-Admin-Token` header."""
+    return {"whitelist": await list_whitelist()}
+
+
+@router.post("/whitelist")
+async def add_whitelist(email: str, admin: None = Depends(verify_admin_jwt)):
+    ok = await add_whitelist_email(email)
+    if not ok:
+        raise HTTPException(status_code=500, detail="Failed to add email")
+    return {"added": email}
+
+
+@router.delete("/whitelist")
+async def delete_whitelist(email: str, admin: None = Depends(verify_admin_jwt)):
+    ok = await remove_whitelist_email(email)
+    if not ok:
+        raise HTTPException(status_code=500, detail="Failed to remove email")
+    return {"removed": email}
+
+
+
+class AdminLoginRequest(BaseModel):
+    password: str
+
+
+@router.post("/admin/login")
+async def admin_login(payload: AdminLoginRequest):
+    """Exchange admin password for a short-lived admin JWT. Send JSON body: {"password":"..."}"""
+    if not verify_admin_password(payload.password):
+        raise HTTPException(status_code=401, detail="Invalid admin credentials")
+    token = create_admin_token()
+    return {"admin_token": token}
+
 
 @router.get("/me", response_model=User)
 async def get_current_user(user_id: str = Depends(verify_token)):
@@ -131,7 +183,6 @@ async def get_current_user(user_id: str = Depends(verify_token)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-
 
 @router.post("/logout")
 async def logout(response: Response):

@@ -45,3 +45,11 @@ CREATE TABLE IF NOT EXISTS team_members (
 );
 
 CREATE INDEX IF NOT EXISTS idx_team_members_user_id ON team_members(user_id);
+
+-- Whitelist table for allowed emails
+CREATE TABLE IF NOT EXISTS whitelist (
+    email VARCHAR(255) PRIMARY KEY,
+    added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_whitelist_email ON whitelist(email);

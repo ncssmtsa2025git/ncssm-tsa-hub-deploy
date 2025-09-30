@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List
+from typing import List, Optional
+import os
 
 from models.team import Team
 from models.user import User
 from database import create_team, get_team_by_id, list_teams, list_user_teams
-from utils import verify_token
+from utils import verify_token, verify_admin_jwt
 
 router = APIRouter(
     prefix="/teams",
@@ -14,7 +15,7 @@ router = APIRouter(
 
 # Create team
 @router.post("/", response_model=Team)
-async def create_team_route(team_data: dict, user_id: str = Depends(verify_token)):
+async def create_team_route(team_data: dict, admin: None = Depends(verify_admin_jwt)):
     return await create_team(team_data)
 
 

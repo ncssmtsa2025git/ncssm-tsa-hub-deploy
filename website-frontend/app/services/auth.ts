@@ -1,10 +1,9 @@
 import { User } from "../models/user";
 
-
-export const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export async function startGoogleLogin(): Promise<Window | null> {
-  const res = await fetch(`${BACKEND}/auth/login`, {
+  const res = await fetch(`${API_BASE_URL}/auth/login`, {
     credentials: "include",
   });
 
@@ -17,7 +16,7 @@ export async function startGoogleLogin(): Promise<Window | null> {
 }
 
 export async function fetchUser(): Promise<User | null> {
-  const res = await fetch(`${BACKEND}/auth/me`, {
+  const res = await fetch(`${API_BASE_URL}/auth/me`, {
     credentials: "include",
   });
 
@@ -31,7 +30,7 @@ export async function fetchUser(): Promise<User | null> {
 }
 
 export async function logout(): Promise<void> {
-  await fetch(`${BACKEND}/auth/logout`, {
+  await fetch(`${API_BASE_URL}/auth/logout`, {
     method: "POST",
     credentials: "include",
   });

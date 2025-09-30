@@ -9,6 +9,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Event } from "../models/event";
+import { fetchEvents } from "../services/events";
 
 export default function EventsPage(): JSX.Element {
   const [events, setEvents] = useState<Event[]>([]);
@@ -18,17 +19,12 @@ export default function EventsPage(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch events from backend
   useEffect(() => {
-    async function fetchEvents() {
+    async function load() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch("http://localhost:8000/events/"); // adjust URL if needed
-        if (!res.ok) {
-          throw new Error(`Failed to fetch events: ${res.status}`);
-        }
-        const data: Event[] = await res.json();
+        const data = await fetchEvents();
         setEvents(data);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : String(err));
@@ -36,7 +32,7 @@ export default function EventsPage(): JSX.Element {
         setLoading(false);
       }
     }
-    fetchEvents();
+    load();
   }, []);
 
   // Derive categories dynamically from events
