@@ -251,7 +251,6 @@ export default function EventsTab() {
           onClose={handleCloseForm}
           onSave={handleSave}
           onDelete={handleDelete}
-          categories={uniqueCategories}
         />
       )}
     </div>

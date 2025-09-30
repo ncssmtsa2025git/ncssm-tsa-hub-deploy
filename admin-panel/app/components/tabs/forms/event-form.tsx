@@ -8,10 +8,9 @@ interface EventFormProps {
   onClose: () => void;
   onSave: (event: Partial<EventModel>) => void;
   onDelete?: (id: string) => void;
-  categories?: string[];
 }
 
-export default function EventForm({ event, onClose, onSave, onDelete, categories }: EventFormProps) {
+export default function EventForm({ event, onClose, onSave, onDelete }: EventFormProps) {
   const [formData, setFormData] = useState<Partial<EventModel>>({
     title: '',
     theme: '',
@@ -129,13 +128,23 @@ export default function EventForm({ event, onClose, onSave, onDelete, categories
                 <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
                   Category *
                 </label>
+                {/* Hardcoded categories - do not update dynamically from props */}
                 <select
                   name="category"
                   value={formData.category || (event ? event.category || 'Engineering' : 'Engineering')}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all duration-200 bg-white"
                 >
-                  {((categories && categories.length ? categories : ['Engineering', 'Science', 'Technology', 'Design'])).map((cat: string) => (
+                  {([
+                    'Architecture & Construction',
+                    'Communications',
+                    'Computer Science & IT',
+                    'Leadership',
+                    'Manufacturing',
+                    'STEM',
+                    'STEM & Arts',
+                    'Tech & Research',
+                  ]).map((cat: string) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
