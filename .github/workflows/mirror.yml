@@ -12,6 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug token length
+        run: |
+          echo "Token length: ${#MIRROR_TOKEN}"
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+
       - name: Push to mirror
         run: |
           git config user.name "GitHub Action"
