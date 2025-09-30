@@ -1,4 +1,3 @@
-import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -6,6 +5,7 @@ from datetime import datetime
 from routes.auth import router as auth_router
 from routes.events import router as event_router
 from routes.teams import router as team_router
+from routes.checkins import router as checkin_router
 
 app = FastAPI(title="Google OAuth 2 API", version="1.0.0")
 
@@ -15,6 +15,8 @@ origins = [
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
+    "https://ncssm-tsa-hub-admin.vercel.app",
+    "https://ncssm-tsa-hub.vercel.app"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -28,11 +30,12 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(event_router)
 app.include_router(team_router)
+app.include_router(checkin_router)
 
 
 @app.get("/")
 async def root():
-    return {"message": "Google OAuth 2 API with Supabase"}
+    return {"message": "NCSSM-D TSA Hub API"}
 
 
 @app.get("/health")

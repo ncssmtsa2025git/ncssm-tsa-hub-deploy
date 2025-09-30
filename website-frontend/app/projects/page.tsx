@@ -1,11 +1,11 @@
 "use client";
-import { JSX, useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { Search, Calendar, Users, ExternalLink, Trophy } from "lucide-react";
 import type { Project } from "../models/project";
 
 // ---- optional: CSV helper kept in case you re-add Export later ----
-function toCSV(rows: Record<string, unknown>[]): string {
+export function toCSV(rows: Record<string, unknown>[]): string {
   if (!rows.length) return "";
   const headers = Object.keys(rows[0]);
   const escape = (v: unknown) => {
@@ -14,7 +14,7 @@ function toCSV(rows: Record<string, unknown>[]): string {
   };
   const headerLine = headers.map(escape).join(",");
   const body = rows
-    .map((row) => headers.map((h) => escape((row as any)[h])).join(","))
+  .map((row) => headers.map((h) => escape((row as Record<string, unknown>)[h])).join(","))
     .join("\n");
   return `${headerLine}\n${body}`;
 }
@@ -37,7 +37,7 @@ function normalizeProject(p: PartialProject): Project {
   };
 }
 
-export default function ProjectsPage(): JSX.Element {
+export default function ProjectsPage(): React.ReactElement {
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEventName, setSelectedEventName] = useState<string>("All");

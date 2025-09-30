@@ -66,7 +66,7 @@ export default function UsersTab() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">NCSSM TSA Users</h2>
+      <h2 className="text-2xl font-bold text-gray-900">Users</h2>
 
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">Registered Users</h3>

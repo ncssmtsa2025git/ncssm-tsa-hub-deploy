@@ -18,7 +18,7 @@ function readGalleryJson(): GalleryJsonItem[] {
     if (!Array.isArray(parsed)) return [];
 
     return parsed.filter(
-      (x: any) => x && typeof x.src === "string" && typeof x.title === "string" && typeof x.date === "string"
+      (x) => x && typeof x.src === "string" && typeof x.title === "string" && typeof x.date === "string"
     );
   } catch {
     return [];
@@ -38,7 +38,7 @@ export default function Page() {
           </div>
           <h1 className="text-5xl font-bold mb-6">NCSSM TSA Gallery</h1>
           <p className="text-xl mb-8 max-w-4xl mx-auto">
-            Highlights from Nationals and workshops.
+            Highlights from Nationals and Workshops.
           </p>
         </div>
       </section>

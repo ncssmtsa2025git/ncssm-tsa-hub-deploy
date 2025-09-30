@@ -1,5 +1,5 @@
 "use client";
-import { JSX, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   Download,
@@ -11,7 +11,7 @@ import {
 import { Event } from "../models/event";
 import { fetchEvents } from "../services/events";
 
-export default function EventsPage(): JSX.Element {
+export default function EventsPage(): React.ReactElement {
   const [events, setEvents] = useState<Event[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");

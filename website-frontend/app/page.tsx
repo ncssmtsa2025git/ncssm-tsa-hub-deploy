@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, Instagram, Camera, ChevronLeft, ChevronRight } from "lucide-react";
-import { JSX, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 
 type GalleryItem = {
@@ -11,7 +11,7 @@ type GalleryItem = {
   date: string;  // e.g. "Nationals 2025"
 };
 
-export default function Home(): JSX.Element {
+export default function Home(): React.ReactElement {
   // ===== Load gallery manifest =====
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -25,10 +25,12 @@ export default function Home(): JSX.Element {
       try {
         const res = await fetch("/data/gallery.json", { cache: "no-store" });
         if (!res.ok) return;
-        const data = (await res.json()) as any[];
-        const cleaned = (Array.isArray(data) ? data : []).filter(
-          (x) => x && typeof x.src === "string" && typeof x.title === "string" && typeof x.date === "string"
-        ) as GalleryItem[];
+        const raw = (await res.json()) as unknown;
+        const data = Array.isArray(raw) ? raw : [];
+        const cleaned = (data as unknown[]).filter((x) => {
+          const obj = x as Record<string, unknown> | null;
+          return !!obj && typeof obj.src === "string" && typeof obj.title === "string" && typeof obj.date === "string";
+        }) as GalleryItem[];
         if (alive) setGallery(cleaned);
       } catch {
         // ignore; will show placeholders

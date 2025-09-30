@@ -1,0 +1,28 @@
+# @format
+
+name: Sync Repos
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+
+      - name: Push to destination repository
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Action"
+          git clone https://ncssmtsa2025git:${{ secrets.PAT }}@github.com/ncssmtsa2025git/ncssm-tsa-hub-deploy.git
+          cd ncssm-tsa-hub-deploy
+          git remote add ncssm-tsa-hub https://CodeWithAaditya:${{ secrets.PAT }}@github.com/CodeWithAaditya/ncssm-tsa-hub.git
+          git remote update
+          git merge ncssm-tsa-hub/master
+          git remote set-url origin https://ncssmtsa2025git:${{ secrets.PAT }}@github.com/ncssmtsa2025git/ncssm-tsa-hub-deploy.git
+          git push origin main

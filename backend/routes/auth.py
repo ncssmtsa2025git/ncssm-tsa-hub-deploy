@@ -1,11 +1,7 @@
-from fastapi import APIRouter, HTTPException, Response, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import RedirectResponse
-from fastapi.security import HTTPBearer
-from typing import Optional
 import secrets
 import httpx
-import jwt
-from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
@@ -15,7 +11,6 @@ from database import (
     get_user_by_id,
     create_user,
     update_user,
-    supabase,
     is_email_whitelisted,
     list_whitelist,
     add_whitelist_email,
@@ -34,10 +29,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/callback")
+REDIRECT_RESPONSE_URL = os.getenv("REDIRECT_RESPONSE_URL", "http://localhost:3000/auth/success")
 
-ACCESS_COOKIE_NAME = "access_token"
 JWT_EXPIRATION_HOURS = 24
-ACCESS_COOKIE_MAX_AGE = JWT_EXPIRATION_HOURS * 3600
 
 # --- Helper functions ---
 def generate_state() -> str:
@@ -88,7 +82,7 @@ async def login():
 
 
 @router.get("/callback")
-async def auth_callback(code: str, state: str, response: Response):
+async def auth_callback(code: str, state: str):
     if not code:
         raise HTTPException(status_code=400, detail="Authorization code not provided")
 
@@ -123,17 +117,10 @@ async def auth_callback(code: str, state: str, response: Response):
 
     jwt_token = create_access_token({"sub": user.id, "email": user.email})
 
-    redirect = RedirectResponse(url="http://localhost:3000/auth/success")
-    redirect.set_cookie(
-        key=ACCESS_COOKIE_NAME,
-        value=jwt_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=ACCESS_COOKIE_MAX_AGE,
-        expires=ACCESS_COOKIE_MAX_AGE,
-    )
-    return redirect
+    # Instead of setting a cookie, redirect with token in URL fragment so frontend JS can read it
+    # e.g. REDIRECT_RESPONSE_URL#access_token=<token>
+    redirect_url = f"{REDIRECT_RESPONSE_URL}#access_token={jwt_token}"
+    return RedirectResponse(url=redirect_url)
 
 @router.get("/users")
 async def admin_list_users(admin: None = Depends(verify_admin_jwt)):
@@ -185,6 +172,7 @@ async def get_current_user(user_id: str = Depends(verify_token)):
     return user
 
 @router.post("/logout")
-async def logout(response: Response):
-    response.delete_cookie(ACCESS_COOKIE_NAME)
+async def logout():
+    # With header-based JWTs the client should discard the token locally.
+    # Server-side no-op for stateless JWTs (unless you implement revocation).
     return {"message": "Logged out successfully"}

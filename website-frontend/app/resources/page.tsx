@@ -1,8 +1,8 @@
 'use client'
 
-import { JSX } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import { ExternalLink, BookOpen, Users, Calendar, Info } from 'lucide-react'
+import { ExternalLink, BookOpen } from 'lucide-react'
 
 type Resource = {
   title: string
@@ -50,7 +50,7 @@ const resources: Resource[] = [
   },
 ]
 
-export default function ResourcesPage(): JSX.Element {
+export default function ResourcesPage(): React.ReactElement {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
