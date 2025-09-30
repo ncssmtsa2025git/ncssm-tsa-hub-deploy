@@ -49,7 +49,7 @@ def verify_token(authorization: Optional[str] = Header(None)) -> str:
 
 
 # Admin helpers
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 def verify_admin_password(password: str) -> bool:
