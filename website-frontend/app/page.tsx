@@ -118,7 +118,8 @@ export default function Home(): React.ReactElement {
             rel="noopener noreferrer"
             className="flex items-center justify-center px-8 py-4 rounded-lg font-semibold
                       bg-white/15 backdrop-blur-md border border-white/60 text-white
-                      hover:bg-white/30 transition-all duration-300"
+                      hover:bg-white/30 transition-all duration-300
+                      min-w-[200px]"
           >
             <Instagram className="w-5 h-5 mr-2 text-pink-500" />
             <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
@@ -129,7 +130,7 @@ export default function Home(): React.ReactElement {
           {/* Events button */}
           <Link
             href="/events"
-            className="bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
+            className="min-w-[200px] bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
           >
             Explore Events <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
@@ -138,7 +139,7 @@ export default function Home(): React.ReactElement {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-bounce">
           <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
             <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
           </div>
