@@ -38,7 +38,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function Portal(): JSX.Element {
-  const { user } = useAuth();
+  const { user, fetchWithAuth } = useAuth();
   const [teams, setTeams] = useState<Team[]>([]);
   const [teamCheckins, setTeamCheckins] = useState<Record<string, Checkin[]>>({});
   const [viewingCheckin, setViewingCheckin] = useState<Checkin | null>(null);
@@ -50,7 +50,7 @@ export default function Portal(): JSX.Element {
   useEffect(() => {
     // load upcoming dates from public JSON
     loadUpcomingDates().then((d) => setUpcomingDates(d)).catch(() => setUpcomingDates([]));
-  }, []);
+  }, [fetchWithAuth]);
 
   // validation helper: accepts http/https URLs
   const isValidUrl = (s: string) => {
@@ -68,14 +68,14 @@ export default function Portal(): JSX.Element {
     const loadTeams = async () => {
       setLoading(true);
       try {
-        const data = await fetchTeams();
+  const data = await fetchTeams(fetchWithAuth);
         setTeams(data);
         // fetch checkins for each team
         const checkinsMap: Record<string, Checkin[]> = {};
         await Promise.all(
           data.map(async (t) => {
             try {
-              const c = await getTeamCheckins(t.id);
+              const c = await getTeamCheckins(t.id, fetchWithAuth);
               checkinsMap[t.id] = c;
             } catch {
               checkinsMap[t.id] = [];
@@ -293,8 +293,8 @@ export default function Portal(): JSX.Element {
                       try {
                         const links = newLinks.map((s) => s.trim()).filter((s) => s.length > 0);
                         const payload: CheckinCreate = { links };
-                        await createCheckin(uploadingForTeam!, payload);
-                        const updated = await getTeamCheckins(uploadingForTeam!);
+                        await createCheckin(uploadingForTeam!, payload, fetchWithAuth);
+                        const updated = await getTeamCheckins(uploadingForTeam!, fetchWithAuth);
                         setTeamCheckins((prev) => ({ ...prev, [uploadingForTeam!]: updated }));
                         setUploadingForTeam(null);
                       } catch (err) {

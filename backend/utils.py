@@ -2,7 +2,7 @@ import os
 import secrets
 import jwt
 from datetime import datetime, timedelta
-from fastapi import HTTPException, Cookie, Header
+from fastapi import HTTPException, Header
 from passlib.context import CryptContext
 from typing import Optional
 from dotenv import load_dotenv
@@ -26,13 +26,20 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
-def verify_token(access_token: Optional[str] = Cookie(None)) -> str:
-    """Verify JWT token from cookie and return user_id (sub)"""
-    if not access_token:
+def verify_token(authorization: Optional[str] = Header(None)) -> str:
+    """Verify JWT token from Authorization header (Bearer) and return user_id (sub).
+    """
+    if not authorization:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+
+    token = parts[1]
+
     try:
-        payload = jwt.decode(access_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id: str = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token")

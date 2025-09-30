@@ -17,6 +17,11 @@ export default function Header(): React.ReactElement {
 
   const { user, login, logoutUser } = useAuth();  
 
+  // Avoid rendering auth-dependent UI during SSR to prevent hydration mismatches.
+  // We only show the real AuthActionBar after the client has mounted.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   // Base link style w/ hover underline animation
   const baseLink =
     "relative pb-1 transition-colors hover:text-blue-200 " +
@@ -50,11 +55,7 @@ export default function Header(): React.ReactElement {
     );
   };
 
-  // useEffect(() => {
-  //   fetchUser()
-  //     .then((u) => {setUser(u as unknown as User); console.log(u)}) // u is User | null
-  //     .catch(() => setUser(null));
-  // }, []);
+  // fetchUser is now handled by AuthProvider and token-based flow.
 
   // useEffect(() => {
   //   const channel = new BroadcastChannel("auth");
@@ -141,7 +142,11 @@ export default function Header(): React.ReactElement {
                   Past Projects
                 </span>
               </NavLink>
-              <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
+              {mounted ? (
+                <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
+              ) : (
+                <div className="w-[9rem] h-10" />
+              )}
             </div>
 
             {/* Mobile hamburger */}
@@ -219,8 +224,12 @@ export default function Header(): React.ReactElement {
                 Past Projects
               </Link>
 
-              <div className="pt-2 border-t border-white/10 mt-2">
-                <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
+                <div className="pt-2 border-t border-white/10 mt-2">
+                  {mounted ? (
+                    <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
+                  ) : (
+                    <div className="w-full h-10" />
+                  )}
               </div>
             </nav>
           </div>

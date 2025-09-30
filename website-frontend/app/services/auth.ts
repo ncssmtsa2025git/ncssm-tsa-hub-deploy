@@ -4,7 +4,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export async function startGoogleLogin(): Promise<Window | null> {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
-    credentials: "include",
   });
 
   if (!res.ok) {
@@ -16,8 +15,12 @@ export async function startGoogleLogin(): Promise<Window | null> {
 }
 
 export async function fetchUser(): Promise<User | null> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
   const res = await fetch(`${API_BASE_URL}/auth/me`, {
-    credentials: "include",
+    headers,
   });
 
   if (!res.ok) {
@@ -30,8 +33,12 @@ export async function fetchUser(): Promise<User | null> {
 }
 
 export async function logout(): Promise<void> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
   await fetch(`${API_BASE_URL}/auth/logout`, {
     method: "POST",
-    credentials: "include",
+    headers,
   });
 }
