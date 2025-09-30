@@ -29,6 +29,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/callback")
+REDIRECT_RESPONSE_URL = os.getenv("REDIRECT_RESPONSE_URL", "http://localhost:3000/auth/success")
 
 ACCESS_COOKIE_NAME = "access_token"
 JWT_EXPIRATION_HOURS = 24
@@ -118,7 +119,7 @@ async def auth_callback(code: str, state: str, response: Response):
 
     jwt_token = create_access_token({"sub": user.id, "email": user.email})
 
-    redirect = RedirectResponse(url="http://localhost:3000/auth/success")
+    redirect = RedirectResponse(url=REDIRECT_RESPONSE_URL)
     redirect.set_cookie(
         key=ACCESS_COOKIE_NAME,
         value=jwt_token,

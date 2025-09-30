@@ -15,6 +15,8 @@ origins = [
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
+    "https://ncssm-tsa-hub-admin.vercel.app",
+    "https://ncssm-tsa-hub.vercel.app"
 ]
 app.add_middleware(
     CORSMiddleware,
