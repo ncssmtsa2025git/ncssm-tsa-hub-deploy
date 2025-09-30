@@ -125,7 +125,7 @@ export default function Header(): JSX.Element {
                 />
               </div>
               <h1 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold whitespace-nowrap truncate max-w-full">
-                NCSSM Technology Student Association
+                NCSSM-D Technology Student Association
               </h1>
             </div>
 

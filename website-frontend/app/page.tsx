@@ -103,10 +103,10 @@ export default function Home(): JSX.Element {
 
         {/* Hero Content */}
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">NCSSM TSA</h1>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">NCSSM Durham TSA</h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed text-white/90">
             Empowering students through technology, innovation, and competition
-            at the North Carolina School of Science and Mathematics
+            at the North Carolina School of Science and Mathematics Durham
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
@@ -114,11 +114,11 @@ export default function Home(): JSX.Element {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center px-8 py-4 rounded-lg font-semibold
-                          bg-white/15 backdrop-blur-md border border-white/50 text-white
+                          bg-white/15 backdrop-blur-md border border-white/60 text-white
                           hover:bg-white/30 transition-all duration-300"
               >
               <Instagram className="w-5 h-5 mr-2 text-pink-500" />
-              <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
                 Follow Us! 
               </span>
               </a>

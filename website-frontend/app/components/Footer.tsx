@@ -9,9 +9,9 @@ export default function Footer(): JSX.Element {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Left: About */}
           <div>
-            <h3 className="text-xl font-bold mb-4">NCSSM TSA</h3>
+            <h3 className="text-xl font-bold mb-4">NCSSM-D TSA</h3>
             <p className="text-gray-400 mb-4">
-              Technology Student Association at the North Carolina School of Science and Mathematics
+              Technology Student Association at the North Carolina School of Science and Mathematics Durham
             </p>
             <a
               href="https://www.instagram.com/ncssmtsa?utm_source=ig_web_button_share_sheet&igsh=MXRyZWYwdmxreXBsaQ=="
