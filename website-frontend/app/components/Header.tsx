@@ -114,8 +114,8 @@ export default function Header(): JSX.Element {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-[72px]">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="bg-white rounded-full flex items-center justify-center">
+            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+              <div className="bg-white rounded-full flex items-center justify-center hidden lg:flex">
                 <Image
                   width={56}
                   height={56}
@@ -124,18 +124,18 @@ export default function Header(): JSX.Element {
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full"
                 />
               </div>
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold whitespace-nowrap">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold whitespace-nowrap truncate max-w-full">
                 NCSSM Technology Student Association
               </h1>
             </div>
 
-            <div className="hidden md:flex items-center gap-8 text-lg">
+            <div className="hidden xl:flex items-center gap-6 text-lg">
               <NavLink href="/">Home</NavLink>
               <NavLink href="/events">Events</NavLink>
               <NavLink href="/gallery">Gallery</NavLink>
               <NavLink href="/resources">Resources</NavLink>
               <NavLink href="/projects" >
-                <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                <span className="block md:max-w-[6.5rem] lg:max-w-[8rem] xl:max-w-[9.5rem] truncate">
                   Past Projects
                 </span>
               </NavLink>
@@ -144,7 +144,7 @@ export default function Header(): JSX.Element {
 
             {/* Mobile hamburger */}
             <button
-              className="md:hidden inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+              className="xl:hidden inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
               aria-label="Toggle navigation"
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((v) => !v)}
@@ -159,7 +159,7 @@ export default function Header(): JSX.Element {
 
           {/* Mobile dropdown */}
           <div
-            className={`md:hidden overflow-hidden transition-[max-height,opacity]
+            className={`xl:hidden overflow-hidden transition-[max-height,opacity]
               duration-300 ${
                 mobileOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
               }`}
