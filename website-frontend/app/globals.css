@@ -1,0 +1,101 @@
+
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0b1726; /* deep navy */
+  --ncssm-gold: #d4a017;
+  --ncssm-accent: #1e6f9f;
+  --muted: #657887;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.site-header {
+  border-bottom: 4px solid var(--ncssm-gold);
+  background: linear-gradient(180deg, rgba(11,23,38,0.02), transparent);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+}
+.logo {
+  font-weight: 700;
+  color: var(--foreground);
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+.tag {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.main-nav .nav-link {
+  margin-left: 1rem;
+  color: var(--foreground);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.logo { display: inline-block }
+
+.site-footer {
+  border-top: 1px solid #e6e6e6;
+  margin-top: 3rem;
+  padding: 1.25rem 0;
+  background: #fafafa;
+}
+.footer-inner {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.muted { color: var(--muted); font-size: 0.9rem }
+
+/* Page-specific components */
+.hero {
+  padding: 3rem 0;
+  display:flex;
+  align-items:center;
+  gap:2rem;
+}
+.hero .copy { max-width: 620px }
+.hero h1 { font-size:2rem; color:var(--foreground); margin-bottom:0.5rem }
+.card-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem }
+.card { border:1px solid #e8e8e8; padding:1rem; border-radius:8px; background: #fff; display:block }
+.card h3 { margin:0 0 0.5rem 0 }
+.photo-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:0.5rem }
+.photo-grid img { width:100%; height:160px; object-fit:cover; border-radius:6px }
+
+.tag-badge {
+  display:inline-block;
+  background:#eef6ff;
+  color:var(--ncssm-accent);
+  padding:0.25rem 0.5rem;
+  border-radius:999px;
+  font-size:0.75rem;
+  font-weight:600;
+}
+
+/* globals.css */
+.tag-badge {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200;
+}
