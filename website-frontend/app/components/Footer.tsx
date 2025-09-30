@@ -17,10 +17,12 @@ export default function Footer(): JSX.Element {
               href="https://www.instagram.com/ncssmtsa?utm_source=ig_web_button_share_sheet&igsh=MXRyZWYwdmxreXBsaQ=="
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center text-gray-400 hover:text-pink-500 transition-colors"
+              className="inline-flex items-center text-gray-100 hover:scale-105 transition-transform duration-200"
             >
-              <Instagram className="w-5 h-5 mr-2" />
-              <span>Follow us on Instagram!</span>
+              <Instagram className="w-5 h-5 mr-2 text-pink-500" />
+              <span className="bg-gradient-to-r from-pink-500 to-yellow-500 bg-clip-text text-transparent font-semibold">
+                Follow us on Instagram!
+              </span>
             </a>
           </div>
 
