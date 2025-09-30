@@ -90,7 +90,7 @@ export default function Portal(): JSX.Element {
       }
     };
     loadTeams();
-  }, []);
+  }, [fetchWithAuth]);
 
   return (
     <ProtectedRoute>
