@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List, Optional
-import os
+from typing import List
 
 from models.team import Team
-from models.user import User
 from database import create_team, get_team_by_id, list_teams, list_user_teams, update_team, delete_team
 from utils import verify_token, verify_admin_jwt
 

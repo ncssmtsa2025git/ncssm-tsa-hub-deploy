@@ -1,11 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Depends
 from fastapi.responses import RedirectResponse
-from fastapi.security import HTTPBearer
-from typing import Optional
 import secrets
 import httpx
-import jwt
-from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
@@ -15,7 +11,6 @@ from database import (
     get_user_by_id,
     create_user,
     update_user,
-    supabase,
     is_email_whitelisted,
     list_whitelist,
     add_whitelist_email,

@@ -2,13 +2,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import AuthActionBar from "./AuthActionBar";
-import { JSX, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 
-export default function Header(): JSX.Element {
+export default function Header(): React.ReactElement {
   const [visible, setVisible] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const lastY = useRef(0);

@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "./components/Footer";
-// Head not needed with app router metadata
 import Header from "./components/Header";
 import { AuthProvider } from "./contexts/AuthContext";
-import  Head  from "next/head";
+// Head not needed with app router metadata
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

@@ -2,7 +2,7 @@ import os
 import secrets
 import jwt
 from datetime import datetime, timedelta
-from fastapi import HTTPException, Cookie, Header, Depends
+from fastapi import HTTPException, Cookie, Header
 from passlib.context import CryptContext
 from typing import Optional
 from dotenv import load_dotenv

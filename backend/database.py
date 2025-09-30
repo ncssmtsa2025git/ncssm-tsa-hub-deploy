@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from models.team import Team
 from models.user import User
 from models.event import Event
-from models.checkin import Checkin, CheckinCreate
+from models.checkin import Checkin
 
 load_dotenv()
 

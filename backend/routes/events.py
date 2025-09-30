@@ -1,10 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
-from typing import List, Optional
+from typing import List
 
 from models.event import Event
 from database import create_event, get_event_by_id, list_events, update_event, delete_event
 from utils import verify_token, verify_admin_jwt
-import os
 
 router = APIRouter(prefix="/events", tags=["events"])
 

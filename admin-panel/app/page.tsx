@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { JSX, useState } from 'react';
+import { useState } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import EventsTab from './components/tabs/events';
@@ -13,7 +13,7 @@ export default function AdminPage() {
   const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('teams');
 
-  const tabs: { id: TabType; label: string; icon: JSX.Element }[] = [
+  const tabs: { id: TabType; label: string; icon: React.ReactElement }[] = [
     { 
       id: 'teams', 
       label: 'Teams',
