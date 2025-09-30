@@ -16,7 +16,7 @@ export default function EventForm({ event, onClose, onSave, onDelete }: EventFor
     theme: '',
     fullThemeUrl: '',
     description: '',
-    category: 'Engineering',
+    category: 'Architecture & Construction',
     teamSize: '1',
     types: [],
     rubricUrl: '',
@@ -131,7 +131,7 @@ export default function EventForm({ event, onClose, onSave, onDelete }: EventFor
                 {/* Hardcoded categories - do not update dynamically from props */}
                 <select
                   name="category"
-                  value={formData.category || (event ? event.category || 'Engineering' : 'Engineering')}
+                  value={formData.category || (event ? event.category || 'Architecture & Construction' : 'Architecture & Construction')}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all duration-200 bg-white"
                 >
