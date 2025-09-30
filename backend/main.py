@@ -35,7 +35,7 @@ app.include_router(checkin_router)
 
 @app.get("/")
 async def root():
-    return {"message": "Google OAuth 2 API with Supabase"}
+    return {"message": "NCSSM-D TSA Hub API"}
 
 
 @app.get("/health")
