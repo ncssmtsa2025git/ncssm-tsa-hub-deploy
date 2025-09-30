@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Camera, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Instagram, Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { JSX, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 
@@ -109,7 +109,20 @@ export default function Home(): JSX.Element {
             at the North Carolina School of Science and Mathematics
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
+              <a
+                href="https://www.instagram.com/ncssmtsa?utm_source=ig_web_button_share_sheet&igsh=MXRyZWYwdmxreXBsaQ=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center px-8 py-4 rounded-lg font-semibold
+                          bg-white/15 backdrop-blur-md border border-white/50 text-white
+                          hover:bg-white/30 transition-all duration-300"
+              >
+              <Instagram className="w-5 h-5 mr-2 text-pink-500" />
+              <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent">
+                Follow Us! 
+              </span>
+              </a>
+              <Link
               href="/events"
               className="bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
             >
