@@ -110,31 +110,36 @@ export default function Home(): React.ReactElement {
             Empowering students through technology, innovation, and competition
             at the North Carolina School of Science and Mathematics Durham
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="https://www.instagram.com/ncssmtsa?utm_source=ig_web_button_share_sheet&igsh=MXRyZWYwdmxreXBsaQ=="
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center px-8 py-4 rounded-lg font-semibold
-                          bg-white/15 backdrop-blur-md border border-white/60 text-white
-                          hover:bg-white/30 transition-all duration-300"
-              >
-              <Instagram className="w-5 h-5 mr-2 text-pink-500" />
-              <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
-                Follow Us! 
-              </span>
-              </a>
-              <Link
-              href="/events"
-              className="bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
-            >
-              Explore Events <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </div>
+          <div className="flex flex-row flex-wrap gap-4 justify-center">
+          {/* Instagram button */}
+          <a
+            href="https://www.instagram.com/ncssmtsa?utm_source=ig_web_button_share_sheet&igsh=MXRyZWYwdmxreXBsaQ=="
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center px-8 py-4 rounded-lg font-semibold
+                      bg-white/15 backdrop-blur-md border border-white/60 text-white
+                      hover:bg-white/30 transition-all duration-300
+                      min-w-[200px]"
+          >
+            <Instagram className="w-5 h-5 mr-2 text-pink-500" />
+            <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
+              Follow Us!
+            </span>
+          </a>
+
+          {/* Events button */}
+          <Link
+            href="/events"
+            className="min-w-[200px] bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
+          >
+            Explore Events <ArrowRight className="ml-2 h-5 w-5" />
+          </Link>
+        </div>
+
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-bounce">
           <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
             <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
           </div>
@@ -153,13 +158,13 @@ export default function Home(): React.ReactElement {
               <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
                 <Image
                   src="/officers/muhilan.JPEG"
-                  alt="Muhilian Krishnan"
+                  alt="Muhilan Krishnan"
                   width={400}
                   height={400}
                   className="object-cover w-full h-full"
                 />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Muhilian Krishnan</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Muhilan Krishnan</h3>
               <p className="text-base font-medium text-blue-600 mb-2">President</p>
               <p className="text-sm text-gray-600">krishnan26m@ncssm.edu</p>
             </div>

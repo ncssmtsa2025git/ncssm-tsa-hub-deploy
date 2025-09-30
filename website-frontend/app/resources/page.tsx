@@ -13,6 +13,12 @@ type Resource = {
 
 const resources: Resource[] = [
   {
+    title: 'Events List',
+    description: 'Full categorized list of events',
+    href: 'https://tsaweb.org/competitions',
+    category: 'TSA',
+  },
+  {
     title: 'Events Manager',
     description: 'See & sign up for events.',
     href: 'https://docs.google.com/spreadsheets/d/1TbLTrIRu7-l_Uhu94ux0SDNcvHvIvzpCRTqWR_-HfA8/edit?usp=sharing',
@@ -42,12 +48,24 @@ const resources: Resource[] = [
     href: 'https://tsamembership.registermychapter.com/members#',
     category: 'TSA',
   },
-    {
+  {
     title: 'TSACE',
     description: 'Database of past projects from across the nation',
     href: 'https://www.tsace.org/projects',
     category: 'TSA',
   },
+  {
+    title: 'High School Competitive Events Directory',
+    description: 'Quick links to multiple resources',
+    href: 'https://www.nctsa.org/high-school-events',
+    category: 'TSA',
+  },
+  {
+    title: 'Competition Updates',
+    description: 'View yearly event-specific changes',
+    href: 'https://tsaweb.org/competitions/competition-updates',
+    category: 'TSA',
+  }
 ]
 
 export default function ResourcesPage(): React.ReactElement {
