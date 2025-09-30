@@ -164,7 +164,7 @@ export default function Home(): React.ReactElement {
                   className="object-cover w-full h-full"
                 />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Muhilian Krishnan</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Muhilan Krishnan</h3>
               <p className="text-base font-medium text-blue-600 mb-2">President</p>
               <p className="text-sm text-gray-600">krishnan26m@ncssm.edu</p>
             </div>
