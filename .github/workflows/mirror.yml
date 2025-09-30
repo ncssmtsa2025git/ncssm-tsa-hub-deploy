@@ -12,19 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Debug token length
-        run: |
-          echo "Token length: ${#MIRROR_TOKEN}"
+      - name: Push to mirror
         env:
           MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
-
-      - name: Push to mirror
         run: |
           git config user.name "GitHub Action"
           git config user.email "actions@github.com"
 
-          # Add mirror remote with PAT
-          git remote add mirror https://x-access-token:${{ secrets.MIRROR_TOKEN }}@github.com/ncssmtsa2025git/ncssm-tsa-hub-deploy.git
-          
-          # Push everything (branches + tags) to mirror
+          git remote add mirror https://x-access-token:${MIRROR_TOKEN}@github.com/ncssmtsa2025git/ncssm-tsa-hub-deploy.git
           git push --force --mirror mirror
