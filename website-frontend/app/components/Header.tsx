@@ -115,15 +115,17 @@ export default function Header(): JSX.Element {
         <div className="w-full px-2 sm:px-3 lg:px-4">
           <div className="flex justify-between items-center h-[72px]">
             <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-              <div className="bg-white rounded-full flex items-center justify-center hidden lg:flex">
-                <Image
-                  width={56}
-                  height={56}
-                  src={"/ncssm_tsa_logo.jpg"}
-                  alt="NCSSM TSA Logo"
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full"
-                />
-              </div>
+              <Link href="/" aria-label="NCSSM TSA Home" className="flex items-center min-w-0">
+                <div className="bg-white rounded-full flex items-center justify-center">
+                  <Image
+                    width={56}
+                    height={56}
+                    src={"/ncssm_tsa_logo.jpg"}
+                    alt="NCSSM TSA Logo"
+                    className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full"
+                  />
+                </div>
+              </Link>
               <h1 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold whitespace-nowrap truncate max-w-full">
                 NCSSM-D Technology Student Association
               </h1>

@@ -53,3 +53,15 @@ CREATE TABLE IF NOT EXISTS whitelist (
 );
 
 CREATE INDEX IF NOT EXISTS idx_whitelist_email ON whitelist(email);
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE TABLE IF NOT EXISTS checkins (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  team_id uuid NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+  submitted_at timestamptz NOT NULL DEFAULT now(),
+  links jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_checkins_team_id ON checkins(team_id);

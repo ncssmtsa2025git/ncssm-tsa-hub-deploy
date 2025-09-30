@@ -4,14 +4,13 @@ import os
 
 from models.team import Team
 from models.user import User
-from database import create_team, get_team_by_id, list_teams, list_user_teams
+from database import create_team, get_team_by_id, list_teams, list_user_teams, update_team, delete_team
 from utils import verify_token, verify_admin_jwt
 
 router = APIRouter(
     prefix="/teams",
     tags=["teams"]
 )
-
 
 # Create team
 @router.post("/", response_model=Team)
@@ -38,3 +37,16 @@ async def get_team_route(team_id: str):
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
     return team
+
+
+@router.put("/{team_id}", response_model=Team)
+async def update_team_route(team_id: str, team_data: dict, admin: None = Depends(verify_admin_jwt)):
+    return await update_team(team_id, team_data)
+
+
+@router.delete("/{team_id}")
+async def delete_team_route(team_id: str, admin: None = Depends(verify_admin_jwt)):
+    ok = await delete_team(team_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Team not found or already deleted")
+    return {"deleted": team_id}

@@ -1,10 +1,14 @@
 "use client";
 import React, { JSX, useEffect, useState } from "react";
-import { Calendar, Clock, Users } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { Team } from "../models/team";
-import { User } from "../models/user";
+import { Checkin, CheckinCreate } from "../models/checkin";
+import { fetchTeams, getTeamCheckins, createCheckin } from "../services/portal";
+// import { User } from "../models/user"; // not directly used here
+import TeamCard from "../components/TeamCard";
+import { UpcomingDate, loadUpcomingDates } from "../models/upcoming";
 
 // Card Components
 interface CardProps {
@@ -25,20 +29,8 @@ function CardContent({ className = "", children }: CardProps) {
   return <div className={`p-4 ${className}`}>{children}</div>;
 }
 
-// Upcoming dates
-interface UpcomingDate {
-  date: string;
-  event: string;
-  type: string;
-}
-
-const upcomingDates: UpcomingDate[] = [
-  { date: "2025-02-15", event: "3D Printing Workshop", type: "Workshop" },
-  { date: "2025-02-20", event: "Regional Conference Check-in", type: "Check-in Period" },
-  { date: "2025-02-25", event: "Arduino Programming Workshop", type: "Workshop" },
-  { date: "2025-03-10", event: "State Conference Check-in", type: "Check-in Period" },
-  { date: "2025-03-18", event: "Public Speaking Workshop", type: "Workshop" },
-];
+// Upcoming dates (loaded from public JSON)
+const [/* placeholder for top-level const used below */,] = [];
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
@@ -48,26 +40,56 @@ function formatDate(dateStr: string): string {
 export default function Portal(): JSX.Element {
   const { user } = useAuth();
   const [teams, setTeams] = useState<Team[]>([]);
+  const [teamCheckins, setTeamCheckins] = useState<Record<string, Checkin[]>>({});
+  const [viewingCheckin, setViewingCheckin] = useState<Checkin | null>(null);
+  const [uploadingForTeam, setUploadingForTeam] = useState<string | null>(null);
+  const [newLinks, setNewLinks] = useState<string[]>([""]);
   const [loading, setLoading] = useState(true);
+  const [upcomingDates, setUpcomingDates] = useState<UpcomingDate[]>([]);
 
   useEffect(() => {
-    const fetchTeams = async () => {
+    // load upcoming dates from public JSON
+    loadUpcomingDates().then((d) => setUpcomingDates(d)).catch(() => setUpcomingDates([]));
+  }, []);
+
+  // validation helper: accepts http/https URLs
+  const isValidUrl = (s: string) => {
+    const trimmed = s.trim();
+    if (trimmed.length === 0) return false;
+    try {
+      const u = new URL(trimmed);
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    const loadTeams = async () => {
       setLoading(true);
       try {
-        const res = await fetch("http://localhost:8000/teams", {
-          method: "GET",
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error(`Failed to fetch teams (${res.status})`);
-        const data: Team[] = await res.json();
+        const data = await fetchTeams();
         setTeams(data);
+        // fetch checkins for each team
+        const checkinsMap: Record<string, Checkin[]> = {};
+        await Promise.all(
+          data.map(async (t) => {
+            try {
+              const c = await getTeamCheckins(t.id);
+              checkinsMap[t.id] = c;
+            } catch {
+              checkinsMap[t.id] = [];
+            }
+          })
+        );
+        setTeamCheckins(checkinsMap);
       } catch (err) {
         console.error("Error fetching teams:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchTeams();
+    loadTeams();
   }, []);
 
   return (
@@ -78,7 +100,7 @@ export default function Portal(): JSX.Element {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome, {user?.name ?? "Student"}
           </h1>
-          <p className="text-gray-600">NCSSM TSA Student Dashboard</p>
+          <p className="text-gray-600">Student Dashboard</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -86,7 +108,6 @@ export default function Portal(): JSX.Element {
           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Users className="w-5 h-5" />
                 <span>My Teams</span>
               </CardTitle>
             </CardHeader>
@@ -98,52 +119,16 @@ export default function Portal(): JSX.Element {
               ) : (
                 <div className="space-y-4">
                   {teams.map((team) => (
-                    <div
+                    <TeamCard
                       key={team.id}
-                      className="border rounded-lg p-4 bg-gray-50"
-                    >
-                      <div className="mb-2">
-                        <h4 className="font-semibold text-gray-900">
-                          {team.event.title} {team.teamNumber}
-                        </h4>
-                        <p className="text-sm text-gray-600">{team.conference}</p>
-                      </div>
-
-                      <div className="mb-3">
-                        <p className="text-sm font-medium text-gray-700 mb-1">
-                          Team Members:
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {team.members.map((member: User) => (
-                            <span
-                              key={member.id}
-                              className={`px-2 py-1 rounded text-sm border ${
-                                member.id === team.captain.id
-                                  ? "bg-blue-100 text-blue-800 border-blue-200"
-                                  : "bg-white text-gray-700"
-                              }`}
-                            >
-                              {member.name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-1 text-sm text-gray-600">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            Check-in: {formatDate(team.checkInDate)}
-                          </span>
-                        </div>
-                        <button
-                          className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                          type="button"
-                        >
-                          Upload Check-In Info
-                        </button>
-                      </div>
-                    </div>
+                      team={team}
+                      checkins={teamCheckins[team.id] || []}
+                      onViewCheckin={(c) => setViewingCheckin(c)}
+                      onUpload={(tid) => {
+                        setUploadingForTeam(tid);
+                        setNewLinks([""]);
+                      }}
+                    />
                   ))}
                 </div>
               )}
@@ -173,6 +158,162 @@ export default function Portal(): JSX.Element {
             </CardContent>
           </Card>
         </div>
+
+        {/* View checkin modal */}
+        {viewingCheckin && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setViewingCheckin(null)} />
+            <div className="relative bg-white rounded-xl w-full max-w-2xl shadow-xl overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-800 to-blue-700 px-6 py-5 flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white">Check-in Details</h3>
+                <button 
+                  onClick={() => setViewingCheckin(null)} 
+                  className="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-lg"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="p-6">
+                <p className="text-sm text-slate-500 mb-4 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Submitted {new Date(viewingCheckin.submitted_at).toLocaleString()}
+                </p>
+
+                <div className="space-y-2">
+                  {viewingCheckin.links.map((l, idx) => (
+                    <a
+                      key={idx}
+                      href={l}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-2 p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+                    >
+                      <svg className="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      <span className="text-blue-600 group-hover:underline break-all text-sm">{l}</span>
+                    </a>
+                  ))}
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button 
+                    onClick={() => setViewingCheckin(null)} 
+                    className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Upload checkin dialog */}
+        {uploadingForTeam && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setUploadingForTeam(null)} />
+            <div className="relative bg-white rounded-xl w-full max-w-2xl shadow-xl overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-800 to-blue-700 px-6 py-5 flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white">Upload Check-in</h3>
+                <button 
+                  onClick={() => setUploadingForTeam(null)} 
+                  className="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-lg"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="p-6">
+                <p className="text-sm text-slate-600 mb-4">Add links to portfolios, video presentations, pictures of models, or other supporting documents (one per input).</p>
+
+                <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                  {newLinks.map((lnk, idx) => {
+                    const trimmed = lnk.trim();
+                    const valid = trimmed.length === 0 ? null : isValidUrl(trimmed);
+                    return (
+                      <div key={idx} className="flex flex-col gap-1">
+                        <div className="flex gap-2 items-start">
+                          <input
+                            value={lnk}
+                            onChange={(e) => setNewLinks((prev) => prev.map((v, i) => (i === idx ? e.target.value : v)))}
+                            className={`flex-1 px-4 py-2 rounded-lg outline-none bg-white text-slate-800 placeholder-slate-400 border ${
+                              valid === false ? "border-red-400 focus:ring-2 focus:ring-red-200" : "border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            }`}
+                            placeholder="https://example.com/rubric.pdf"
+                          />
+                          <button
+                            onClick={() => setNewLinks((prev) => prev.filter((_, i) => i !== idx))}
+                            className="px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200 font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        {valid === false && (
+                          <p className="text-xs text-red-600">Please enter a valid URL starting with http:// or https://</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setNewLinks((prev) => [...prev, ""])}
+                  className="mt-4 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors border border-slate-200 text-sm font-medium"
+                >
+                  + Add Link
+                </button>
+
+                {(() => {
+                  const nonEmptyValidCount = newLinks.filter((s) => s.trim().length > 0 && isValidUrl(s)).length;
+                  const hasInvalid = newLinks.some((s) => s.trim().length > 0 && !isValidUrl(s));
+                  const canSubmit = nonEmptyValidCount > 0 && !hasInvalid;
+
+                  return (
+                    <div className="mt-6 flex justify-end gap-3">
+                  <button 
+                    onClick={() => setUploadingForTeam(null)} 
+                    className="px-5 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!canSubmit) {
+                        alert("Please provide at least one valid link and fix any invalid URLs before submitting.");
+                        return;
+                      }
+                      try {
+                        const links = newLinks.map((s) => s.trim()).filter((s) => s.length > 0);
+                        const payload: CheckinCreate = { links };
+                        await createCheckin(uploadingForTeam!, payload);
+                        const updated = await getTeamCheckins(uploadingForTeam!);
+                        setTeamCheckins((prev) => ({ ...prev, [uploadingForTeam!]: updated }));
+                        setUploadingForTeam(null);
+                      } catch (err) {
+                        console.error("Failed to upload checkin:", err);
+                        alert("Failed to submit checkin");
+                      }
+                    }}
+                    disabled={!canSubmit}
+                    className={`px-5 py-2 rounded-lg transition-colors font-medium shadow-sm ${canSubmit ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-blue-600 text-white opacity-50 cursor-not-allowed"}`}
+                  >
+                    Submit Check-in
+                  </button>
+                </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </ProtectedRoute>
   );

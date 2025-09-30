@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union, Any
+from pydantic import BaseModel as PydanticBaseModel
 from fastapi import HTTPException
 from supabase import create_client, Client
 import os
@@ -8,6 +9,7 @@ from dotenv import load_dotenv
 from models.team import Team
 from models.user import User
 from models.event import Event
+from models.checkin import Checkin, CheckinCreate
 
 load_dotenv()
 
@@ -123,26 +125,51 @@ async def list_users() -> list[User]:
         print(f"Error listing users: {e}")
         return []
     
-async def create_team(team_data: dict) -> Team:
+async def create_team(team_data: Union[dict, PydanticBaseModel]) -> Team:
     """
-    Expects team_data to have:
-    {
-        "event_id": str,
-        "team_number": str,
-        "conference": str,
-        "captain_id": str,
-        "check_in_date": Optional[str],
-        "member_ids": List[str]
-    }
+    Accepts either a dict or a Pydantic Team model. Frontend may send nested objects
+    for `event`, `captain`, and `members`; this function extracts the IDs and
+    normalizes the insert.
     """
     try:
-        # Insert team
+        if isinstance(team_data, PydanticBaseModel):
+            td = team_data.model_dump(by_alias=True, exclude_unset=True)
+        else:
+            td = dict(team_data)
+
+        # Extract event_id
+        event_id = td.get("event").get("id")
+       
+        captain_id = td.get("captain").get("id")
+
+        members = td.get("members")
+        member_ids = []
+        for m in members:
+            uid = m.get("id")
+            if uid:
+                member_ids.append(uid)
+
+        if not event_id:
+            raise HTTPException(status_code=400, detail="Missing event_id")
+        if not captain_id:
+            raise HTTPException(status_code=400, detail="Missing captain_id")
+
+        # Normalize team_number and check_in_date accepting both snake_case and alias keys
+        team_number = td.get("team_number") or td.get("teamNumber")
+        conference = td.get("conference")
+        check_in_date = td.get("check_in_date") or td.get("checkInDate")
+
+        if not team_number:
+            raise HTTPException(status_code=400, detail="Missing team_number (teamNumber)")
+        if not conference:
+            raise HTTPException(status_code=400, detail="Missing conference")
+
         response = supabase.table("teams").insert({
-            "event_id": team_data["event_id"],
-            "team_number": team_data["team_number"],
-            "conference": team_data["conference"],
-            "captain_id": team_data["captain_id"],
-            "check_in_date": team_data.get("check_in_date")
+            "event_id": event_id,
+            "team_number": team_number,
+            "conference": conference,
+            "captain_id": captain_id,
+            "check_in_date": check_in_date
         }).execute()
 
         if not response.data:
@@ -152,7 +179,7 @@ async def create_team(team_data: dict) -> Team:
         team_id = team_row["id"]
 
         # Insert members
-        member_ids = team_data.get("member_ids", [])
+        member_ids = member_ids or []
         for uid in member_ids:
             supabase.table("team_members").insert({
                 "team_id": team_id,
@@ -162,6 +189,8 @@ async def create_team(team_data: dict) -> Team:
         # Return hydrated team
         return await get_team_by_id(team_id)
 
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error creating team: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
@@ -216,6 +245,163 @@ async def list_teams() -> list[Team]:
     except Exception as e:
         print(f"Error listing teams: {e}")
         return []
+
+
+async def update_team(team_id: str, team_data: Union[dict, PydanticBaseModel]) -> Team:
+    try:
+        # Normalize input like create_team
+        if isinstance(team_data, PydanticBaseModel):
+            td = team_data.model_dump(by_alias=True, exclude_unset=True)
+        else:
+            td = dict(team_data)
+
+        # Extract captain_id if nested
+        captain_id = td.get("captain_id")
+        if not captain_id and td.get("captain"):
+            cap = td.get("captain")
+            captain_id = cap.get("id") if isinstance(cap, dict) else getattr(cap, "id", None)
+
+        # Extract member_ids if nested
+        member_ids = td.get("member_ids")
+        if member_ids is None and td.get("members") is not None:
+            members = td.get("members")
+            member_ids = []
+            for m in members:
+                if isinstance(m, dict):
+                    uid = m.get("id") or m.get("user_id") or m.get("google_id")
+                else:
+                    uid = getattr(m, "id", None) or getattr(m, "user_id", None) or getattr(m, "google_id", None)
+                if uid:
+                    member_ids.append(uid)
+
+        # Accept alias keys
+        team_number = td.get("team_number") or td.get("teamNumber")
+        conference = td.get("conference")
+        check_in_date = td.get("check_in_date") or td.get("checkInDate")
+
+        update_payload: dict[str, Any] = {}
+        if team_number is not None:
+            update_payload["team_number"] = team_number
+        if conference is not None:
+            update_payload["conference"] = conference
+        if captain_id is not None:
+            update_payload["captain_id"] = captain_id
+        if check_in_date is not None:
+            update_payload["check_in_date"] = check_in_date
+        if "updated_at" in td:
+            update_payload["updated_at"] = td["updated_at"]
+
+        if not update_payload and member_ids is None:
+            # Nothing to update
+            return await get_team_by_id(team_id)
+
+        if update_payload:
+            response = supabase.table("teams").update(update_payload).eq("id", team_id).execute()
+            if not response.data:
+                raise HTTPException(status_code=404, detail="Team not found")
+
+        # Optionally update members: remove and re-insert
+        if member_ids is not None:
+            supabase.table("team_members").delete().eq("team_id", team_id).execute()
+            for uid in member_ids:
+                supabase.table("team_members").insert({"team_id": team_id, "user_id": uid}).execute()
+
+        return await get_team_by_id(team_id)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating team: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+async def delete_team(team_id: str) -> bool:
+    try:
+        # Delete team members first
+        supabase.table("team_members").delete().eq("team_id", team_id).execute()
+        response = supabase.table("teams").delete().eq("id", team_id).execute()
+        return bool(response.data)
+    except Exception as e:
+        print(f"Error deleting team: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+async def create_checkin(team_id: str, checkin_data: Union[dict, PydanticBaseModel]) -> Checkin:
+    """Insert a checkin linked to a team. Expects links as list[str] or list[HttpUrl]."""
+    try:
+        # normalize
+        if isinstance(checkin_data, PydanticBaseModel):
+            cd = checkin_data.model_dump(by_alias=True, exclude_unset=True)
+        else:
+            cd = dict(checkin_data)
+
+        links = cd.get("links")
+        if not isinstance(links, list) or not links:
+            raise HTTPException(status_code=400, detail="`links` must be a non-empty list of URLs")
+
+        payload = {
+            "team_id": team_id,
+            "links": links,
+            # let DB default submitted_at/created_at if present
+        }
+
+        response = supabase.table("checkins").insert(payload).execute()
+        if not response.data:
+            raise HTTPException(status_code=500, detail="Failed to create checkin")
+
+        row = response.data[0]
+        return await get_checkin_by_id(row["id"])
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error creating checkin: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+async def get_checkins_by_team(team_id: str) -> list[Checkin]:
+    try:
+        response = supabase.table("checkins").select("*").eq("team_id", team_id).order("created_at", desc=True).execute()
+        if not response.data:
+            return []
+        checkins = []
+        for r in response.data:
+            checkins.append(Checkin(
+                id=r["id"],
+                team_id=r["team_id"],
+                submitted_at=r.get("submitted_at") or r.get("created_at"),
+                links=r.get("links", []),
+                created_at=r.get("created_at")
+            ))
+        return checkins
+    except Exception as e:
+        print(f"Error fetching checkins for team {team_id}: {e}")
+        return []
+
+
+async def get_checkin_by_id(checkin_id: str) -> Optional[Checkin]:
+    try:
+        response = supabase.table("checkins").select("*").eq("id", checkin_id).execute()
+        if not response.data:
+            return None
+        r = response.data[0]
+        return Checkin(
+            id=r["id"],
+            team_id=r["team_id"],
+            submitted_at=r.get("submitted_at") or r.get("created_at"),
+            links=r.get("links", []),
+            created_at=r.get("created_at")
+        )
+    except Exception as e:
+        print(f"Error fetching checkin by ID: {e}")
+        return None
+
+
+async def delete_checkin(checkin_id: str) -> bool:
+    try:
+        response = supabase.table("checkins").delete().eq("id", checkin_id).execute()
+        return bool(response.data)
+    except Exception as e:
+        print(f"Error deleting checkin: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 # Whitelist helpers

@@ -1,0 +1,7 @@
+[
+  { "date": "2025-02-15", "event": "3D Printing Workshop", "type": "Workshop" },
+  { "date": "2025-02-20", "event": "Regional Conference Check-in", "type": "Check-in Period" },
+  { "date": "2025-02-25", "event": "Arduino Programming Workshop", "type": "Workshop" },
+  { "date": "2025-03-10", "event": "State Conference Check-in", "type": "Check-in Period" },
+  { "date": "2025-03-18", "event": "Public Speaking Workshop", "type": "Workshop" }
+]
