@@ -98,7 +98,7 @@ export default function Portal(): JSX.Element {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome, {user?.name ?? "Student"}
+            Welcome, {user?.name}
           </h1>
           <p className="text-gray-600">Student Dashboard</p>
         </div>

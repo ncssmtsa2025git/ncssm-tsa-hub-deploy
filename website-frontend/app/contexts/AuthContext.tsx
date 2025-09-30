@@ -6,6 +6,7 @@ import { startGoogleLogin } from "../services/auth";
 type AuthContextType = {
   user: User | null;
   token: string | null;
+  initialized: boolean;
   setTokenFromString: (token: string | null) => void;
   login: () => Promise<void>;
   logoutUser: () => Promise<void>;
@@ -32,19 +33,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize to null and hydrate from localStorage inside a client-only effect.
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   // Hydrate token+user from localStorage on client mount to avoid SSR/client mismatch
   useEffect(() => {
-    try {
-      const t = localStorage.getItem("token");
-      if (t) {
-        setToken(t);
-        const payload = parseJwt(t);
-        if (payload) {
-          setUser({ id: (payload.sub as string) || null, email: (payload.email as string) || null, name: (payload.name as string) || null } as User);
+    let mounted = true;
+    (async () => {
+      try {
+        const t = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        if (t) {
+          setToken(t);
+          try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/me`, {
+              headers: { Authorization: `Bearer ${t}` },
+            });
+            if (res.ok) {
+              const u = await res.json();
+              if (mounted) setUser(u as unknown as User);
+            }
+          } catch {}
         }
-      }
-    } catch {}
+      } catch {}
+      if (mounted) setInitialized(true);
+    })();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const setTokenFromString = useCallback((t: string | null) => {
@@ -97,11 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutUser = async () => {
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const tokenLocal = token ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
-      await fetch(`${API_BASE_URL}/auth/logout`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
         method: "POST",
-        headers: tokenLocal ? { Authorization: `Bearer ${tokenLocal}` } : undefined,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
     } catch {}
     setTokenFromString(null);
@@ -116,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, setTokenFromString, login, logoutUser, fetchWithAuth }}>
+    <AuthContext.Provider value={{ user, token, initialized, setTokenFromString, login, logoutUser, fetchWithAuth }}>
       {children}
     </AuthContext.Provider>
   );

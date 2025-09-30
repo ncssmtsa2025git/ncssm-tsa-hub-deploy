@@ -15,30 +15,13 @@ export async function startGoogleLogin(): Promise<Window | null> {
 }
 
 export async function fetchUser(): Promise<User | null> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const headers: Record<string, string> = {};
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const res = await fetch(`${API_BASE_URL}/auth/me`, {
-    headers,
-  });
-
-  if (!res.ok) {
-    return null;
-  }
-
+  // kept for backward compatibility but will be replaced by a fetcher-aware version
+  const res = await fetch(`${API_BASE_URL}/auth/me`);
+  if (!res.ok) return null;
   const user = await res.json();
-  
   return user as User;
 }
 
 export async function logout(): Promise<void> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const headers: Record<string, string> = {};
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  await fetch(`${API_BASE_URL}/auth/logout`, {
-    method: "POST",
-    headers,
-  });
+  await fetch(`${API_BASE_URL}/auth/logout`, { method: "POST" });
 }
