@@ -137,11 +137,11 @@ export default function Header(): React.ReactElement {
               <NavLink href="/events">Events</NavLink>
               <NavLink href="/gallery">Gallery</NavLink>
               <NavLink href="/resources">Resources</NavLink>
-              <NavLink href="/projects" >
+              {/* <NavLink href="/projects" >
                 <span className="block md:max-w-[6.5rem] lg:max-w-[8rem] xl:max-w-[9.5rem] truncate">
                   Past Projects
                 </span>
-              </NavLink>
+              </NavLink> */}
               {mounted ? (
                 <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
               ) : (
@@ -213,7 +213,6 @@ export default function Header(): React.ReactElement {
                 Resources
               </Link>
 
-              {/* uncomment once we got stuff */}
               {/* <Link
                 href="/projects"
                 onClick={() => setMobileOpen(false)}
