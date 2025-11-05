@@ -213,7 +213,7 @@ export default function Header(): React.ReactElement {
                 Resources
               </Link>
 
-              <Link
+              {/* <Link
                 href="/projects"
                 onClick={() => setMobileOpen(false)}
                 aria-current={isActive("/projects") ? "page" : undefined}
@@ -222,7 +222,7 @@ export default function Header(): React.ReactElement {
                 }`}
               >
                 Past Projects
-              </Link>
+              </Link> */}
 
                 <div className="pt-2 border-t border-white/10 mt-2">
                   {mounted ? (
