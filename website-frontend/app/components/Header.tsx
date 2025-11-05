@@ -213,6 +213,7 @@ export default function Header(): React.ReactElement {
                 Resources
               </Link>
 
+              {/* uncomment once we got stuff */}
               {/* <Link
                 href="/projects"
                 onClick={() => setMobileOpen(false)}
