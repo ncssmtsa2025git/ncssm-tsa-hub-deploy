@@ -5,6 +5,15 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC
 
 type Fetcher = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
+export async function fetchMyTeams(fetcher: Fetcher = fetch): Promise<Team[]> {
+  const res = await fetcher(`${API_BASE}/teams/me`, {
+    method: "GET",
+  });
+  if (!res.ok) throw new Error(`Failed to fetch my teams (${res.status})`);
+  const data = await res.json();
+  return data as Team[];
+}
+
 export async function fetchTeams(fetcher: Fetcher = fetch): Promise<Team[]> {
   const res = await fetcher(`${API_BASE}/teams`, {
     method: "GET",

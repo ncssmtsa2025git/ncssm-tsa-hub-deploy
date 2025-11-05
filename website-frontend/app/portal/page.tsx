@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { Team } from "../models/team";
 import { Checkin, CheckinCreate } from "../models/checkin";
-import { fetchTeams, getTeamCheckins, createCheckin } from "../services/portal";
+import { fetchMyTeams, getTeamCheckins, createCheckin } from "../services/portal";
 // import { User } from "../models/user"; // not directly used here
 import TeamCard from "../components/TeamCard";
 import { UpcomingDate, loadUpcomingDates } from "../models/upcoming";
@@ -68,7 +68,7 @@ export default function Portal(): JSX.Element {
     const loadTeams = async () => {
       setLoading(true);
       try {
-  const data = await fetchTeams(fetchWithAuth);
+        const data = await fetchMyTeams(fetchWithAuth);
         setTeams(data);
         // fetch checkins for each team
         const checkinsMap: Record<string, Checkin[]> = {};
