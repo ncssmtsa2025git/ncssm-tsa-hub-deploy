@@ -33,7 +33,7 @@ export default function Footer(): React.ReactElement {
               <Link href="/events" className="text-gray-400 hover:text-white block">Events</Link>
               <Link href="/gallery" className="text-gray-400 hover:text-white block">Gallery</Link>
               <Link href="/resources" className="text-gray-400 hover:text-white block">Resources</Link>
-              <Link href="/projects" className="text-gray-400 hover:text-white block">Past Projects</Link>
+              {/* <Link href="/projects" className="text-gray-400 hover:text-white block">Past Projects</Link> */}
             </div>
           </div>
 
