@@ -1,7 +1,7 @@
 [
-  { "date": "2025-02-15", "event": "3D Printing Workshop", "type": "Workshop" },
-  { "date": "2025-02-20", "event": "Regional Conference Check-in", "type": "Check-in Period" },
-  { "date": "2025-02-25", "event": "Arduino Programming Workshop", "type": "Workshop" },
-  { "date": "2025-03-10", "event": "State Conference Check-in", "type": "Check-in Period" },
-  { "date": "2025-03-18", "event": "Public Speaking Workshop", "type": "Workshop" }
+  { "date": "2026-02-20", "event": "Western Regionals", "type": "Competition" },
+  { "date": "2026-01-30", "event": "Western Regionals Online Submission", "type": "Deadline" },  
+  { "date": "2026-03-23", "event": "State Conference Preliminary Submission", "type": "Deadline" },
+  { "date": "2026-03-27", "event": "State Conference Online Testing", "type": "Competition" },
+  { "date": "2026-04-09", "event": "State Conference", "type": "Competition" }
 ]
