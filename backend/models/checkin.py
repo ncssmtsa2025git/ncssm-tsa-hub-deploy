@@ -13,3 +13,5 @@ class Checkin(BaseModel):
     submitted_at: datetime
     links: List[str]
     created_at: datetime
+    approved: Optional[bool] = False
+    approved_at: Optional[datetime] = None
