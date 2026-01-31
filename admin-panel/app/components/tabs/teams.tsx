@@ -210,7 +210,11 @@ export default function TeamsTab() {
 
                   <div className="mt-3 flex items-center justify-between gap-4">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-900 rounded text-xs font-medium border border-amber-200">
-                      Check-in: {new Date(team.checkInDate).toLocaleDateString()}
+                      Check-in: {team.checkInDate ? (() => {
+                        const dateStr = team.checkInDate.split('T')[0];
+                        const [y, m, d] = dateStr.split('-').map(Number);
+                        return new Date(y, m - 1, d).toLocaleDateString();
+                      })() : '-'}
                     </span>
                     <button
                       type="button"

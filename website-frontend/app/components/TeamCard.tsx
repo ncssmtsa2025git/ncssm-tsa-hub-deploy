@@ -74,7 +74,12 @@ export default function TeamCard({ team, checkins, onViewCheckin, onUpload }: Pr
         <div className="flex items-center gap-2 text-sm text-slate-600">
           <Calendar className="w-4 h-4" />
           <span className="font-medium">Check-in:</span>
-          <span>{new Date(team.checkInDate).toLocaleDateString()}</span>
+          <span>{(() => {
+            // Parse date string (handles both "YYYY-MM-DD" and ISO datetime formats)
+            const dateStr = team.checkInDate.split('T')[0]; // Get date part
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day).toLocaleDateString();
+          })()}</span>
         </div>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"

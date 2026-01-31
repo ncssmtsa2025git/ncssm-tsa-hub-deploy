@@ -17,6 +17,21 @@ class CheckinService {
     return res.json();
   }
 
+  async approveCheckin(checkinId: string): Promise<Checkin> {
+    const token = authService.getToken();
+    const res = await fetch(`${API_BASE_URL}/checkins/${checkinId}/approve`, {
+      method: 'PUT',
+      headers: {
+        ...(token ? { 'X-Admin-Token': token } : {}),
+      },
+    });
+    if (!res.ok) {
+      const raw = await res.text().catch(() => '');
+      throw new Error(raw || `Approve checkin failed: ${res.statusText}`);
+    }
+    return res.json();
+  }
+
   async deleteCheckin(checkinId: string): Promise<void> {
     const token = authService.getToken();
     const res = await fetch(`${API_BASE_URL}/checkins/${checkinId}`, {

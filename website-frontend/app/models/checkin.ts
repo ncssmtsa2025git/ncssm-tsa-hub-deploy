@@ -8,4 +8,6 @@ export interface Checkin {
   submitted_at: string; // ISO datetime
   links: string[];
   created_at: string;
+  approved: boolean;
+  approved_at?: string; // ISO datetime or null
 }

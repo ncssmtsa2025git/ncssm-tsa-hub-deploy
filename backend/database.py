@@ -374,7 +374,9 @@ async def get_checkins_by_team(team_id: str) -> list[Checkin]:
                 team_id=r["team_id"],
                 submitted_at=r.get("submitted_at") or r.get("created_at"),
                 links=r.get("links", []),
-                created_at=r.get("created_at")
+                created_at=r.get("created_at"),
+                approved=r.get("approved", False),
+                approved_at=r.get("approved_at")
             ))
         return checkins
     except Exception as e:
@@ -393,7 +395,9 @@ async def get_checkin_by_id(checkin_id: str) -> Optional[Checkin]:
             team_id=r["team_id"],
             submitted_at=r.get("submitted_at") or r.get("created_at"),
             links=r.get("links", []),
-            created_at=r.get("created_at")
+            created_at=r.get("created_at"),
+            approved=r.get("approved", False),
+            approved_at=r.get("approved_at")
         )
     except Exception as e:
         print(f"Error fetching checkin by ID: {e}")
@@ -406,6 +410,18 @@ async def delete_checkin(checkin_id: str) -> bool:
         return bool(response.data)
     except Exception as e:
         print(f"Error deleting checkin: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+async def update_checkin(checkin_id: str, checkin_data: dict) -> Optional[Checkin]:
+    """Update a checkin (e.g., approve it)."""
+    try:
+        response = supabase.table("checkins").update(checkin_data).eq("id", checkin_id).execute()
+        if not response.data:
+            return None
+        return await get_checkin_by_id(checkin_id)
+    except Exception as e:
+        print(f"Error updating checkin: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 

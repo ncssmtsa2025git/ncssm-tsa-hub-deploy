@@ -61,7 +61,9 @@ CREATE TABLE IF NOT EXISTS checkins (
   team_id uuid NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   submitted_at timestamptz NOT NULL DEFAULT now(),
   links jsonb NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  approved boolean DEFAULT false,
+  approved_at timestamptz
 );
 
 CREATE INDEX IF NOT EXISTS idx_checkins_team_id ON checkins(team_id);

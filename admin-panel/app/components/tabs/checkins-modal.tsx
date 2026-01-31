@@ -43,6 +43,16 @@ export default function CheckinsModal({ teamId, onClose }: Props) {
     }
   };
 
+  const handleApprove = async (id: string) => {
+    try {
+      const updated = await checkinService.approveCheckin(id);
+      setCheckins((prev) => prev.map((c) => (c.id === id ? updated : c)));
+    } catch (err: unknown) {
+      console.error('Approve failed', err);
+      alert('Failed to approve checkin');
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6">
       <div className="relative bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
@@ -95,19 +105,40 @@ export default function CheckinsModal({ teamId, onClose }: Props) {
             {checkins.map((c) => (
               <div key={c.id} className="group border border-slate-200 rounded-lg p-4 hover:border-slate-300 hover:shadow-sm transition-all bg-white">
                 <div className="flex items-start justify-between gap-4 mb-3">
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {new Date(c.submitted_at).toLocaleString()}
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {c.submitted_at ? new Date(c.submitted_at).toLocaleString('en-US', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }) : '-'}
+                    </div>
+                    {c.approved && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded text-xs font-medium text-green-700">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Approved {c.approved_at && `on ${new Date(c.approved_at).toLocaleDateString()}`}
+                      </span>
+                    )}
                   </div>
-                  <button
-                    onClick={() => handleDelete(c.id)}
-                    className="text-slate-400 hover:text-red-600 transition-colors text-xs font-medium px-2 py-1 rounded hover:bg-red-50"
-                    title="Delete checkin"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {!c.approved && (
+                      <button
+                        onClick={() => handleApprove(c.id)}
+                        className="text-slate-400 hover:text-green-600 transition-colors text-xs font-medium px-2 py-1 rounded hover:bg-green-50"
+                        title="Approve checkin"
+                      >
+                        Approve
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(c.id)}
+                      className="text-slate-400 hover:text-red-600 transition-colors text-xs font-medium px-2 py-1 rounded hover:bg-red-50"
+                      title="Delete checkin"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">

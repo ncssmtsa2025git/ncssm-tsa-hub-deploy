@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
+from datetime import datetime
 
 from utils import verify_token, verify_admin_jwt
 from models.checkin import CheckinCreate, Checkin
@@ -42,6 +43,25 @@ async def get_checkin(checkin_id: str):
     if not c:
         raise HTTPException(status_code=404, detail="Checkin not found")
     return c
+
+
+@router.put("/checkins/{checkin_id}/approve", response_model=Checkin)
+async def approve_checkin(checkin_id: str, _=Depends(verify_admin_jwt)):
+    """Admin endpoint to approve a checkin."""
+    c = await database.get_checkin_by_id(checkin_id)
+    if not c:
+        raise HTTPException(status_code=404, detail="Checkin not found")
+    
+    # Update checkin with approval status
+    updated = await database.update_checkin(checkin_id, {
+        "approved": True,
+        "approved_at": datetime.utcnow().isoformat()
+    })
+    
+    if not updated:
+        raise HTTPException(status_code=500, detail="Failed to approve checkin")
+    
+    return updated
 
 
 @router.delete("/checkins/{checkin_id}")
