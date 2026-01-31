@@ -33,7 +33,9 @@ function CardContent({ className = "", children }: CardProps) {
 const [/* placeholder for top-level const used below */,] = [];
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
+  // Parse as local date to avoid timezone shifting
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
