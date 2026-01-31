@@ -18,7 +18,7 @@ export default function Header(): React.ReactElement {
   const { user, login, logoutUser } = useAuth();  
 
   // Avoid rendering auth-dependent UI during SSR to prevent hydration mismatches.
-  // We only show the real AuthActionBar after the client has mounted.
+  // We only show the real AuthActionBar after the client has mounted. 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
