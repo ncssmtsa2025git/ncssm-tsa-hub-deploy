@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 import secrets
+from typing import Optional
+from urllib.parse import quote
 import httpx
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -81,10 +83,16 @@ async def login():
     return {"auth_url": google_auth_url, "state": state}
 
 
+def _login_error_redirect(reason: str) -> RedirectResponse:
+    # The frontend /auth/success page turns this into a readable message
+    return RedirectResponse(url=f"{REDIRECT_RESPONSE_URL}#error={quote(reason)}")
+
+
 @router.get("/callback")
-async def auth_callback(code: str, state: str):
-    if not code:
-        raise HTTPException(status_code=400, detail="Authorization code not provided")
+async def auth_callback(code: Optional[str] = None, state: Optional[str] = None, error: Optional[str] = None):
+    # Google sends ?error=access_denied (and no code) when the user cancels
+    if error or not code:
+        return _login_error_redirect(error or "missing_code")
 
     # Exchange code for token
     token_data = await exchange_code_for_token(code)
@@ -97,7 +105,7 @@ async def auth_callback(code: str, state: str):
     allowed = await is_email_whitelisted(google_user.email)
     if not allowed:
         print(f"Unauthorized login attempt for: {google_user.email}")
-        raise HTTPException(status_code=403, detail="Email not allowed")
+        return _login_error_redirect("not_whitelisted")
 
     # Find or create user
     existing_user = await get_user_by_google_id(google_user.id)
