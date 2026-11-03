@@ -11,6 +11,18 @@ type GalleryItem = {
   date: string;  // e.g. "Nationals 2025"
 };
 
+// Officers shown on the home page. Add a photo by dropping a square image in
+// /public/officers and setting `photo`; officers without one show their initials.
+const OFFICERS: { name: string; role: string; email: string; photo?: string }[] = [
+  { name: "David Ta", role: "Co-President", email: "ta27d@ncssm.edu", photo: "/officers/david.jpg" },
+  { name: "Nathaniel Joy", role: "Co-President", email: "joy27n@ncssm.edu", photo: "/officers/nathaniel.jpg" },
+  { name: "Moksha Agrawal", role: "Vice President", email: "agrawal27m@ncssm.edu" },
+  { name: "Isabella Bai", role: "Secretary", email: "bai27i@ncssm.edu" },
+  { name: "Megan Nguyen", role: "Competitive Lead", email: "nguyen27m@ncssm.edu" },
+  { name: "Ayush Kamath", role: "Reporter", email: "kamath27a@ncssm.edu" },
+  { name: "Aarush Jain", role: "Tech Lead", email: "jain27a@ncssm.edu", photo: "/officers/aarush.jpg" },
+];
+
 export default function Home(): React.ReactElement {
   // ===== Load gallery manifest =====
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
@@ -146,108 +158,29 @@ export default function Home(): React.ReactElement {
         </div>
       </section>
 
-      {/* Meet the Officers Section (unchanged) */}
+      {/* Meet the Officers Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Meet the Officers</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* President */}
-            <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/officers/muhilan.JPEG"
-                  alt="Muhilan Krishnan"
-                  width={400}
-                  height={400}
-                  className="object-cover w-full h-full"
-                />
+          <div className="flex flex-wrap justify-center gap-8">
+            {OFFICERS.map((o) => (
+              <div key={o.email} className="text-center w-full md:w-[calc(50%-1rem)] lg:w-[calc((100%-4rem)/3)]">
+                <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                  {o.photo ? (
+                    <Image src={o.photo} alt={o.name} width={400} height={400} className="object-cover w-full h-full" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-blue-50 text-6xl font-semibold text-blue-900/40">
+                      {o.name.split(" ").map((w) => w[0]).join("")}
+                    </div>
+                  )}
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">{o.name}</h3>
+                <p className="text-base font-medium text-blue-600 mb-2">{o.role}</p>
+                <p className="text-sm text-gray-600">{o.email}</p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Muhilan Krishnan</h3>
-              <p className="text-base font-medium text-blue-600 mb-2">President</p>
-              <p className="text-sm text-gray-600">krishnan26m@ncssm.edu</p>
-            </div>
-
-            {/* Vice President */}
-            <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/officers/aaditya.JPEG"
-                  alt="Aaditya Sah"
-                  width={400}
-                  height={400}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Aaditya Sah</h3>
-              <p className="text-base font-medium text-blue-600 mb-2">Vice President</p>
-              <p className="text-sm text-gray-600">sah26a@ncssm.edu</p>
-            </div>
-
-            {/* Secretary */}
-            <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/officers/kerry.JPEG"
-                  alt="Kerry Luo"
-                  width={400}
-                  height={400}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Kerry Luo</h3>
-              <p className="text-base font-medium text-blue-600 mb-2">Secretary</p>
-              <p className="text-sm text-gray-600">luo26k@ncssm.edu</p>
-            </div>
-
-            {/* Treasurer */}
-            <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/officers/hasita.JPEG"
-                  alt="Hasita Alluri"
-                  width={400}
-                  height={400}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Hasita Alluri</h3>
-              <p className="text-base font-medium text-blue-600 mb-2">Treasurer</p>
-              <p className="text-sm text-gray-600">alluri26h@ncssm.edu</p>
-            </div>
-
-            {/* Reporter */}
-            <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/officers/lily.JPEG"
-                  alt="Lily Galapon"
-                  width={400}
-                  height={400}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Lily Galapon</h3>
-              <p className="text-base font-medium text-blue-600 mb-2">Reporter</p>
-              <p className="text-sm text-gray-600">galapon26l@ncssm.edu</p>
-            </div>
-
-            {/* Sergeant at Arms */}
-            <div className="text-center">
-              <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/officers/james.JPEG"
-                  alt="James Nguyen"
-                  width={400}
-                  height={400}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">James Nguyen</h3>
-              <p className="text-base font-medium text-blue-600 mb-2">Sergeant at Arms</p>
-              <p className="text-sm text-gray-600">nguyen26j@ncssm.edu</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
