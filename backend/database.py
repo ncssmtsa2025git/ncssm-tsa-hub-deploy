@@ -352,23 +352,25 @@ async def create_checkin(team_id: str, checkin_data: Union[dict, PydanticBaseMod
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
+def _checkin_from_row(r: dict) -> Checkin:
+    return Checkin(
+        id=r["id"],
+        team_id=r["team_id"],
+        submitted_at=r.get("submitted_at") or r.get("created_at"),
+        links=r.get("links", []),
+        created_at=r.get("created_at"),
+        approved=r.get("approved") or False,
+        approved_at=r.get("approved_at"),
+        score=r.get("score"),
+        feedback=r.get("feedback"),
+        graded_at=r.get("graded_at")
+    )
+
+
 async def get_checkins_by_team(team_id: str) -> list[Checkin]:
     try:
         response = supabase.table("checkins").select("*").eq("team_id", team_id).order("created_at", desc=True).execute()
-        if not response.data:
-            return []
-        checkins = []
-        for r in response.data:
-            checkins.append(Checkin(
-                id=r["id"],
-                team_id=r["team_id"],
-                submitted_at=r.get("submitted_at") or r.get("created_at"),
-                links=r.get("links", []),
-                created_at=r.get("created_at"),
-                approved=r.get("approved", False),
-                approved_at=r.get("approved_at")
-            ))
-        return checkins
+        return [_checkin_from_row(r) for r in response.data or []]
     except Exception as e:
         print(f"Error fetching checkins for team {team_id}: {e}")
         return []
@@ -379,16 +381,7 @@ async def get_checkin_by_id(checkin_id: str) -> Optional[Checkin]:
         response = supabase.table("checkins").select("*").eq("id", checkin_id).execute()
         if not response.data:
             return None
-        r = response.data[0]
-        return Checkin(
-            id=r["id"],
-            team_id=r["team_id"],
-            submitted_at=r.get("submitted_at") or r.get("created_at"),
-            links=r.get("links", []),
-            created_at=r.get("created_at"),
-            approved=r.get("approved", False),
-            approved_at=r.get("approved_at")
-        )
+        return _checkin_from_row(response.data[0])
     except Exception as e:
         print(f"Error fetching checkin by ID: {e}")
         return None
