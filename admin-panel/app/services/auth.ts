@@ -43,8 +43,19 @@ class AuthService {
     localStorage.setItem(this.TOKEN_KEY, token);
   }
 
+  // Admin tokens expire after 60 minutes; treat an expired one as logged out
+  // instead of letting every request fail silently.
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return null;
+    try {
+      const { exp } = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      if (typeof exp === 'number' && exp * 1000 <= Date.now()) {
+        this.removeToken();
+        return null;
+      }
+    } catch {}
+    return token;
   }
 
   removeToken(): void {
