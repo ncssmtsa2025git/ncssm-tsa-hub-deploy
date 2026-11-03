@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import RedirectResponse
+import re
 import secrets
 from typing import Optional
 from urllib.parse import quote
@@ -16,6 +17,7 @@ from database import (
     is_email_whitelisted,
     list_whitelist,
     add_whitelist_email,
+    add_whitelist_emails,
     remove_whitelist_email,
     list_users,
 )
@@ -148,6 +150,26 @@ async def add_whitelist(email: str, admin: None = Depends(verify_admin_jwt)):
     if not ok:
         raise HTTPException(status_code=500, detail="Failed to add email")
     return {"added": email}
+
+
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+class WhitelistBulkRequest(BaseModel):
+    emails: list[str]
+
+
+@router.post("/whitelist/bulk")
+async def add_whitelist_bulk(payload: WhitelistBulkRequest, admin: None = Depends(verify_admin_jwt)):
+    """Add many emails in one request; duplicates and malformed entries are reported, not fatal."""
+    cleaned = list(dict.fromkeys(e.strip().lower() for e in payload.emails if e.strip()))
+    valid = [e for e in cleaned if EMAIL_RE.match(e)]
+    added = await add_whitelist_emails(valid)
+    return {
+        "added": added,
+        "already": [e for e in valid if e not in added],
+        "invalid": [e for e in cleaned if not EMAIL_RE.match(e)],
+    }
 
 
 @router.delete("/whitelist")

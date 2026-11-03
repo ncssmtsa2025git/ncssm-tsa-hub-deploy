@@ -437,6 +437,19 @@ async def add_whitelist_email(email: str) -> bool:
         return False
 
 
+async def add_whitelist_emails(emails: list[str]) -> list[str]:
+    """Insert many emails in one query, skipping ones already present. Returns the newly added emails."""
+    try:
+        existing = set(await list_whitelist())
+        new = [e for e in emails if e not in existing]
+        if new:
+            supabase.table("whitelist").insert([{"email": e} for e in new]).execute()
+        return new
+    except Exception as e:
+        print(f"Error bulk-adding to whitelist: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
 async def remove_whitelist_email(email: str) -> bool:
     try:
         response = supabase.table("whitelist").delete().eq("email", email.lower()).execute()
