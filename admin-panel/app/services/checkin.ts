@@ -12,7 +12,12 @@ class CheckinService {
   }
 
   async listTeamCheckins(teamId: string): Promise<Checkin[]> {
-    const res = await fetch(`${API_BASE_URL}/teams/${teamId}/checkins`);
+    const token = authService.getToken();
+    const res = await fetch(`${API_BASE_URL}/teams/${teamId}/checkins`, {
+      headers: {
+        ...(token ? { 'X-Admin-Token': token } : {}),
+      },
+    });
     if (!res.ok) throw new Error(`Failed to fetch checkins: ${res.statusText}`);
     return res.json();
   }

@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import List
+from fastapi import APIRouter, Depends, HTTPException, Header
+from typing import List, Optional
 from datetime import datetime
 
 from utils import verify_token, verify_admin_jwt
@@ -33,12 +33,23 @@ async def create_checkin_endpoint(team_id: str, payload: CheckinCreate, user_id:
 
 
 @router.get("/teams/{team_id}/checkins", response_model=List[Checkin])
-async def list_team_checkins(team_id: str):
+async def list_team_checkins(
+    team_id: str,
+    authorization: Optional[str] = Header(None),
+    x_admin_token: Optional[str] = Header(None),
+):
+    # Check-ins carry grades/feedback: only admins or the team itself may read them
+    if x_admin_token:
+        verify_admin_jwt(x_admin_token)
+    else:
+        user_id = verify_token(authorization)
+        if not await _user_is_on_team(user_id, team_id):
+            raise HTTPException(status_code=403, detail="Not a member of this team")
     return await database.get_checkins_by_team(team_id)
 
 
 @router.get("/checkins/{checkin_id}", response_model=Checkin)
-async def get_checkin(checkin_id: str):
+async def get_checkin(checkin_id: str, _=Depends(verify_admin_jwt)):
     c = await database.get_checkin_by_id(checkin_id)
     if not c:
         raise HTTPException(status_code=404, detail="Checkin not found")
