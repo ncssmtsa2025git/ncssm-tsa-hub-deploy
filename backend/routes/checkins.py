@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from utils import verify_token, verify_admin_jwt
-from models.checkin import CheckinCreate, Checkin
+from models.checkin import CheckinCreate, CheckinGrade, Checkin
 import database
 
 router = APIRouter()
@@ -71,7 +71,20 @@ async def approve_checkin(checkin_id: str, _=Depends(verify_admin_jwt)):
     
     if not updated:
         raise HTTPException(status_code=500, detail="Failed to approve checkin")
-    
+
+    return updated
+
+
+@router.put("/checkins/{checkin_id}/grade", response_model=Checkin)
+async def grade_checkin(checkin_id: str, payload: CheckinGrade, _=Depends(verify_admin_jwt)):
+    """Admin endpoint to set a check-in's score (0-100) and feedback; the team sees it in their portal."""
+    updated = await database.update_checkin(checkin_id, {
+        "score": payload.score,
+        "feedback": (payload.feedback or "").strip() or None,
+        "graded_at": datetime.utcnow().isoformat()
+    })
+    if not updated:
+        raise HTTPException(status_code=404, detail="Checkin not found")
     return updated
 
 
