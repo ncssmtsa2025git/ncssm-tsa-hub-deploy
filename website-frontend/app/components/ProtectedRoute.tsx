@@ -4,16 +4,17 @@ import { useRouter } from "next/navigation"; // App Router
 import { useAuth } from "../contexts/AuthContext";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, initialized } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user === null) {
+    // Wait until the stored token has been checked, or a refresh bounces to "/"
+    if (initialized && user === null) {
       router.replace("/");
     }
-  }, [user, router]);
+  }, [initialized, user, router]);
 
-  if (user === null) {
+  if (!initialized || user === null) {
     return <div className="p-4">Loading...</div>;
   }
 
