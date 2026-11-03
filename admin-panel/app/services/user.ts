@@ -19,26 +19,12 @@ class UserService {
     return authService.makeAuthenticatedRequest<{ whitelist: string[] }>('/auth/whitelist').then((r) => r.whitelist || []);
   }
 
-  async addWhitelist(email: string): Promise<string> {
-    const token = authService.getToken();
-    if (!token) throw new Error('No admin token');
-    // API expects email as a query parameter (per server snippet: add_whitelist(email: str))
-    const url = new URL(`${API_BASE_URL}/auth/whitelist`);
-    url.searchParams.set('email', email);
-    const res = await fetch(url.toString(), {
+  async addWhitelistBulk(emails: string[]): Promise<{ added: string[]; already: string[]; invalid: string[] }> {
+    return authService.makeAuthenticatedRequest('/auth/whitelist/bulk', {
       method: 'POST',
-      headers: {
-        'X-Admin-Token': token,
-      },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emails }),
     });
-    if (!res.ok) {
-      const raw = await res.text().catch(() => '');
-      let parsed: unknown = raw;
-      try { parsed = raw ? JSON.parse(raw) : raw; } catch { }
-      throw new Error(`Add whitelist failed: status=${res.status} body=${typeof parsed === 'string' ? parsed : JSON.stringify(parsed)}`);
-    }
-    const body = await res.json().catch(() => ({}));
-    return (body && body.added) || email;
   }
 
   async deleteWhitelist(email: string): Promise<string> {

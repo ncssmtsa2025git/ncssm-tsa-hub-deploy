@@ -4,12 +4,21 @@ import { useEffect, useState } from 'react';
 import type { User } from '../../../../website-frontend/app/models/user';
 import { userService } from '../../services/user';
 
+function errorText(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  return /expired|No authentication token|Admin token required/i.test(msg)
+    ? 'your admin session expired. Refresh the page and log in again.'
+    : msg;
+}
+
 export default function UsersTab() {
   const [users, setUsers] = useState<User[]>([]);
   const [whitelist, setWhitelist] = useState<string[]>([]);
   const [newEmails, setNewEmails] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -21,6 +30,7 @@ export default function UsersTab() {
         setWhitelist(w || []);
       } catch (err: unknown) {
         console.error('Failed to load users/whitelist', err);
+        if (mounted) setStatus({ kind: 'error', text: `Couldn't load users/whitelist: ${errorText(err)}` });
       } finally {
         setLoading(false);
       }
@@ -36,21 +46,24 @@ export default function UsersTab() {
   );
 
   const handleAddToWhitelist = async () => {
-    const emails = newEmails
-      .split(',')
-      .map((email) => email.trim())
-      .filter((email) => email && !whitelist.includes(email));
+    // Accept commas, semicolons, spaces or new lines (e.g. a column pasted from a spreadsheet)
+    const emails = newEmails.split(/[\s,;]+/).map((e) => e.trim().toLowerCase()).filter(Boolean);
     if (emails.length === 0) return;
+    setSaving(true);
+    setStatus(null);
     try {
-      // add sequentially and update list
-      for (const email of emails) {
-        await userService.addWhitelist(email);
-      }
-      const fresh = await userService.listWhitelist();
-      setWhitelist(fresh || []);
+      const r = await userService.addWhitelistBulk(emails);
+      setWhitelist((await userService.listWhitelist()) || []);
       setNewEmails('');
+      const parts = [`Added ${r.added.length}`];
+      if (r.already.length) parts.push(`${r.already.length} already on the list`);
+      if (r.invalid.length) parts.push(`skipped invalid: ${r.invalid.join(', ')}`);
+      setStatus({ kind: r.invalid.length ? 'error' : 'ok', text: parts.join(' · ') });
     } catch (err: unknown) {
       console.error('Failed to add to whitelist', err);
+      setStatus({ kind: 'error', text: `Nothing was added: ${errorText(err)}` });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -61,6 +74,7 @@ export default function UsersTab() {
       setWhitelist(fresh || []);
     } catch (err: unknown) {
       console.error('Failed to remove from whitelist', err);
+      setStatus({ kind: 'error', text: `Couldn't remove ${email}: ${errorText(err)}` });
     }
   };
 
@@ -108,18 +122,29 @@ export default function UsersTab() {
         <p className="text-sm text-gray-600 mb-4">Manage approved email addresses for event registration</p>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Add Emails (comma-separated)</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
+          <label className="block text-sm font-medium text-gray-700 mb-2">Add Emails (separated by commas, spaces or new lines)</label>
+          <div className="flex gap-2 items-start">
+            <textarea
+              rows={3}
               placeholder="email1@ncssm.edu, email2@ncssm.edu"
               value={newEmails}
               onChange={(e) => setNewEmails(e.target.value)}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none"
             />
-            <button onClick={handleAddToWhitelist} className="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium">Add</button>
+            <button
+              onClick={handleAddToWhitelist}
+              disabled={saving || !newEmails.trim()}
+              className="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Adding...' : 'Add'}
+            </button>
           </div>
+          {status && (
+            <p className={`mt-2 text-sm ${status.kind === 'ok' ? 'text-green-700' : 'text-red-700'}`}>{status.text}</p>
+          )}
         </div>
+
+        <p className="text-sm text-gray-500 mb-2">{whitelist.length} email{whitelist.length === 1 ? '' : 's'} on the whitelist</p>
 
         <div className="space-y-2">
           {whitelist.map((email) => (
