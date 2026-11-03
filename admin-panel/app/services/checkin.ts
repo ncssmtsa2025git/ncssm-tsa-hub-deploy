@@ -37,6 +37,23 @@ class CheckinService {
     return res.json();
   }
 
+  async gradeCheckin(checkinId: string, score: number, feedback: string): Promise<Checkin> {
+    const token = authService.getToken();
+    const res = await fetch(`${API_BASE_URL}/checkins/${checkinId}/grade`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'X-Admin-Token': token } : {}),
+      },
+      body: JSON.stringify({ score, feedback }),
+    });
+    if (!res.ok) {
+      const raw = await res.text().catch(() => '');
+      throw new Error(raw || `Grade checkin failed: ${res.statusText}`);
+    }
+    return res.json();
+  }
+
   async deleteCheckin(checkinId: string): Promise<void> {
     const token = authService.getToken();
     const res = await fetch(`${API_BASE_URL}/checkins/${checkinId}`, {

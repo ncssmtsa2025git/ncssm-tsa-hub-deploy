@@ -9,6 +9,66 @@ interface Props {
   onClose: () => void;
 }
 
+function GradeForm({ checkin, onSaved }: { checkin: Checkin; onSaved: (c: Checkin) => void }) {
+  const [score, setScore] = useState(checkin.score?.toString() ?? '');
+  const [feedback, setFeedback] = useState(checkin.feedback ?? '');
+  const [saving, setSaving] = useState(false);
+
+  const n = Number(score);
+  const valid = score.trim() !== '' && Number.isInteger(n) && n >= 0 && n <= 100;
+  const dirty = score !== (checkin.score?.toString() ?? '') || feedback !== (checkin.feedback ?? '');
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      onSaved(await checkinService.gradeCheckin(checkin.id, n, feedback));
+    } catch (err: unknown) {
+      console.error('Grade failed', err);
+      alert('Failed to save grade');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 pt-3 border-t border-slate-100">
+      <div className="flex items-center gap-2 mb-2">
+        <label htmlFor={`score-${checkin.id}`} className="text-xs font-medium text-slate-600">Score</label>
+        <input
+          id={`score-${checkin.id}`}
+          type="number"
+          min={0}
+          max={100}
+          step={1}
+          value={score}
+          onChange={(e) => setScore(e.target.value)}
+          className="w-20 px-2 py-1 border border-slate-300 rounded text-sm text-slate-900"
+        />
+        <span className="text-xs text-slate-500">/ 100</span>
+        {checkin.graded_at && (
+          <span className="ml-auto text-xs text-slate-500">Graded {new Date(checkin.graded_at).toLocaleDateString()}</span>
+        )}
+      </div>
+      <textarea
+        value={feedback}
+        onChange={(e) => setFeedback(e.target.value)}
+        rows={3}
+        placeholder="Feedback for the team (shown in their portal)"
+        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900"
+      />
+      <div className="flex justify-end mt-2">
+        <button
+          onClick={save}
+          disabled={!valid || !dirty || saving}
+          className="px-4 py-1.5 bg-blue-900 text-white rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? 'Saving...' : checkin.graded_at ? 'Update grade' : 'Save grade'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function CheckinsModal({ teamId, onClose }: Props) {
   const [checkins, setCheckins] = useState<Checkin[]>([]);
   const [loading, setLoading] = useState(false);
@@ -157,6 +217,11 @@ export default function CheckinsModal({ teamId, onClose }: Props) {
                     </a>
                   ))}
                 </div>
+
+                <GradeForm
+                  checkin={c}
+                  onSaved={(updated) => setCheckins((prev) => prev.map((x) => (x.id === updated.id ? updated : x)))}
+                />
               </div>
             ))}
           </div>
