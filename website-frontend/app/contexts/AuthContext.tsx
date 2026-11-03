@@ -50,6 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (res.ok) {
               const u = await res.json();
               if (mounted) setUser(u as unknown as User);
+            } else if (res.status === 401) {
+              // Expired/invalid token: drop it so the user sees a clean "Login" state
+              localStorage.removeItem("token");
+              if (mounted) setToken(null);
             }
           } catch {}
         }
