@@ -1,0 +1,4 @@
+# Local secret folders (copied into each app; never commit)
+*-envs/
+.DS_Store
+.gstack/
