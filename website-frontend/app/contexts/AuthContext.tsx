@@ -97,13 +97,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokenFromString(null);
   };
 
-  const fetchWithAuth = async (input: RequestInfo, init?: RequestInit) => {
+  // Stable identity so effects depending on it don't refetch on every render
+  const fetchWithAuth = useCallback(async (input: RequestInfo, init?: RequestInit) => {
     const tokenLocal = token ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
     const headers = new Headers(init?.headers || {});
     if (tokenLocal) headers.set("Authorization", `Bearer ${tokenLocal}`);
     const merged: RequestInit = { ...(init || {}), headers };
     return fetch(input, merged);
-  };
+  }, [token]);
 
   return (
     <AuthContext.Provider value={{ user, token, initialized, setTokenFromString, login, logoutUser, fetchWithAuth }}>
