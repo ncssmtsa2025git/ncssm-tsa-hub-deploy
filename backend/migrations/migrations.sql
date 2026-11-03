@@ -63,7 +63,10 @@ CREATE TABLE IF NOT EXISTS checkins (
   links jsonb NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   approved boolean DEFAULT false,
-  approved_at timestamptz
+  approved_at timestamptz,
+  score integer CHECK (score BETWEEN 0 AND 100),
+  feedback text,
+  graded_at timestamptz
 );
 
 CREATE INDEX IF NOT EXISTS idx_checkins_team_id ON checkins(team_id);
