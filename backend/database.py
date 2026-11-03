@@ -201,37 +201,33 @@ async def create_team(team_data: Union[dict, PydanticBaseModel]) -> Team:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
+# One round trip per query: PostgREST embeds the event, captain and members
+# instead of issuing ~5 follow-up queries per team.
+TEAM_SELECT = "*, event:events(*), captain:users!captain_id(*), team_members(user:users(*))"
+
+
+def _team_from_row(row: dict) -> Optional[Team]:
+    try:
+        return Team(
+            id=row["id"],
+            event=row["event"],
+            teamNumber=row["team_number"],
+            conference=row["conference"],
+            captain=row["captain"],
+            members=[m["user"] for m in row.get("team_members") or [] if m.get("user")],
+            checkInDate=row.get("check_in_date")
+        )
+    except Exception as e:
+        print(f"Error building team {row.get('id')}: {e}")
+        return None
+
+
 async def get_team_by_id(team_id: str) -> Optional[Team]:
     try:
-        # Base team row
-        team_res = supabase.table("teams").select("*").eq("id", team_id).execute()
+        team_res = supabase.table("teams").select(TEAM_SELECT).eq("id", team_id).execute()
         if not team_res.data:
             return None
-        team_row = team_res.data[0]
-
-        # Event
-        event = await get_event_by_id(team_row["event_id"])
-
-        # Captain
-        captain = await get_user_by_id(team_row["captain_id"])
-
-        # Members
-        member_links = supabase.table("team_members").select("*").eq("team_id", team_id).execute()
-        members = []
-        for ml in member_links.data:
-            u = await get_user_by_id(ml["user_id"])
-            if u:
-                members.append(u)
-
-        return Team(
-            id=team_row["id"],
-            event=event,
-            teamNumber=team_row["team_number"],
-            conference=team_row["conference"],
-            captain=captain,
-            members=members,
-            checkInDate=team_row.get("check_in_date")
-        )
+        return _team_from_row(team_res.data[0])
     except Exception as e:
         print(f"Error fetching team by ID: {e}")
         return None
@@ -239,14 +235,8 @@ async def get_team_by_id(team_id: str) -> Optional[Team]:
 
 async def list_teams() -> list[Team]:
     try:
-        response = supabase.table("teams").select("id").execute()
-        team_ids = [row["id"] for row in response.data] if response.data else []
-        teams = []
-        for tid in team_ids:
-            team = await get_team_by_id(tid)
-            if team:
-                teams.append(team)
-        return teams
+        response = supabase.table("teams").select(TEAM_SELECT).execute()
+        return [t for t in (_team_from_row(r) for r in response.data or []) if t]
     except Exception as e:
         print(f"Error listing teams: {e}")
         return []
@@ -476,13 +466,11 @@ async def list_user_teams(user_id: str) -> list[Team]:
         member_res = supabase.table("team_members").select("team_id").eq("user_id", user_id).execute()
         member_team_ids = [r["team_id"] for r in member_res.data] if member_res.data else []
 
-        all_ids = set(captain_team_ids + member_team_ids)
-        teams = []
-        for tid in all_ids:
-            team = await get_team_by_id(tid)
-            if team:
-                teams.append(team)
-        return teams
+        all_ids = list(set(captain_team_ids + member_team_ids))
+        if not all_ids:
+            return []
+        response = supabase.table("teams").select(TEAM_SELECT).in_("id", all_ids).execute()
+        return [t for t in (_team_from_row(r) for r in response.data or []) if t]
     except Exception as e:
         print(f"Error listing user teams: {e}")
         return []
