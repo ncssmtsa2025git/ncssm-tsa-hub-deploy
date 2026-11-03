@@ -78,35 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // listen for postMessage from popup
-  useEffect(() => {
-    function onMessage(e: MessageEvent) {
-      const allowedOrigin = process.env.NEXT_PUBLIC_SELF_URL || window.location.origin;
-      if (e.origin !== allowedOrigin) return;
-      const data = e.data as unknown;
-      if (typeof data === "object" && data !== null) {
-        const d = data as Record<string, unknown>;
-        if (d.type === "oauth") {
-          setTokenFromString((d.token as string) ?? null);
-        }
-      }
-    }
-
-    window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, [setTokenFromString]);
-
   const login = async () => {
-    const popup = await startGoogleLogin();
-    if (!popup) return;
-
-    // Poll for popup close: when closed, the popup should have posted a message we handled above
-    const timer = setInterval(() => {
-      if (popup.closed) {
-        clearInterval(timer);
-        // nothing else to do: setTokenFromString will be called by message handler
-      }
-    }, 500);
+    // Navigates away to Google; /auth/success stores the token and returns here.
+    await startGoogleLogin();
   };
 
   const logoutUser = async () => {

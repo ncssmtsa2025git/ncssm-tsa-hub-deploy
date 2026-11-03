@@ -2,16 +2,20 @@ import { User } from "../models/user";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export async function startGoogleLogin(): Promise<Window | null> {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
-  });
+// Full-page redirect instead of a popup: Safari/iOS block popups opened after an
+// await, and Google's Cross-Origin-Opener-Policy cuts the popup off from its opener.
+export async function startGoogleLogin(): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/auth/login`);
 
   if (!res.ok) {
     throw new Error("Failed to start login");
   }
 
   const data = await res.json();
-  return window.open(data.auth_url, "google_oauth", "width=600,height=700");
+  try {
+    sessionStorage.setItem("postLoginPath", window.location.pathname);
+  } catch {}
+  window.location.assign(data.auth_url);
 }
 
 export async function fetchUser(): Promise<User | null> {

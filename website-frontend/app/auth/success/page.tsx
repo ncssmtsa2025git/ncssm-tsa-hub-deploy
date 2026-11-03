@@ -1,57 +1,57 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
-function parseFragmentToken(hash: string): string | null {
-  if (!hash) return null;
-  // remove leading '#'
-  const h = hash.startsWith("#") ? hash.slice(1) : hash;
-  const params = new URLSearchParams(h);
-  return params.get("access_token");
-}
+const ERROR_MESSAGES: Record<string, string> = {
+  not_whitelisted:
+    "Your email isn't on the TSA Hub whitelist yet. Ask a TSA officer to add you, then try logging in again.",
+  access_denied: "Google sign-in was cancelled.",
+};
 
 export default function AuthSuccess() {
-  useEffect(() => {
-    const token = parseFragmentToken(window.location.hash);
+  const [error, setError] = useState<string | null>(null);
 
-    const allowedOrigin = process.env.NEXT_PUBLIC_SELF_URL || window.location.origin;
+  useEffect(() => {
+    // The API redirects here with #access_token=... or #error=...
+    const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const token = params.get("access_token");
+    const err = params.get("error");
 
     if (token) {
-      // If opened by a popup, post message back to opener securely
-      if (window.opener) {
-        try {
-          window.opener.postMessage({ type: "oauth", token }, allowedOrigin);
-        } catch {
-          // ignore
-        }
-        // close the popup after a short delay to ensure message is delivered
-        setTimeout(() => window.close(), 300);
-        return;
-      }
-
-      // If not opened as a popup, save token to localStorage and navigate to root
       try {
         localStorage.setItem("token", token);
-      } catch {
-        // ignore storage errors
-      }
-
-      window.location.replace("/");
-      return;
-    }
-
-    // No token found: still notify opener so it can react if needed
-    if (window.opener) {
-      try {
-        window.opener.postMessage({ type: "oauth", token: null }, allowedOrigin);
       } catch {}
-      setTimeout(() => window.close(), 300);
+      let next = "/";
+      try {
+        const saved = sessionStorage.getItem("postLoginPath");
+        sessionStorage.removeItem("postLoginPath");
+        if (saved && saved.startsWith("/") && !saved.startsWith("//") && saved !== "/auth/success") next = saved;
+      } catch {}
+      window.location.replace(next);
       return;
     }
 
-    // Fallback UX
-    // If there's no opener and no token, just redirect home
+    if (err) {
+      setError(ERROR_MESSAGES[err] ?? "Login failed. Please try again.");
+      return;
+    }
+
     window.location.replace("/");
   }, []);
 
-  return <p>Logging you in...</p>;
+  if (error) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center p-6">
+        <div className="max-w-md rounded-lg border bg-white p-6 shadow-sm text-center">
+          <h1 className="text-lg font-semibold text-gray-800 mb-2">Couldn&apos;t log you in</h1>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Link href="/" className="text-blue-600 hover:underline">
+            Back to home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return <p className="p-6">Logging you in...</p>;
 }
