@@ -35,7 +35,7 @@ class EventService {
   }
 
   async listEvents(): Promise<Event[]> {
-    const res = await fetch(`${API_BASE_URL}/events`);
+    const res = await fetch(`${API_BASE_URL}/events/`);
     if (!res.ok) throw new Error(`Failed to fetch events: ${res.statusText}`);
     return res.json();
   }

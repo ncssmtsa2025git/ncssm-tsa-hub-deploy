@@ -12,7 +12,7 @@ class TeamService {
   }
 
   async listTeams(): Promise<Team[]> {
-    const res = await fetch(`${API_BASE_URL}/teams`);
+    const res = await fetch(`${API_BASE_URL}/teams/`);
     if (!res.ok) throw new Error(`Failed to fetch teams: ${res.statusText}`);
     return res.json();
   }
