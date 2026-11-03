@@ -18,7 +18,7 @@ class GoogleUserInfo(BaseModel):
     id: str
     email: str
     name: str
-    picture: str
+    picture: Optional[str] = None  # absent for some Google accounts
 
 class Token(BaseModel):
     access_token: str
