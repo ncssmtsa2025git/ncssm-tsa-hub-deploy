@@ -203,6 +203,28 @@ export default function Portal(): JSX.Element {
                   ))}
                 </div>
 
+                <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  {viewingCheckin.score != null ? (
+                    <>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-sm font-semibold text-slate-700">Grade</span>
+                        <span className="text-2xl font-bold text-blue-900">
+                          {viewingCheckin.score}
+                          <span className="text-sm font-medium text-slate-500"> / 100</span>
+                        </span>
+                      </div>
+                      {viewingCheckin.feedback && (
+                        <p className="mt-3 text-sm text-slate-700 whitespace-pre-wrap">{viewingCheckin.feedback}</p>
+                      )}
+                      {viewingCheckin.graded_at && (
+                        <p className="mt-3 text-xs text-slate-500">Graded {new Date(viewingCheckin.graded_at).toLocaleDateString()}</p>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-sm text-slate-500">Not graded yet. Your grade and feedback will appear here.</p>
+                  )}
+                </div>
+
                 <div className="mt-6 flex justify-end">
                   <button 
                     onClick={() => setViewingCheckin(null)} 

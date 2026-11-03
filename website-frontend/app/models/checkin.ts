@@ -10,4 +10,7 @@ export interface Checkin {
   created_at: string;
   approved: boolean;
   approved_at?: string; // ISO datetime or null
+  score?: number | null; // 0-100, set by graders in the admin panel
+  feedback?: string | null;
+  graded_at?: string | null; // ISO datetime
 }

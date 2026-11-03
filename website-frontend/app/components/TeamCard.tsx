@@ -30,6 +30,7 @@ export default function TeamCard({ team, checkins, onViewCheckin, onUpload }: Pr
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 {new Date(c.submitted_at).toLocaleDateString()}
+                {c.score != null && <span className="ml-1 font-semibold">· {c.score}/100</span>}
               </button>
             ))
           ) : (
