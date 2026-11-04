@@ -15,3 +15,14 @@ class Team(BaseModel):
     class Config:
         populate_by_name = True 
         from_attributes = True
+
+class TeamMemberPublic(BaseModel):
+    id: str | None = None
+    name: str
+    picture: str | None = None
+
+
+class MemberTeam(Team):
+    """What a student sees about their own teams: no teammate emails or Google IDs."""
+    members: List[TeamMemberPublic]
+    captain: TeamMemberPublic

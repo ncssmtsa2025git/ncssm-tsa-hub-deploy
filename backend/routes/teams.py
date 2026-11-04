@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 
-from models.team import Team
+from models.team import Team, MemberTeam
 from database import create_team, get_team_by_id, list_teams, list_user_teams, update_team, delete_team
 from utils import verify_token, verify_admin_jwt
 
@@ -23,7 +23,7 @@ async def list_teams_route(admin: None = Depends(verify_admin_jwt)):
 
 
 # Get teams for current user
-@router.get("/me", response_model=List[Team])
+@router.get("/me", response_model=List[MemberTeam])
 async def list_my_teams_route(user_id: str = Depends(verify_token)):
     return await list_user_teams(user_id)
 
