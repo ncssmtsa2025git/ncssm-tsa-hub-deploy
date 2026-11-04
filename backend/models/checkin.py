@@ -1,10 +1,14 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Annotated, List, Optional
 from pydantic import BaseModel, Field, HttpUrl
 
 
+# Only plain http(s) links, capped in count and length (the client check is bypassable).
+CheckinLink = Annotated[str, Field(max_length=2048, pattern=r"(?i)^https?://.+$")]
+
+
 class CheckinCreate(BaseModel):
-    links: List[str]
+    links: List[CheckinLink] = Field(min_length=1, max_length=10)
 
 
 class CheckinGrade(BaseModel):
