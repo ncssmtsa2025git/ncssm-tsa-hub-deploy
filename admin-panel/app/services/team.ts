@@ -12,13 +12,19 @@ class TeamService {
   }
 
   async listTeams(): Promise<Team[]> {
-    const res = await fetch(`${API_BASE_URL}/teams/`);
+    const token = authService.getToken();
+    const res = await fetch(`${API_BASE_URL}/teams/`, {
+      headers: { ...(token ? { 'X-Admin-Token': token } : {}) },
+    });
     if (!res.ok) throw new Error(`Failed to fetch teams: ${res.statusText}`);
     return res.json();
   }
 
   async getTeam(id: string): Promise<Team> {
-    const res = await fetch(`${API_BASE_URL}/teams/${id}`);
+    const token = authService.getToken();
+    const res = await fetch(`${API_BASE_URL}/teams/${id}`, {
+      headers: { ...(token ? { 'X-Admin-Token': token } : {}) },
+    });
     if (!res.ok) throw new Error(`Failed to fetch team: ${res.statusText}`);
     return res.json();
   }

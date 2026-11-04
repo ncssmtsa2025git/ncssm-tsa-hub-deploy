@@ -16,9 +16,9 @@ async def create_team_route(team_data: dict, admin: None = Depends(verify_admin_
     return await create_team(team_data)
 
 
-# Get all teams
+# Get all teams (admin only: responses include every member's email)
 @router.get("/", response_model=List[Team])
-async def list_teams_route():
+async def list_teams_route(admin: None = Depends(verify_admin_jwt)):
     return await list_teams()
 
 
@@ -30,7 +30,7 @@ async def list_my_teams_route(user_id: str = Depends(verify_token)):
 
 # Get team by id
 @router.get("/{team_id}", response_model=Team)
-async def get_team_route(team_id: str):
+async def get_team_route(team_id: str, admin: None = Depends(verify_admin_jwt)):
     team = await get_team_by_id(team_id)
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
