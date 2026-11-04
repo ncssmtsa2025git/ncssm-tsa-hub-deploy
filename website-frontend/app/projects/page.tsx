@@ -5,7 +5,7 @@ import { Search, Calendar, Users, ExternalLink, Trophy } from "lucide-react";
 import type { Project } from "../models/project";
 
 // ---- optional: CSV helper kept in case you re-add Export later ----
-export function toCSV(rows: Record<string, unknown>[]): string {
+function toCSV(rows: Record<string, unknown>[]): string {
   if (!rows.length) return "";
   const headers = Object.keys(rows[0]);
   const escape = (v: unknown) => {
