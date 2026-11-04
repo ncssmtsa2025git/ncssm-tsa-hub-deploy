@@ -1,5 +1,4 @@
 import os
-import secrets
 import jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException, Header
@@ -10,7 +9,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Config
-JWT_SECRET = os.getenv("JWT_SECRET", secrets.token_urlsafe(32))
+# Fail closed: an empty/short secret would let anyone forge tokens (including admin ones).
+JWT_SECRET = os.getenv("JWT_SECRET", "")
+if len(JWT_SECRET) < 32:
+    raise RuntimeError("JWT_SECRET must be set to at least 32 characters")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
