@@ -103,6 +103,10 @@ async def auth_callback(code: Optional[str] = None, state: Optional[str] = None,
     # Get user info
     google_user = await get_google_user_info(access_token)
 
+    # Only trust addresses Google has verified, otherwise the whitelist check means nothing
+    if not google_user.verified_email:
+        return _login_error_redirect("unverified_email")
+
     # Enforce whitelist membership via Supabase
     allowed = await is_email_whitelisted(google_user.email)
     if not allowed:

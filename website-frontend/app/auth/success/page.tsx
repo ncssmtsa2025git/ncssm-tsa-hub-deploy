@@ -6,6 +6,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   not_whitelisted:
     "Your email isn't on the TSA Hub whitelist yet. Ask a TSA officer to add you, then try logging in again.",
   access_denied: "Google sign-in was cancelled.",
+  unverified_email: "Your Google account's email isn't verified. Sign in with your school account.",
 };
 
 export default function AuthSuccess() {
