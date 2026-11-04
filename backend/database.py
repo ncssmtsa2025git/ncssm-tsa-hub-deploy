@@ -442,11 +442,13 @@ async def add_whitelist_email(email: str) -> bool:
 async def add_whitelist_emails(emails: list[str]) -> list[str]:
     """Insert many emails in one query, skipping ones already present. Returns the newly added emails."""
     try:
-        existing = set(await list_whitelist())
-        new = [e for e in emails if e not in existing]
-        if new:
-            supabase.table("whitelist").insert([{"email": e} for e in new]).execute()
-        return new
+        if not emails:
+            return []
+        # Let the DB skip duplicates (email is the primary key) so a stale or partial read can't fail the batch
+        response = supabase.table("whitelist").upsert(
+            [{"email": e} for e in emails], on_conflict="email", ignore_duplicates=True
+        ).execute()
+        return [row["email"] for row in (response.data or [])]
     except Exception as e:
         print(f"Error bulk-adding to whitelist: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
