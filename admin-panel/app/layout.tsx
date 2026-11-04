@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "NCSSM-D TSA Admin",
-    template: "%s | NCSSM-D TSA Admin",
+    default: "NCSSM Durham TSA Admin",
+    template: "%s | NCSSM Durham TSA Admin",
   },
   icons: {
     icon: "/static/favicon.ico",
   },
-  description: "Admin dashboard for NCSSM-D TSA",
+  description: "Admin dashboard for NCSSM Durham TSA",
 };
 
 export default function RootLayout({

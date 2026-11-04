@@ -9,7 +9,7 @@ export default function Footer(): React.ReactElement {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Left: About */}
           <div>
-            <h3 className="text-xl font-bold mb-4">NCSSM-D TSA</h3>
+            <h3 className="text-xl font-bold mb-4">NCSSM Durham TSA</h3>
             <p className="text-gray-400 mb-4">
               Technology Student Association at the North Carolina School of Science and Mathematics Durham
             </p>
