@@ -52,7 +52,7 @@ async def create_user(user_data: dict) -> User:
             raise HTTPException(status_code=500, detail="Failed to create user")
     except Exception as e:
         print(f"Error creating user: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 async def update_user(user_id: str, user_data: dict) -> User:
     try:
@@ -65,7 +65,7 @@ async def update_user(user_id: str, user_data: dict) -> User:
             raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
         print(f"Error updating user: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 async def create_event(event_data: dict) -> Event:
     try:
@@ -76,7 +76,7 @@ async def create_event(event_data: dict) -> Event:
             raise HTTPException(status_code=500, detail="Failed to create event")
     except Exception as e:
         print(f"Error creating event: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 async def update_event(event_id: str, event_data: dict) -> Event:
@@ -88,7 +88,7 @@ async def update_event(event_id: str, event_data: dict) -> Event:
             raise HTTPException(status_code=404, detail="Event not found")
     except Exception as e:
         print(f"Error updating event: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 async def delete_event(event_id: str) -> bool:
@@ -98,7 +98,7 @@ async def delete_event(event_id: str) -> bool:
         return bool(response.data)
     except Exception as e:
         print(f"Error deleting event: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 async def get_event_by_id(event_id: str) -> Optional[Event]:
     try:
@@ -200,7 +200,7 @@ async def create_team(team_data: Union[dict, PydanticBaseModel]) -> Team:
         raise
     except Exception as e:
         print(f"Error creating team: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 # One round trip per query: PostgREST embeds the event, captain and members
@@ -308,7 +308,7 @@ async def update_team(team_id: str, team_data: Union[dict, PydanticBaseModel]) -
         raise
     except Exception as e:
         print(f"Error updating team: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 async def delete_team(team_id: str) -> bool:
@@ -319,7 +319,7 @@ async def delete_team(team_id: str) -> bool:
         return bool(response.data)
     except Exception as e:
         print(f"Error deleting team: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 async def create_checkin(team_id: str, checkin_data: Union[dict, PydanticBaseModel]) -> Checkin:
@@ -351,7 +351,7 @@ async def create_checkin(team_id: str, checkin_data: Union[dict, PydanticBaseMod
         raise
     except Exception as e:
         print(f"Error creating checkin: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 def _checkin_from_row(r: dict) -> Checkin:
@@ -395,7 +395,7 @@ async def delete_checkin(checkin_id: str) -> bool:
         return bool(response.data)
     except Exception as e:
         print(f"Error deleting checkin: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 async def update_checkin(checkin_id: str, checkin_data: dict) -> Optional[Checkin]:
@@ -407,7 +407,7 @@ async def update_checkin(checkin_id: str, checkin_data: dict) -> Optional[Checki
         return await get_checkin_by_id(checkin_id)
     except Exception as e:
         print(f"Error updating checkin: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 # Whitelist helpers
@@ -451,7 +451,7 @@ async def add_whitelist_emails(emails: list[str]) -> list[str]:
         return [row["email"] for row in (response.data or [])]
     except Exception as e:
         print(f"Error bulk-adding to whitelist: {e}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 async def remove_whitelist_email(email: str) -> bool:
