@@ -16,10 +16,10 @@ type GalleryItem = {
 const OFFICERS: { name: string; role: string; email: string; photo?: string }[] = [
   { name: "David Ta", role: "Co-President", email: "ta27d@ncssm.edu", photo: "/officers/david.jpg" },
   { name: "Nathaniel Joy", role: "Co-President", email: "joy27n@ncssm.edu", photo: "/officers/nathaniel.jpg" },
-  { name: "Moksha Agrawal", role: "Vice President", email: "agrawal27m@ncssm.edu" },
-  { name: "Isabella Bai", role: "Secretary", email: "bai27i@ncssm.edu" },
-  { name: "Megan Nguyen", role: "Competitive Lead", email: "nguyen27m@ncssm.edu" },
-  { name: "Ayush Kamath", role: "Reporter", email: "kamath27a@ncssm.edu" },
+  { name: "Moksha Agrawal", role: "Vice President", email: "agrawal27m@ncssm.edu", photo: "/officers/moksha.jpg" },
+  { name: "Isabella Bai", role: "Secretary", email: "bai27i@ncssm.edu", photo: "/officers/isabella.jpg" },
+  { name: "Megan Nguyen", role: "Competitive Lead", email: "nguyen27m@ncssm.edu", photo: "/officers/megan.jpg" },
+  { name: "Ayush Kamath", role: "Reporter", email: "kamath27a@ncssm.edu", photo: "/officers/ayush.jpg" },
   { name: "Aarush Jain", role: "Tech Lead", email: "jain27a@ncssm.edu", photo: "/officers/aarush.jpg" },
 ];
 
