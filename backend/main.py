@@ -7,7 +7,8 @@ from routes.events import router as event_router
 from routes.teams import router as team_router
 from routes.checkins import router as checkin_router
 
-app = FastAPI(title="Google OAuth 2 API", version="1.0.0")
+# No public /docs or /openapi.json: they map every route for attackers
+app = FastAPI(title="Google OAuth 2 API", version="1.0.0", docs_url=None, redoc_url=None, openapi_url=None)
 
 # CORS
 origins = [
