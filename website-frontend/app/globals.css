@@ -1,101 +1,74 @@
-
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #0b1726; /* deep navy */
-  --ncssm-gold: #d4a017;
-  --ncssm-accent: #1e6f9f;
-  --muted: #657887;
+/*
+  NCSSM Durham TSA design tokens.
+  Competitive, ambitious, curious: TSA blue carries the identity, TSA red is a
+  rare signal, neutrals are warm paper tinted toward the blue.
+*/
+@theme {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: oklch(0.22 0.035 262);
+  --color-ink-soft: oklch(0.42 0.025 262);
+  --color-muted: oklch(0.52 0.02 262);
+  --color-paper: oklch(0.985 0.004 85);
+  --color-paper-2: oklch(0.96 0.006 85);
+  --color-line: oklch(0.89 0.008 262);
+  --color-tsa: oklch(0.43 0.17 264);
+  --color-tsa-deep: oklch(0.26 0.1 264);
+  --color-tsa-tint: oklch(0.95 0.025 264);
+  --color-signal: oklch(0.57 0.2 25);
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --header-h: 72px;
+}
+
+html {
+  scroll-padding-top: calc(var(--header-h) + 1rem);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01";
 }
 
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 1rem;
+/* Condensed, heavy display cut of Archivo: scoreboard energy, spec-sheet precision. */
+.display {
+  font-family: var(--font-display);
+  font-stretch: 68%;
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
 }
 
-.site-header {
-  border-bottom: 4px solid var(--ncssm-gold);
-  background: linear-gradient(180deg, rgba(11,23,38,0.02), transparent);
-}
-.header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 0;
-}
-.logo {
-  font-weight: 700;
-  color: var(--foreground);
-  text-decoration: none;
-  font-size: 1.2rem;
-}
-.tag {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-.main-nav .nav-link {
-  margin-left: 1rem;
-  color: var(--foreground);
-  text-decoration: none;
-  font-weight: 600;
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-.logo { display: inline-block }
-
-.site-footer {
-  border-top: 1px solid #e6e6e6;
-  margin-top: 3rem;
-  padding: 1.25rem 0;
-  background: #fafafa;
+:focus-visible {
+  outline: 2px solid var(--color-tsa);
+  outline-offset: 2px;
 }
-.footer-inner {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.muted { color: var(--muted); font-size: 0.9rem }
 
-/* Page-specific components */
-.hero {
-  padding: 3rem 0;
-  display:flex;
-  align-items:center;
-  gap:2rem;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
-.hero .copy { max-width: 620px }
-.hero h1 { font-size:2rem; color:var(--foreground); margin-bottom:0.5rem }
-.card-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem }
-.card { border:1px solid #e8e8e8; padding:1rem; border-radius:8px; background: #fff; display:block }
-.card h3 { margin:0 0 0.5rem 0 }
-.photo-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:0.5rem }
-.photo-grid img { width:100%; height:160px; object-fit:cover; border-radius:6px }
 
+/* Small format tags used on events and in the portal. */
 .tag-badge {
-  display:inline-block;
-  background:#eef6ff;
-  color:var(--ncssm-accent);
-  padding:0.25rem 0.5rem;
-  border-radius:999px;
-  font-size:0.75rem;
-  font-weight:600;
-}
-
-/* globals.css */
-.tag-badge {
-  @apply inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200;
+  @apply inline-flex items-center rounded-full border border-line bg-paper-2 px-2.5 py-0.5 text-xs font-medium text-ink-soft;
 }
