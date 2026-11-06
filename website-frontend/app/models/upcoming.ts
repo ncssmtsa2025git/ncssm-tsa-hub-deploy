@@ -1,7 +1,9 @@
 export interface UpcomingDate {
   date: string;
+  end?: string;
   event: string;
   type: string;
+  location?: string;
 }
 
 export async function loadUpcomingDates(): Promise<UpcomingDate[]> {
