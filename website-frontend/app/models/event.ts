@@ -7,5 +7,6 @@ export interface Event {
   category: string
   teamSize: string
   types: string[]
-  rubricUrl: string
+  rubricUrl?: string | null
+  rubricPages?: string | null
 }

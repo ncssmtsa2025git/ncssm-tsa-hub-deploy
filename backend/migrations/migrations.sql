@@ -14,13 +14,14 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE TABLE IF NOT EXISTS events (
     id TEXT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    theme VARCHAR(255),
+    theme TEXT,
     full_theme_url TEXT,
     description TEXT NOT NULL,
     category VARCHAR(100) NOT NULL,
     team_size VARCHAR(50) NOT NULL,
     types TEXT[] NOT NULL,
-    rubric_url TEXT
+    rubric_url TEXT,
+    rubric_pages TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);

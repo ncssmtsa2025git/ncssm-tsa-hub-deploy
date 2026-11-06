@@ -11,7 +11,8 @@ class Event(BaseModel):
     category: str
     team_size: str = Field(alias="teamSize")
     types: List[str]
-    rubric_url: str = Field(alias="rubricUrl")
+    rubric_url: Optional[str] = Field(None, alias="rubricUrl")
+    rubric_pages: Optional[str] = Field(None, alias="rubricPages")
 
     class Config:
         populate_by_name = True  # allows using either alias or field name
