@@ -19,6 +19,7 @@ export default function UsersTab() {
   const [, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -44,6 +45,20 @@ export default function UsersTab() {
   const filteredUsers = users.filter((user) =>
     (user.name || user.email).toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Whitelisted emails with no user account yet = never logged in
+  const registeredEmails = new Set(users.map((u) => u.email.toLowerCase()));
+  const notRegistered = whitelist.filter((email) => !registeredEmails.has(email.toLowerCase()));
+
+  const handleCopyNotRegistered = async () => {
+    try {
+      await navigator.clipboard.writeText(notRegistered.join(', '));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setStatus({ kind: 'error', text: "Couldn't copy to clipboard" });
+    }
+  };
 
   const handleAddToWhitelist = async () => {
     // Accept commas, semicolons, spaces or new lines (e.g. a column pasted from a spreadsheet)
@@ -114,6 +129,35 @@ export default function UsersTab() {
 
         {filteredUsers.length === 0 && (
           <div className="text-center py-8 text-gray-500">No users found matching your search.</div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center justify-between gap-4 mb-2">
+          <h3 className="text-xl font-semibold text-gray-900">Haven&apos;t Logged In Yet</h3>
+          {notRegistered.length > 0 && (
+            <button
+              onClick={handleCopyNotRegistered}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              {copied ? 'Copied!' : 'Copy emails'}
+            </button>
+          )}
+        </div>
+        <p className="text-sm text-gray-600 mb-4">
+          {notRegistered.length} of {whitelist.length} whitelisted member{whitelist.length === 1 ? '' : 's'} haven&apos;t signed in to register yet
+        </p>
+
+        {notRegistered.length > 0 ? (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {notRegistered.map((email) => (
+              <div key={email} className="bg-amber-50 border border-amber-200 px-4 py-2 rounded-lg text-sm text-amber-900">
+                {email}
+              </div>
+            ))}
+          </div>
+        ) : (
+          whitelist.length > 0 && <div className="text-center py-4 text-green-700">Everyone on the whitelist has logged in.</div>
         )}
       </div>
 
