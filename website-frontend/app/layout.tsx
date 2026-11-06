@@ -32,7 +32,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${archivo.variable} antialiased`}>
+      {/* Browser extensions (e.g. Grammarly) add attributes to <body> before React loads. */}
+      <body className={`${archivo.variable} antialiased`} suppressHydrationWarning>
         <AuthProvider>
           <Header />
           {children}
