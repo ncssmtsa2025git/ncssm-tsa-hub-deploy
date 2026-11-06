@@ -1,13 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Download,
-  Calendar,
-  Users,
-  X,
-  ExternalLink,
-} from "lucide-react";
+import { Search, Users, X, ExternalLink } from "lucide-react";
+import PageBanner from "../components/PageBanner";
 import { Event } from "../models/event";
 import { fetchEvents } from "../services/events";
 
@@ -62,23 +56,14 @@ export default function EventsPage(): React.ReactElement {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex justify-center mb-6">
-            <Calendar className="h-16 w-16 text-blue-200" />
-          </div>
-          <h1 className="text-5xl font-bold mb-6">TSA Events & Competitions</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto text-blue-100">
-            Discover competitions across engineering, programming, design, and
-            more.
-          </p>
-          <button className="bg-white text-blue-900 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center mx-auto">
-            <Download className="mr-2 h-5 w-5" />
-            Master PDF Download
-          </button>
-        </div>
-      </section>
+      <PageBanner
+        title="Events"
+        image="/pics/states_2026/IMG_4585.jpg"
+        alt="An NCSSM Durham member walks across the stage to accept an award at the 2026 NC TSA State Conference"
+        focus="70% 40%"
+      >
+        Every TSA high school event for the 2026–27 season, with its theme, team size, format and rubric.
+      </PageBanner>
 
       {/* Search and Filter Section */}
       <section className="py-8 bg-white border-b">
@@ -248,15 +233,17 @@ export default function EventsPage(): React.ReactElement {
                 </div>
 
                 <div className="flex gap-3 pt-4">
-                  <a
-                    href={selectedEvent.rubricUrl}
-                    className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium flex items-center justify-center"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    View Rubric
-                  </a>
+                  {selectedEvent.rubricUrl ? (
+                    <a
+                      href={selectedEvent.rubricUrl}
+                      className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium flex items-center justify-center"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      View Rubric{selectedEvent.rubricPages ? ` (pp. ${selectedEvent.rubricPages})` : ""}
+                    </a>
+                  ) : null}
                   {selectedEvent.fullThemeUrl ? (
                     <a
                       href={selectedEvent.fullThemeUrl}
