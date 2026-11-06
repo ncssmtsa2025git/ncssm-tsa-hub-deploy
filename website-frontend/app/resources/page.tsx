@@ -2,7 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { ExternalLink, BookOpen } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
+import PageBanner from '../components/PageBanner'
 
 type Resource = {
   title: string
@@ -32,25 +33,25 @@ const resources: Resource[] = [
   },
   {
     title: 'Themes & Problems',
-    description: 'Topics for specific events',
+    description: '2026–27 topics for specific events',
     href: 'https://tsaweb.org/competitions/themes-and-problems',
     category: 'TSA',
   },
   {
     title: 'NCTSA App',
-    description: 'Competition-day app, developed by our own chapter',
-    href: 'https://apps.apple.com/us/app/north-carolina-tsa-conference/id6743861783',
+    description: 'Competition-day app, developed by our own chapter (Android)',
+    href: 'https://play.google.com/store/apps/details?id=com.northcarolinatsa.android',
     category: 'TSA',
   },
   {
     title: 'TSA Student Member Site',
     description: 'Submit projects here',
-    href: 'https://tsamembership.registermychapter.com/members#',
+    href: 'https://tsamembership.registermychapter.com/members',
     category: 'TSA',
   },
   {
     title: 'TSACE',
-    description: 'Database of past projects from across the nation',
+    description: 'Student-run database of past projects from across the nation',
     href: 'https://www.tsace.org/projects',
     category: 'TSA',
   },
@@ -65,24 +66,38 @@ const resources: Resource[] = [
     description: 'View yearly event-specific changes',
     href: 'https://tsaweb.org/competitions/competition-updates',
     category: 'TSA',
+  },
+  {
+    title: 'Competitive Events Guide',
+    description: '2027 & 2028 rules and rubrics, shared by NCTSA',
+    href: 'https://drive.google.com/file/d/1SwPAK48hAUQKy1NkzkMRvvktUQ4qYXoI/view',
+    category: 'TSA',
+  },
+  {
+    title: 'NCTSA State Conference',
+    description: 'April 15–17, 2027 in Greensboro',
+    href: 'https://www.nctsa.org/state-conference',
+    category: 'TSA',
+  },
+  {
+    title: 'Nationals Dates & Deadlines',
+    description: 'June 23–27, 2027 in Orlando',
+    href: 'https://tsaweb.org/conferences/2027-national-tsa-conference/dates-and-deadlines_2027',
+    category: 'TSA',
   }
 ]
 
 export default function ResourcesPage(): React.ReactElement {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex justify-center mb-6">
-            <BookOpen className="h-16 w-16 text-blue-200" />
-          </div>
-          <h1 className="text-5xl font-bold mb-6">Resources</h1>
-          <p className="text-xl mb-8 max-w-4xl mx-auto">
-            Helpful links for NCSSM students and TSA members: guides, calendars, and official sites.
-          </p>
-        </div>
-      </section>    
+      <PageBanner
+        title="Resources"
+        image="/pics/states_2026/IMG_4631.jpg"
+        alt="Two NCSSM Durham members holding their trophy in front of the NC TSA backdrop at the 2026 State Conference"
+        focus="50% 38%"
+      >
+        Everything for the 2026–27 season in one place.
+      </PageBanner>
 
       {/* Content */}
       <section className="py-12">
