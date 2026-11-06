@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Instagram, Camera, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Instagram, ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { UpcomingDate, loadUpcomingDates } from "./models/upcoming";
+import DateList from "./components/DateList";
 
 type GalleryItem = {
   src: string;   // e.g. /pics/nats_2025/IMG_0001.jpg (must live under /public)
@@ -24,6 +26,15 @@ const OFFICERS: { name: string; role: string; email: string; photo?: string }[] 
 ];
 
 export default function Home(): React.ReactElement {
+  // ===== Next key dates (same file the portal and Resources page use) =====
+  const [dates, setDates] = useState<UpcomingDate[]>([]);
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    loadUpcomingDates()
+      .then((d) => setDates(d.filter((x) => x.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3)))
+      .catch(() => setDates([]));
+  }, []);
+
   // ===== Load gallery manifest =====
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -93,181 +104,187 @@ export default function Home(): React.ReactElement {
   }, [gallery]);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section
-        className="relative 
-          min-h-[calc(100svh-var(--header-h))] 
-          md:min-h-[calc(100vh-var(--header-h))] 
-          flex items-center justify-center"
-      >
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Background image */}
-          <Image
-            src="/front_page/background.jpg" // put your image in /public
-            alt="Hero Background"
-            fill
-            className="object-cover blur-sm scale-110 transform-gpu"
-            priority
-          />
-        </div>
+    <div className="min-h-screen bg-paper">
+      {/* Hero */}
+      <section className="relative isolate flex min-h-[calc(100svh-var(--header-h))] items-end overflow-hidden text-paper">
+        <Image
+          src="/front_page/background.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-10 scale-110 transform-gpu object-cover blur-sm"
+        />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,oklch(0.2_0.09_264/0.9)_0%,oklch(0.22_0.09_264/0.6)_50%,oklch(0.22_0.09_264/0.25)_100%)]" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-tsa-deep/80 to-transparent" />
 
-        {/* Readability overlay */}
-        <div className="absolute inset-0 bg-black/45" />
-
-        {/* Hero Content */}
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">NCSSM Durham TSA</h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed text-white/90">
-            Empowering students through technology, innovation, and competition
-            at the North Carolina School of Science and Mathematics Durham
-          </p>
-          <div className="flex flex-row flex-wrap gap-4 justify-center">
-          {/* Instagram button */}
-          <a
-            href="https://www.instagram.com/ncssmtsa?utm_source=ig_web_button_share_sheet&igsh=MXRyZWYwdmxreXBsaQ=="
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center px-8 py-4 rounded-lg font-semibold
-                      bg-white/15 backdrop-blur-md border border-white/60 text-white
-                      hover:bg-white/30 transition-all duration-300
-                      min-w-[200px]"
-          >
-            <Instagram className="w-5 h-5 mr-2 text-pink-500" />
-            <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
-              Follow Us!
-            </span>
-          </a>
-
-          {/* Events button */}
-          <Link
-            href="/events"
-            className="min-w-[200px] bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
-          >
-            Explore Events <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-        </div>
-
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
+        <div className="mx-auto w-full max-w-7xl px-4 pb-16 pt-24 sm:px-6 lg:px-8 lg:pb-20">
+          <h1 className="display text-[clamp(4rem,14vw,11.5rem)]">
+            NCSSM
+            <br />
+            Durham TSA
+          </h1>
+          <div className="mt-12 grid items-end gap-10 lg:mt-20 lg:grid-cols-[1fr_26rem] lg:gap-16">
+            <div>
+              <p className="max-w-xl text-lg leading-relaxed text-paper/90">
+                The Technology Student Association chapter at NCSSM in Durham, NC. Engineers, coders, designers and
+                speakers competing from regionals to nationals.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  href="/events"
+                  className="inline-flex items-center gap-2 rounded-lg bg-paper px-6 py-3.5 font-semibold text-tsa-deep transition-colors hover:bg-tsa-tint"
+                >
+                  This season&apos;s events <ArrowRight aria-hidden className="h-5 w-5" />
+                </Link>
+                <a
+                  href="https://www.instagram.com/ncssmtsa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg border border-paper/40 bg-paper/10 px-6 py-3.5 font-semibold transition-colors hover:bg-paper/20"
+                >
+                  <Instagram aria-hidden className="h-5 w-5 text-pink-500" />
+                  <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent">@ncssmtsa</span>
+                </a>
+              </div>
+            </div>
+            {dates.length > 0 && (
+              <div>
+                <div className="mb-2 flex items-baseline justify-between">
+                  <h2 className="font-semibold text-paper">Next up</h2>
+                  <Link href="/resources" className="text-paper/70 hover:text-paper hover:underline">
+                    All dates
+                  </Link>
+                </div>
+                <DateList dates={dates} tone="dark" />
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Meet the Officers Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Meet the Officers</h2>
+      {/* Officers */}
+      <section aria-labelledby="officers" className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-3">
+            <h2 id="officers" className="display text-5xl sm:text-6xl">
+              Officers
+            </h2>
+            <p className="text-ink-soft">2026–27</p>
           </div>
-          <div className="flex flex-wrap justify-center gap-8">
+          <ul className="flex flex-wrap justify-center gap-x-5 gap-y-10">
             {OFFICERS.map((o) => (
-              <div key={o.email} className="text-center w-full md:w-[calc(50%-1rem)] lg:w-[calc((100%-4rem)/3)]">
-                <div className="aspect-[1/1] bg-gray-100 border border-gray-200 rounded-lg overflow-hidden mb-4">
+              <li
+                key={o.email}
+                className="w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)]"
+              >
+                <div className="mb-4 aspect-[4/5] overflow-hidden rounded-md bg-paper-2">
                   {o.photo ? (
-                    <Image src={o.photo} alt={o.name} width={400} height={400} className="object-cover w-full h-full" />
+                    <Image
+                      src={o.photo}
+                      alt={o.name}
+                      width={400}
+                      height={500}
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-blue-50 text-6xl font-semibold text-blue-900/40">
+                    <div className="display flex h-full w-full items-center justify-center text-6xl text-tsa/30">
                       {o.name.split(" ").map((w) => w[0]).join("")}
                     </div>
                   )}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{o.name}</h3>
-                <p className="text-base font-medium text-blue-600 mb-2">{o.role}</p>
-                <p className="text-sm text-gray-600">{o.email}</p>
-              </div>
+                <h3 className="text-lg font-semibold leading-snug">{o.name}</h3>
+                <p className="text-ink-soft">{o.role}</p>
+                <a href={`mailto:${o.email}`} className="mt-1 block truncate font-medium text-tsa hover:underline">
+                  {o.email}
+                </a>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
-      {/* Photo Showcase Section — Slideshow with arrows */}
-      <section className="py-20 bg-blue-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl font-bold mb-6">Our Journey in Photos</h2>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              See the innovation, teamwork, and achievements that define our chapter
-            </p>
+      {/* Photo carousel */}
+      <section aria-labelledby="photos" className="bg-tsa-deep py-20 text-paper">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b-2 border-paper/80 pb-3">
+            <h2 id="photos" className="display text-5xl sm:text-6xl">
+              On the floor
+            </h2>
+            <Link href="/gallery" className="inline-flex items-center gap-1.5 font-semibold text-paper/85 hover:text-paper">
+              All photos <ArrowRight aria-hidden className="h-4 w-4" />
+            </Link>
           </div>
 
           {/* Carousel */}
           <div
-            className="relative mx-auto max-w-5xl"
+            className="relative"
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
           >
             {/* Viewport with slide animation */}
-            <div className="relative overflow-hidden rounded-2xl aspect-[21/10] bg-black/20">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-ink/30 sm:aspect-[21/10]">
               <div
-                className="flex h-full w-full transition-transform duration-500 ease-out"
+                className="flex h-full w-full transition-transform duration-700 ease-out-quart"
                 style={{ transform: `translateX(-${index * 100}%)` }}
               >
                 {slides.map((s, i) => (
-                  <div key={`${s.src}-${i}`} className="relative shrink-0 grow-0 basis-full">
+                  <div key={`${s.src}-${i}`} className="relative shrink-0 grow-0 basis-full" aria-hidden={i !== index}>
                     <Image
                       src={s.src}
                       alt={s.title}
                       fill
-                      sizes="(max-width: 1024px) 100vw, 832px"
+                      sizes="(max-width: 1280px) 100vw, 1216px"
                       className="object-cover"
                       priority={i === index}
                     />
                     {/* Caption overlay */}
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-5">
-                      <h3 className="text-xl md:text-2xl font-semibold">{s.title}</h3>
-                      <p className="text-sm md:text-base text-blue-200">{s.date}</p>
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/75 to-transparent px-5 pb-5 pt-16">
+                      <p className="text-xl font-semibold md:text-2xl">{s.title}</p>
+                      <p className="text-sm text-paper/75 md:text-base">{s.date}</p>
                     </div>
                   </div>
                 ))}
               </div>
-
-              {/* Left / Right arrows */}
-              <button
-                aria-label="Previous slide"
-                onClick={prev}
-                className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 grid place-items-center rounded-full bg-white/80 hover:bg-white p-2 shadow"
-              >
-                <ChevronLeft className="h-6 w-6 text-blue-900" />
-              </button>
-              <button
-                aria-label="Next slide"
-                onClick={next}
-                className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 grid place-items-center rounded-full bg-white/80 hover:bg-white p-2 shadow"
-              >
-                <ChevronRight className="h-6 w-6 text-blue-900" />
-              </button>
             </div>
 
-            {/* Dots */}
-            <div className="mt-4 flex items-center justify-center gap-2">
-              {slides.map((_, i) => (
+            <div className="mt-5 flex items-center justify-between gap-4">
+              {/* Progress segments */}
+              <div className="flex flex-1 items-center gap-1.5">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    aria-label={`Go to photo ${i + 1}`}
+                    aria-current={i === index}
+                    onClick={() => go(i)}
+                    className="group h-6 flex-1 cursor-pointer"
+                  >
+                    <span
+                      className={`block h-0.5 w-full rounded-full transition-colors ${
+                        i === index ? "bg-paper" : "bg-paper/25 group-hover:bg-paper/50"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
                 <button
-                  key={i}
-                  aria-label={`Go to slide ${i + 1}`}
-                  onClick={() => go(i)}
-                  className={`cursor-pointer h-2.5 rounded-full transition-all ${
-                    i === index ? "w-6 bg-white" : "w-2.5 bg-white/60 hover:bg-white/80"
-                  }`}
-                />
-              ))}
+                  aria-label="Previous photo"
+                  onClick={prev}
+                  className="cursor-pointer rounded-full border border-paper/30 p-2.5 hover:bg-paper/10"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  aria-label="Next photo"
+                  onClick={next}
+                  className="cursor-pointer rounded-full border border-paper/30 p-2.5 hover:bg-paper/10"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* CTA */}
-          <div className="mt-12 text-center">
-            <Link
-              href="/gallery"
-              className="inline-flex items-center bg-white text-blue-900 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
-            >
-              <Camera className="h-6 w-6 mr-3" />
-              All Photos
-              <ArrowRight className="h-5 w-5 ml-3" />
-            </Link>
           </div>
         </div>
       </section>
