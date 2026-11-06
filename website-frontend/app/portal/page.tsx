@@ -9,6 +9,7 @@ import { fetchMyTeams, getTeamCheckins, createCheckin } from "../services/portal
 // import { User } from "../models/user"; // not directly used here
 import TeamCard from "../components/TeamCard";
 import { UpcomingDate, loadUpcomingDates } from "../models/upcoming";
+import DateList from "../components/DateList";
 
 // Card Components
 interface CardProps {
@@ -31,13 +32,6 @@ function CardContent({ className = "", children }: CardProps) {
 
 // Upcoming dates (loaded from public JSON)
 const [/* placeholder for top-level const used below */,] = [];
-
-function formatDate(dateStr: string): string {
-  // Parse as local date to avoid timezone shifting
-  const [year, month, day] = dateStr.split('-').map(Number);
-  const date = new Date(year, month - 1, day);
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
-}
 
 export default function Portal(): JSX.Element {
   const { user, fetchWithAuth } = useAuth();
@@ -96,13 +90,14 @@ export default function Portal(): JSX.Element {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-paper">
+       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome, {user?.name}
+        <div className="mb-8 border-b-2 border-ink pb-3">
+          <p className="font-semibold text-ink-soft">Member portal</p>
+          <h1 className="display mt-1 text-5xl sm:text-6xl">
+            Welcome, {user?.name?.split(" ")[0]}
           </h1>
-          <p className="text-gray-600">Student Dashboard</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -146,17 +141,7 @@ export default function Portal(): JSX.Element {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {upcomingDates.map((item, index) => (
-                  <div key={index} className="border-l-4 border-blue-400 pl-3">
-                    <div className="font-medium text-sm text-blue-600">
-                      {formatDate(item.date)}
-                    </div>
-                    <div className="text-gray-800 text-sm">{item.event}</div>
-                    <div className="text-xs text-gray-500">{item.type}</div>
-                  </div>
-                ))}
-              </div>
+              <DateList dates={upcomingDates} />
             </CardContent>
           </Card>
         </div>
@@ -166,7 +151,7 @@ export default function Portal(): JSX.Element {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setViewingCheckin(null)} />
             <div className="relative bg-white rounded-xl w-full max-w-2xl shadow-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-800 to-blue-700 px-6 py-5 flex items-center justify-between">
+              <div className="bg-tsa-deep px-6 py-5 flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-white">Check-in Details</h3>
                 <button 
                   onClick={() => setViewingCheckin(null)} 
@@ -243,7 +228,7 @@ export default function Portal(): JSX.Element {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setUploadingForTeam(null)} />
             <div className="relative bg-white rounded-xl w-full max-w-2xl shadow-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-800 to-blue-700 px-6 py-5 flex items-center justify-between">
+              <div className="bg-tsa-deep px-6 py-5 flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-white">Upload Check-in</h3>
                 <button 
                   onClick={() => setUploadingForTeam(null)} 
@@ -338,6 +323,7 @@ export default function Portal(): JSX.Element {
             </div>
           </div>
         )}
+       </div>
       </div>
     </ProtectedRoute>
   );

@@ -14,7 +14,7 @@ interface Props {
 
 export default function TeamCard({ team, checkins, onViewCheckin, onUpload }: Props) {
   return (
-    <div className="relative border-l-2 border-blue-600 rounded-lg p-5 bg-white shadow-sm hover:shadow-md transition-shadow">
+    <div className="relative rounded-lg border border-line bg-white p-5">
       <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
         <span className="text-xs font-medium text-slate-500">Submitted Check-ins</span>
         <div className="flex items-center gap-2">
