@@ -7,6 +7,13 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
+const NAV = [
+  { href: "/", label: "Home" },
+  { href: "/events", label: "Events" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/resources", label: "Resources" },
+  // { href: "/projects", label: "Past Projects" },
+];
 
 export default function Header(): React.ReactElement {
   const [visible, setVisible] = useState(true);
@@ -15,45 +22,15 @@ export default function Header(): React.ReactElement {
   const barRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
 
-  const { user, login, logoutUser } = useAuth();  
+  const { user, login, logoutUser } = useAuth();
 
   // Avoid rendering auth-dependent UI during SSR to prevent hydration mismatches.
-  // We only show the real AuthActionBar after the client has mounted. 
+  // We only show the real AuthActionBar after the client has mounted.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // Base link style w/ hover underline animation
-  const baseLink =
-    "relative pb-1 transition-colors hover:text-blue-200 " +
-    "after:absolute after:left-0 after:bottom-0 after:h-[2px] " +
-    "after:w-full after:origin-left after:scale-x-0 after:bg-blue-200 " +
-    "after:transition-transform after:duration-300 hover:after:scale-x-100";
-
   // Active logic: "/" must match exactly; others match prefix (e.g., /events/123)
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
-
-  // Helper to render a nav link with active highlight + underline
-  const NavLink = ({
-    href,
-    children,
-  }: {
-    href: string;
-    children: React.ReactNode;
-  }) => {
-    const active = isActive(href);
-    return (
-      <Link
-        href={href}
-        aria-current={active ? "page" : undefined}
-        className={`${baseLink} ${
-          active ? "text-blue-200 after:scale-x-100" : ""
-        }`}
-      >
-        {children}
-      </Link>
-    );
-  };
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   // fetchUser is now handled by AuthProvider and token-based flow.
 
@@ -82,17 +59,18 @@ export default function Header(): React.ReactElement {
     const ro = new ResizeObserver(updateHeaderVar);
     if (barRef.current) ro.observe(barRef.current);
     window.addEventListener("resize", updateHeaderVar);
-    const raf = requestAnimationFrame(updateHeaderVar);
-    const tmo = setTimeout(updateHeaderVar, 300);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", updateHeaderVar);
-      cancelAnimationFrame(raf);
-      clearTimeout(tmo);
     };
   }, []);
 
-  // Scroll hide/show (don’t hide while mobile menu is open)
+  // --header-offset is how much of the header is on screen, so sticky toolbars can sit right under it.
+  useEffect(() => {
+    document.documentElement.style.setProperty("--header-offset", visible ? "var(--header-h)" : "0px");
+  }, [visible]);
+
+  // Scroll hide/show (don't hide while mobile menu is open)
   useEffect(() => {
     const handleScroll = () => {
       if (mobileOpen) return;
@@ -109,127 +87,87 @@ export default function Header(): React.ReactElement {
     <header className="sticky top-0 z-50">
       <div
         ref={barRef}
-        className={`bg-blue-900 text-white shadow-lg transition-transform duration-300 ${
+        className={`bg-tsa-deep text-paper transition-transform duration-300 ease-out-quart ${
           visible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <div className="w-full px-2 sm:px-3 lg:px-4">
-          <div className="flex justify-between items-center h-[72px]">
-            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-              <Link href="/" aria-label="NCSSM TSA Home" className="flex items-center min-w-0">
-                <div className="bg-white rounded-full flex items-center justify-center">
-                  <Image
-                    width={56}
-                    height={56}
-                    src={"/ncssm_tsa_logo.jpg"}
-                    alt="NCSSM TSA Logo"
-                    className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full"
-                  />
-                </div>
-              </Link>
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold whitespace-nowrap truncate max-w-full">
-                NCSSM Durham Technology Student Association
-              </h1>
-            </div>
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-[72px] lg:px-8">
+          <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="NCSSM Durham TSA home">
+            <Image
+              width={48}
+              height={48}
+              src="/ncssm_tsa_logo.jpg"
+              alt=""
+              priority
+              className="h-10 w-10 shrink-0 rounded-full ring-2 ring-paper/15 lg:h-12 lg:w-12"
+            />
+            <span className="min-w-0 leading-none">
+              <span className="display block truncate text-2xl lg:text-[1.75rem]">NCSSM Durham</span>
+              <span className="mt-1 hidden truncate text-xs font-medium tracking-wide text-paper/70 sm:block">
+                Technology Student Association
+              </span>
+            </span>
+          </Link>
 
-            <div className="hidden xl:flex items-center gap-6 text-lg">
-              <NavLink href="/">Home</NavLink>
-              <NavLink href="/events">Events</NavLink>
-              <NavLink href="/gallery">Gallery</NavLink>
-              <NavLink href="/resources">Resources</NavLink>
-              {/* <NavLink href="/projects" >
-                <span className="block md:max-w-[6.5rem] lg:max-w-[8rem] xl:max-w-[9.5rem] truncate">
-                  Past Projects
-                </span>
-              </NavLink> */}
+          <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
+            {NAV.map((n) => {
+              const active = isActive(n.href);
+              return (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`relative px-3 py-2 font-medium transition-colors after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:bg-signal after:transition-transform after:duration-300 after:ease-out-quart ${
+                    active ? "text-paper after:scale-x-100" : "text-paper/75 after:scale-x-0 hover:text-paper"
+                  }`}
+                >
+                  {n.label}
+                </Link>
+              );
+            })}
+            <div className="ml-4">
               {mounted ? (
                 <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
               ) : (
-                <div className="w-[9rem] h-10" />
+                <div className="h-10 w-20" />
               )}
             </div>
+          </nav>
 
-            {/* Mobile hamburger */}
-            <button
-              className="xl:hidden inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
-              aria-label="Toggle navigation"
-              aria-expanded={mobileOpen}
-              onClick={() => setMobileOpen((v) => !v)}
-            >
-              {mobileOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-
-          {/* Mobile dropdown */}
-          <div
-            className={`xl:hidden overflow-hidden transition-[max-height,opacity]
-              duration-300 ${
-                mobileOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
-              }`}
+          {/* Mobile hamburger */}
+          <button
+            className="inline-flex items-center justify-center rounded-lg p-2 hover:bg-paper/10 lg:hidden"
+            aria-label="Toggle navigation"
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
           >
-            <nav className="py-3 border-t border-white/15 space-y-2">
-              <Link
-                href="/"
-                onClick={() => setMobileOpen(false)}
-                aria-current={isActive("/") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${
-                  isActive("/") ? "bg-white/10 text-blue-200" : ""
-                }`}
-              >
-                Home
-              </Link>
-              <Link
-                href="/events"
-                onClick={() => setMobileOpen(false)}
-                aria-current={isActive("/events") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${
-                  isActive("/events") ? "bg-white/10 text-blue-200" : ""
-                }`}
-              >
-                Events
-              </Link>
-              <Link
-                href="/gallery"
-                onClick={() => setMobileOpen(false)}
-                aria-current={isActive("/gallery") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${
-                  isActive("/gallery") ? "bg-white/10 text-blue-200" : ""
-                }`}
-              >
-                Gallery
-              </Link>
-              <Link
-                href="/resources"
-                onClick={() => setMobileOpen(false)}
-                aria-current={isActive("/resources") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${
-                  isActive("/resources") ? "bg-white/10 text-blue-200" : ""
-                }`}
-              >
-                Resources
-              </Link>
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
 
-              {/* <Link
-                href="/projects"
-                onClick={() => setMobileOpen(false)}
-                aria-current={isActive("/projects") ? "page" : undefined}
-                className={`block px-2 py-2 rounded hover:bg-white/10 ${
-                  isActive("/projects") ? "bg-white/10 text-blue-200" : ""
-                }`}
-              >
-                Past Projects
-              </Link> */}
-
-                <div className="pt-2 border-t border-white/10 mt-2">
-                  {mounted ? (
-                    <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} />
-                  ) : (
-                    <div className="w-full h-10" />
-                  )}
+        {/* Mobile dropdown */}
+        <div
+          className={`grid transition-[grid-template-rows] duration-300 ease-out-quart lg:hidden ${
+            mobileOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+        >
+          <div className="overflow-hidden" inert={!mobileOpen}>
+            <nav aria-label="Main" className="mx-auto max-w-7xl space-y-1 border-t border-paper/15 px-4 py-3 sm:px-6">
+              {NAV.map((n) => (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  onClick={() => setMobileOpen(false)}
+                  aria-current={isActive(n.href) ? "page" : undefined}
+                  className={`display block rounded px-2 py-2 text-3xl ${
+                    isActive(n.href) ? "text-paper" : "text-paper/60 hover:text-paper"
+                  }`}
+                >
+                  {n.label}
+                </Link>
+              ))}
+              <div className="mt-2 border-t border-paper/10 pt-3">
+                {mounted ? <AuthActionBar user={user} onLogin={login} onLogout={logoutUser} /> : <div className="h-10 w-full" />}
               </div>
             </nav>
           </div>

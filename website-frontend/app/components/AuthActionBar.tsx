@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { User } from "../models/user";
 
+const primary =
+  "inline-flex items-center rounded-lg bg-paper px-4 py-2 font-semibold text-tsa-deep transition-colors hover:bg-tsa-tint";
+const quiet =
+  "inline-flex items-center rounded-lg px-3 py-2 font-medium text-paper/75 transition-colors hover:bg-paper/10 hover:text-paper";
+
 export default function AuthActionBar({
   user,
   onLogin,
@@ -14,35 +19,20 @@ export default function AuthActionBar({
 }) {
   if (user) {
     return (
-      <div className={`flex items-center gap-3 ${className}`}>
-        <Link
-          href="/portal"
-          className="px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
-                     text-white font-medium backdrop-blur-md 
-                     border-2 border-white/30 transition-all duration-300 shadow-sm hover:shadow-md"
-        >
+      <div className={`flex items-center gap-2 ${className}`}>
+        <Link href="/portal" className={primary}>
           Portal
         </Link>
-        <button
-          onClick={onLogout}
-          className="px-4 py-2 rounded-lg bg-red-500/80 hover:bg-red-600/80 
-                     text-white font-medium backdrop-blur-md 
-                     border-2 border-red-500/50 transition-all duration-300 shadow-sm hover:shadow-md"
-        >
-          Logout
+        <button onClick={onLogout} className={quiet}>
+          Log out
         </button>
       </div>
     );
   }
 
   return (
-    <button
-      onClick={onLogin}
-      className={`px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
-                  text-white font-medium backdrop-blur-md 
-                  border-2 border-white/30 transition-all duration-300 shadow-sm hover:shadow-md ${className}`}
-    >
-      Login
+    <button onClick={onLogin} className={`${primary} ${className}`}>
+      Log in
     </button>
   );
 }
