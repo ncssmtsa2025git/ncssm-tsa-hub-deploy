@@ -71,3 +71,5 @@ CREATE TABLE IF NOT EXISTS checkins (
 );
 
 CREATE INDEX IF NOT EXISTS idx_checkins_team_id ON checkins(team_id);
+
+-- Site content and admins: see 004_site_content.sql (run it after this file on a fresh database)
