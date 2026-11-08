@@ -16,7 +16,7 @@ export default function TeamCard({ team, checkins, onViewCheckin, onUpload }: Pr
   return (
     <div className="relative rounded-lg border border-line bg-white p-5">
       <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
-        <span className="text-xs font-medium text-slate-500">Submitted Check-ins</span>
+        <span className="text-xs font-medium text-muted">Submitted Check-ins</span>
         <div className="flex items-center gap-2">
           {checkins.length > 0 ? (
             checkins.map((c) => (
@@ -34,22 +34,22 @@ export default function TeamCard({ team, checkins, onViewCheckin, onUpload }: Pr
               </button>
             ))
           ) : (
-            <span className="text-xs text-slate-400 bg-slate-50 px-3 py-1 rounded-md border border-slate-200">None</span>
+            <span className="text-xs text-muted bg-paper-2 px-3 py-1 rounded-md border border-line">None</span>
           )}
         </div>
       </div>
 
       <div className="mb-3 pr-32">
-        <h4 className="font-semibold text-lg text-gray-900">
+        <h4 className="font-semibold text-lg text-ink">
           {team.event.title} Team {team.teamNumber}
         </h4>
-        <span className="inline-block mt-1 px-3 py-1 bg-blue-50 text-blue-800 rounded text-xs font-semibold border border-blue-200">
+        <span className="inline-block mt-1 px-3 py-1 bg-tsa-tint text-tsa rounded text-xs font-semibold border border-line">
           {team.conference}
         </span>
       </div>
 
       <div className="mb-4">
-        <p className="text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+        <p className="text-sm font-medium text-ink-soft mb-2 flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
@@ -61,8 +61,8 @@ export default function TeamCard({ team, checkins, onViewCheckin, onUpload }: Pr
               key={member.id}
               className={`px-3 py-1 rounded text-sm border ${
                 member.id === team.captain.id
-                  ? "bg-blue-50 text-blue-800 border-blue-200 font-medium"
-                  : "bg-slate-50 text-slate-700 border-slate-200"
+                  ? "bg-tsa-tint text-tsa border-line font-medium"
+                  : "bg-paper-2 text-ink-soft border-line"
               }`}
             >
               {member.name}
@@ -71,8 +71,8 @@ export default function TeamCard({ team, checkins, onViewCheckin, onUpload }: Pr
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+      <div className="flex items-center justify-between pt-3 border-t border-line">
+        <div className="flex items-center gap-2 text-sm text-ink-soft">
           <Calendar className="w-4 h-4" />
           <span className="font-medium">Check-in:</span>
           <span>{(() => {
@@ -83,7 +83,7 @@ export default function TeamCard({ team, checkins, onViewCheckin, onUpload }: Pr
           })()}</span>
         </div>
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+          className="px-4 py-2 bg-tsa text-white rounded-lg text-sm font-medium hover:bg-tsa transition-colors shadow-sm"
           onClick={() => onUpload(team.id)}
         >
           Upload Check-In

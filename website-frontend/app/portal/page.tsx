@@ -24,7 +24,7 @@ function CardHeader({ className = "", children }: CardProps) {
   return <div className={`border-b p-4 ${className}`}>{children}</div>;
 }
 function CardTitle({ className = "", children }: CardProps) {
-  return <h3 className={`text-lg font-semibold text-gray-800 ${className}`}>{children}</h3>;
+  return <h3 className={`text-lg font-semibold text-ink ${className}`}>{children}</h3>;
 }
 function CardContent({ className = "", children }: CardProps) {
   return <div className={`p-4 ${className}`}>{children}</div>;
@@ -44,7 +44,6 @@ export default function Portal(): JSX.Element {
   const [upcomingDates, setUpcomingDates] = useState<UpcomingDate[]>([]);
 
   useEffect(() => {
-    // load upcoming dates from public JSON
     loadUpcomingDates().then((d) => setUpcomingDates(d)).catch(() => setUpcomingDates([]));
   }, [fetchWithAuth]);
 
@@ -110,9 +109,9 @@ export default function Portal(): JSX.Element {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <p className="text-gray-500">Loading teams...</p>
+                <p className="text-muted">Loading teams...</p>
               ) : teams.length === 0 ? (
-                <p className="text-gray-500">No teams found</p>
+                <p className="text-muted">No teams found</p>
               ) : (
                 <div className="space-y-4">
                   {teams.map((team) => (
@@ -149,8 +148,8 @@ export default function Portal(): JSX.Element {
         {/* View checkin modal */}
         {viewingCheckin && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setViewingCheckin(null)} />
-            <div className="relative bg-white rounded-xl w-full max-w-2xl shadow-xl overflow-hidden">
+            <div className="absolute inset-0 bg-ink/50" onClick={() => setViewingCheckin(null)} />
+            <div className="relative bg-white rounded-lg w-full max-w-2xl shadow-[0_8px_24px_rgba(0,0,0,0.12)] overflow-hidden">
               <div className="bg-tsa-deep px-6 py-5 flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-white">Check-in Details</h3>
                 <button 
@@ -164,7 +163,7 @@ export default function Portal(): JSX.Element {
               </div>
 
               <div className="p-6">
-                <p className="text-sm text-slate-500 mb-4 flex items-center gap-2">
+                <p className="text-sm text-muted mb-4 flex items-center gap-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -178,42 +177,42 @@ export default function Portal(): JSX.Element {
                       href={l}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-2 p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+                      className="flex items-center gap-2 p-3 rounded-lg border border-line hover:border-line hover:bg-tsa-tint transition-colors group"
                     >
-                      <svg className="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-tsa shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
-                      <span className="text-blue-600 group-hover:underline break-all text-sm">{l}</span>
+                      <span className="text-tsa group-hover:underline break-all text-sm">{l}</span>
                     </a>
                   ))}
                 </div>
 
-                <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="mt-6 rounded-lg border border-line bg-paper-2 p-4">
                   {viewingCheckin.score != null ? (
                     <>
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-sm font-semibold text-slate-700">Grade</span>
-                        <span className="text-2xl font-bold text-blue-900">
+                        <span className="text-sm font-semibold text-ink-soft">Grade</span>
+                        <span className="text-2xl font-bold text-tsa-deep">
                           {viewingCheckin.score}
-                          <span className="text-sm font-medium text-slate-500"> / 100</span>
+                          <span className="text-sm font-medium text-muted"> / 100</span>
                         </span>
                       </div>
                       {viewingCheckin.feedback && (
-                        <p className="mt-3 text-sm text-slate-700 whitespace-pre-wrap">{viewingCheckin.feedback}</p>
+                        <p className="mt-3 text-sm text-ink-soft whitespace-pre-wrap">{viewingCheckin.feedback}</p>
                       )}
                       {viewingCheckin.graded_at && (
-                        <p className="mt-3 text-xs text-slate-500">Graded {new Date(viewingCheckin.graded_at).toLocaleDateString()}</p>
+                        <p className="mt-3 text-xs text-muted">Graded {new Date(viewingCheckin.graded_at).toLocaleDateString()}</p>
                       )}
                     </>
                   ) : (
-                    <p className="text-sm text-slate-500">Not graded yet. Your grade and feedback will appear here.</p>
+                    <p className="text-sm text-muted">Not graded yet. Your grade and feedback will appear here.</p>
                   )}
                 </div>
 
                 <div className="mt-6 flex justify-end">
                   <button 
                     onClick={() => setViewingCheckin(null)} 
-                    className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium"
+                    className="px-4 py-2 bg-paper-2 text-ink-soft rounded-lg hover:bg-paper-2 transition-colors font-medium"
                   >
                     Close
                   </button>
@@ -226,8 +225,8 @@ export default function Portal(): JSX.Element {
         {/* Upload checkin dialog */}
         {uploadingForTeam && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setUploadingForTeam(null)} />
-            <div className="relative bg-white rounded-xl w-full max-w-2xl shadow-xl overflow-hidden">
+            <div className="absolute inset-0 bg-ink/50" onClick={() => setUploadingForTeam(null)} />
+            <div className="relative bg-white rounded-lg w-full max-w-2xl shadow-[0_8px_24px_rgba(0,0,0,0.12)] overflow-hidden">
               <div className="bg-tsa-deep px-6 py-5 flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-white">Upload Check-in</h3>
                 <button 
@@ -241,7 +240,7 @@ export default function Portal(): JSX.Element {
               </div>
 
               <div className="p-6">
-                <p className="text-sm text-slate-600 mb-4">Add links to portfolios, video presentations, pictures of models, or other supporting documents (one per input).</p>
+                <p className="text-sm text-ink-soft mb-4">Add links to portfolios, video presentations, pictures of models, or other supporting documents (one per input).</p>
 
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
                   {newLinks.map((lnk, idx) => {
@@ -253,20 +252,20 @@ export default function Portal(): JSX.Element {
                           <input
                             value={lnk}
                             onChange={(e) => setNewLinks((prev) => prev.map((v, i) => (i === idx ? e.target.value : v)))}
-                            className={`flex-1 px-4 py-2 rounded-lg outline-none bg-white text-slate-800 placeholder-slate-400 border ${
-                              valid === false ? "border-red-400 focus:ring-2 focus:ring-red-200" : "border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className={`flex-1 px-4 py-2 rounded-lg outline-none bg-white text-ink placeholder:text-muted border ${
+                              valid === false ? "border-red-400 focus:ring-2 focus:ring-red-200" : "border-line focus:ring-2 focus:ring-tsa/20 focus:border-tsa"
                             }`}
                             placeholder="https://example.com/rubric.pdf"
                           />
                           <button
                             onClick={() => setNewLinks((prev) => prev.filter((_, i) => i !== idx))}
-                            className="px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200 font-medium"
+                            className="px-3 py-2 bg-red-50 text-signal rounded-lg hover:bg-red-100 transition-colors border border-red-200 font-medium"
                           >
                             Remove
                           </button>
                         </div>
                         {valid === false && (
-                          <p className="text-xs text-red-600">Please enter a valid URL starting with http:// or https://</p>
+                          <p className="text-xs text-signal">Please enter a valid URL starting with http:// or https://</p>
                         )}
                       </div>
                     );
@@ -275,7 +274,7 @@ export default function Portal(): JSX.Element {
 
                 <button
                   onClick={() => setNewLinks((prev) => [...prev, ""])}
-                  className="mt-4 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors border border-slate-200 text-sm font-medium"
+                  className="mt-4 px-4 py-2 bg-paper-2 text-ink-soft rounded-lg hover:bg-paper-2 transition-colors border border-line text-sm font-medium"
                 >
                   + Add Link
                 </button>
@@ -289,7 +288,7 @@ export default function Portal(): JSX.Element {
                     <div className="mt-6 flex justify-end gap-3">
                   <button 
                     onClick={() => setUploadingForTeam(null)} 
-                    className="px-5 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium"
+                    className="px-5 py-2 bg-paper-2 text-ink-soft rounded-lg hover:bg-paper-2 transition-colors font-medium"
                   >
                     Cancel
                   </button>
@@ -312,7 +311,7 @@ export default function Portal(): JSX.Element {
                       }
                     }}
                     disabled={!canSubmit}
-                    className={`px-5 py-2 rounded-lg transition-colors font-medium shadow-sm ${canSubmit ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-blue-600 text-white opacity-50 cursor-not-allowed"}`}
+                    className={`px-5 py-2 rounded-lg transition-colors font-medium shadow-sm ${canSubmit ? "bg-tsa text-white hover:bg-tsa" : "bg-tsa text-white opacity-50 cursor-not-allowed"}`}
                   >
                     Submit Check-in
                   </button>

@@ -7,6 +7,7 @@ const ERROR_MESSAGES: Record<string, string> = {
     "Your email isn't on the TSA Hub whitelist yet. Ask a TSA officer to add you, then try logging in again.",
   access_denied: "Google sign-in was cancelled.",
   unverified_email: "Your Google account's email isn't verified. Sign in with your school account.",
+  expired: "That sign-in took too long or didn't start here. Try logging in again.",
 };
 
 export default function AuthSuccess() {
@@ -44,9 +45,9 @@ export default function AuthSuccess() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <div className="max-w-md rounded-lg border bg-white p-6 shadow-sm text-center">
-          <h1 className="text-lg font-semibold text-gray-800 mb-2">Couldn&apos;t log you in</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Link href="/" className="text-blue-600 hover:underline">
+          <h1 className="text-lg font-semibold text-ink mb-2">Couldn&apos;t log you in</h1>
+          <p className="text-ink-soft mb-4">{error}</p>
+          <Link href="/" className="text-tsa hover:underline">
             Back to home
           </Link>
         </div>

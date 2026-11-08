@@ -55,7 +55,7 @@ export default function EventsPage(): React.ReactElement {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-paper-2">
       <PageBanner
         title="Events"
         image="/pics/states_2026/IMG_4585.jpg"
@@ -66,21 +66,21 @@ export default function EventsPage(): React.ReactElement {
       </PageBanner>
 
       {/* Search and Filter Section */}
-      <section className="py-8 bg-white border-b">
+      <section className="py-8 border-b border-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted h-5 w-5" />
               <input
                 type="text"
-                placeholder="Search events..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400 bg-white"
+                placeholder="Search events"
+                className="w-full pl-10 pr-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-tsa/20 focus:border-transparent text-ink placeholder:text-muted bg-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <select
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+              className="px-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-tsa/20 focus:border-transparent text-ink bg-white"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -97,15 +97,14 @@ export default function EventsPage(): React.ReactElement {
       {/* Events Grid */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {loading && <p className="text-center text-gray-500">Loading events...</p>}
-          {error && <p className="text-center text-red-600">{error}</p>}
+          {loading && <p className="text-center text-muted">Loading events…</p>}
+          {error && <p className="text-center text-signal">{error}</p>}
 
           {!loading && !error && (
             <>
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {filteredEvents.length} Event
-                  {filteredEvents.length !== 1 ? "s" : ""} Available
+                <h2 className="text-2xl font-semibold text-ink tabular">
+                  {filteredEvents.length} {filteredEvents.length === 1 ? "event" : "events"}
                 </h2>
               </div>
 
@@ -113,31 +112,31 @@ export default function EventsPage(): React.ReactElement {
                 {filteredEvents.map((event) => (
                   <div
                     key={event.id}
-                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                    className="bg-white border border-line rounded-lg p-6 hover:border-tsa/40 transition-colors cursor-pointer"
                     onClick={() => setSelectedEvent(event)}
                   >
                     <div className="mb-4">
-                      <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      <span className="text-sm font-medium text-muted">
                         {event.category}
                       </span>
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl font-semibold text-ink mb-2">
                       {event.title}
                     </h3>
-                    <p className="text-sm font-medium text-blue-600 mb-3">
-                      Theme: {event.theme ?? "N/A"}
-                    </p>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
+                    {event.theme && (
+                      <p className="text-sm font-medium text-tsa mb-3">Theme: {event.theme}</p>
+                    )}
+                    <p className="text-ink-soft mb-4 line-clamp-2">
                       {event.description}
                     </p>
 
                     <div className="space-y-2">
-                      <div className="flex items-center text-sm text-gray-500">
+                      <div className="flex items-center text-sm text-muted">
                         <Users className="h-4 w-4 mr-2" />
                         {event.teamSize}
                       </div>
-                      <div className="flex items-center text-sm text-gray-500 flex-wrap gap-2 mt-2">
+                      <div className="flex items-center text-sm text-muted flex-wrap gap-2 mt-2">
                         {event.types.map((t) => (
                           <span key={t} className="tag-badge">
                             {t}
@@ -151,10 +150,10 @@ export default function EventsPage(): React.ReactElement {
 
               {filteredEvents.length === 0 && (
                 <div className="text-center py-12">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-ink mb-2">
                     No events found
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-muted">
                     Try adjusting your search criteria
                   </p>
                 </div>
@@ -168,26 +167,26 @@ export default function EventsPage(): React.ReactElement {
       {/* Event Modal */}
       {selectedEvent && (
         <div
-          className="fixed inset-0 backdrop-blur-sm bg-black/20 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-ink/50 flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedEvent(null)}
         >
           <div
-            className="bg-white rounded-xl max-w-2xl w-full max-h-full overflow-y-auto"
+            className="bg-white rounded-lg max-w-2xl w-full max-h-full overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                  <span className="text-sm font-medium text-muted">
                     {selectedEvent.category}
                   </span>
-                  <h2 className="text-2xl font-bold text-gray-900 mt-1">
+                  <h2 className="text-2xl font-bold text-ink mt-1">
                     {selectedEvent.title}
                   </h2>
                 </div>
                 <button
                   onClick={() => setSelectedEvent(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-muted hover:text-ink-soft"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -195,34 +194,34 @@ export default function EventsPage(): React.ReactElement {
 
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Theme</h3>
-                  <p className="text-blue-600">
+                  <h3 className="font-semibold text-ink mb-1">Theme</h3>
+                  <p className="text-tsa">
                     {selectedEvent.theme ?? "N/A"}
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
+                  <h3 className="font-semibold text-ink mb-2">
                     Description
                   </h3>
-                  <p className="text-gray-700">{selectedEvent.description}</p>
+                  <p className="text-ink-soft">{selectedEvent.description}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">
+                    <h3 className="font-semibold text-ink mb-1">
                       Team Size
                     </h3>
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-ink-soft">
                       <Users className="h-4 w-4 mr-2" />
                       {selectedEvent.teamSize}
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">
+                    <h3 className="font-semibold text-ink mb-1">
                       Event Type
                     </h3>
-                    <div className="flex items-center text-gray-600 flex-wrap gap-2">
+                    <div className="flex items-center text-ink-soft flex-wrap gap-2">
                       {selectedEvent.types.map((t) => (
                         <span key={t} className="tag-badge">
                           {t}
@@ -236,7 +235,7 @@ export default function EventsPage(): React.ReactElement {
                   {selectedEvent.rubricUrl ? (
                     <a
                       href={selectedEvent.rubricUrl}
-                      className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium flex items-center justify-center"
+                      className="flex-1 bg-tsa text-white py-3 px-4 rounded-lg hover:bg-tsa transition-colors text-center font-medium flex items-center justify-center"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -247,7 +246,7 @@ export default function EventsPage(): React.ReactElement {
                   {selectedEvent.fullThemeUrl ? (
                     <a
                       href={selectedEvent.fullThemeUrl}
-                      className="flex-1 bg-gray-100 text-gray-900 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors text-center font-medium flex items-center justify-center"
+                      className="flex-1 bg-paper-2 text-ink py-3 px-4 rounded-lg hover:bg-paper-2 transition-colors text-center font-medium flex items-center justify-center"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

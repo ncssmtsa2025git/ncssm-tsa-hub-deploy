@@ -21,7 +21,7 @@ export default function Footer(): React.ReactElement {
               href="https://www.instagram.com/ncssmtsa"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 font-semibold transition-transform duration-200 hover:scale-105"
+              className="mt-5 inline-flex items-center gap-2 font-semibold transition-opacity duration-200 hover:opacity-80"
             >
               <Instagram aria-hidden className="h-5 w-5 text-pink-500" />
               <span className="bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent">@ncssmtsa</span>
