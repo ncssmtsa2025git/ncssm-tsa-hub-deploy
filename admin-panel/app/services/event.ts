@@ -34,14 +34,20 @@ class EventService {
     return EventService.instance;
   }
 
+  // The admin token also tells the API to skip the CDN cache, so edits show up immediately here
+  private adminHeaders(): Record<string, string> {
+    const token = authService.getToken();
+    return token ? { 'X-Admin-Token': token } : {};
+  }
+
   async listEvents(): Promise<Event[]> {
-    const res = await fetch(`${API_BASE_URL}/events/`);
+    const res = await fetch(`${API_BASE_URL}/events/`, { headers: this.adminHeaders() });
     if (!res.ok) throw new Error(`Failed to fetch events: ${res.statusText}`);
     return res.json();
   }
 
   async getEvent(id: string): Promise<Event> {
-    const res = await fetch(`${API_BASE_URL}/events/${id}`);
+    const res = await fetch(`${API_BASE_URL}/events/${id}`, { headers: this.adminHeaders() });
     if (!res.ok) throw new Error(`Failed to fetch event: ${res.statusText}`);
     return res.json();
   }

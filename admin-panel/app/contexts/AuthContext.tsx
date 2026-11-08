@@ -9,6 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (password: string) => Promise<void>;
+  loginWithToken: (token: string) => void;
   logout: () => void;
 }
 
@@ -34,6 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(adminToken);
   };
 
+  // Google sign-in: the API hands the admin token back to /login in the URL fragment
+  const loginWithToken = (adminToken: string) => {
+    authService.saveToken(adminToken);
+    setToken(authService.getToken());
+  };
+
   const logout = () => {
     authService.removeToken();
     setToken(null);
@@ -47,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!token,
         isLoading,
         login,
+        loginWithToken,
         logout,
       }}
     >

@@ -39,6 +39,14 @@ class AuthService {
     return data.admin_token;
   }
 
+  /** Google sign-in URL for officers (the API sends them back to /login#admin_token=...). */
+  async googleLoginUrl(): Promise<string> {
+    const response = await fetch(`${API_BASE_URL}/auth/login?purpose=admin`);
+    if (!response.ok) throw new Error('Could not start Google sign-in');
+    const data: { auth_url: string } = await response.json();
+    return data.auth_url;
+  }
+
   saveToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
   }
@@ -82,7 +90,7 @@ class AuthService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.detail || `API Error: ${response.statusText}`);
+      throw new Error(describeError(error.detail) || `API Error: ${response.statusText}`);
     }
 
     return response.json();
@@ -90,3 +98,18 @@ class AuthService {
 }
 
 export const authService = AuthService.getInstance();
+
+/** FastAPI errors are a string, or a list of field problems for invalid input. */
+export function describeError(detail: unknown): string {
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((d: { loc?: unknown[]; msg?: string }) => {
+        const field = d.loc?.[d.loc.length - 1];
+        const msg = (d.msg || 'invalid').replace(/^Value error, /, '');
+        return typeof field === 'string' && field !== 'body' ? `${field}: ${msg}` : msg;
+      })
+      .join('; ');
+  }
+  return '';
+}
