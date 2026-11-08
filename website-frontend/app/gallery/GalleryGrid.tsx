@@ -3,7 +3,7 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
-export type GalleryItem = { src: string; title: string; date: string };
+export type GalleryItem = { src: string; title: string; album: string };
 
 // Some photos get a large 2x2 tile for rhythm. Pick how many so the 4-column grid
 // (and the 2-column mobile grid) fills with no holes: n + 3f must be a multiple of 4.

@@ -1,7 +1,0 @@
-[
-  { "date": "2027-02-12", "event": "Eastern Regionals", "type": "Competition", "location": "ECU, Greenville" },
-  { "date": "2027-02-19", "event": "Western Regionals", "type": "Competition", "location": "App State, Boone" },
-  { "date": "2027-02-26", "event": "State registration closes", "type": "Deadline" },
-  { "date": "2027-04-15", "end": "2027-04-17", "event": "NC TSA State Conference", "type": "Competition", "location": "Greensboro" },
-  { "date": "2027-06-23", "end": "2027-06-27", "event": "National TSA Conference", "type": "Competition", "location": "Orlando, FL" }
-]

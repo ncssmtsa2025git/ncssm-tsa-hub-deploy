@@ -1,29 +1,30 @@
-import fs from "fs";
-import path from "path";
 import PageBanner from "../components/PageBanner";
+import { getGallery } from "../services/content";
 import GalleryGrid, { type GalleryItem } from "./GalleryGrid";
 
-function readGalleryJson(): GalleryItem[] {
-  const jsonPath = path.join(process.cwd(), "public", "data", "gallery.json");
+// Rebuilt at most once a minute, so photos added in the admin panel show up without a redeploy
+export const revalidate = 60;
+
+async function loadGallery(): Promise<GalleryItem[]> {
   try {
-    const parsed = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (x) => x && typeof x.src === "string" && typeof x.title === "string" && typeof x.date === "string"
-    );
-  } catch {
+    return await getGallery({ next: { revalidate: 60 } });
+  } catch (e) {
+    // While rebuilding in the background, failing keeps the last good page instead of caching an empty gallery.
+    // Only an initial build (no page yet) falls back to empty so the deploy itself can't fail on an API hiccup.
+    if (process.env.NEXT_PHASE !== "phase-production-build") throw e;
     return [];
   }
 }
 
 export const metadata = { title: "Gallery" };
 
-export default function Page() {
-  const items = readGalleryJson();
-  // Group by event label ("States 2026", "Nationals 2026", ...) keeping file order.
-  const groups = [...new Set(items.map((i) => i.date))].map((date) => ({
-    date,
-    items: items.filter((i) => i.date === date),
+export default async function Page() {
+  const items = await loadGallery();
+  // Group by album ("States 2026", "Nationals 2026", ...) keeping the admin's order.
+  const groups = [...new Set(items.map((i) => i.album))].map((album) => ({
+    album,
+    id: `album-${album.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    items: items.filter((i) => i.album === album),
   }));
 
   return (
@@ -43,10 +44,10 @@ export default function Page() {
         ) : (
           <div className="space-y-14">
             {groups.map((g) => (
-              <section key={g.date} aria-labelledby={`g-${g.date}`}>
+              <section key={g.album} aria-labelledby={g.id}>
                 <div className="mb-5 border-b-2 border-ink pb-2">
-                  <h2 id={`g-${g.date}`} className="display text-3xl sm:text-4xl">
-                    {g.date}
+                  <h2 id={g.id} className="display text-3xl sm:text-4xl">
+                    {g.album}
                   </h2>
                 </div>
                 <GalleryGrid items={g.items} />

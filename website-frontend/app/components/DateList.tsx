@@ -1,6 +1,6 @@
 import React from "react";
 
-export type KeyDate = { date: string; end?: string; event: string; type: string; location?: string };
+export type KeyDate = { date: string; end?: string | null; event: string; type: string; location?: string | null };
 
 const md = (iso: string, opts: Intl.DateTimeFormatOptions) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { timeZone: "America/New_York", ...opts });

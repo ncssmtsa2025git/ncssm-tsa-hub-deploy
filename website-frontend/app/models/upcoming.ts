@@ -1,14 +1,14 @@
+import { getContent } from "../services/content";
+
 export interface UpcomingDate {
   date: string;
-  end?: string;
+  end?: string | null;
   event: string;
   type: string;
-  location?: string;
+  location?: string | null;
 }
 
+/** Key dates, soonest first (edited in Admin > Key dates). */
 export async function loadUpcomingDates(): Promise<UpcomingDate[]> {
-  // loads the public JSON file
-  const res = await fetch('/data/upcoming_dates.json');
-  if (!res.ok) return [];
-  return res.json();
+  return getContent<UpcomingDate[]>("dates");
 }

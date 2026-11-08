@@ -6,24 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { UpcomingDate, loadUpcomingDates } from "./models/upcoming";
 import DateList from "./components/DateList";
-
-type GalleryItem = {
-  src: string;   // e.g. /pics/nats_2025/IMG_0001.jpg (must live under /public)
-  title: string; // display name
-  date: string;  // e.g. "Nationals 2025"
-};
-
-// Officers shown on the home page. Add a photo by dropping a square image in
-// /public/officers and setting `photo`; officers without one show their initials.
-const OFFICERS: { name: string; role: string; email: string; photo?: string }[] = [
-  { name: "David Ta", role: "Co-President", email: "ta27d@ncssm.edu", photo: "/officers/david.jpg" },
-  { name: "Nathaniel Joy", role: "Co-President", email: "joy27n@ncssm.edu", photo: "/officers/nathaniel.jpg" },
-  { name: "Moksha Agrawal", role: "Vice President", email: "agrawal27m@ncssm.edu", photo: "/officers/moksha.jpg" },
-  { name: "Isabella Bai", role: "Secretary", email: "bai27i@ncssm.edu", photo: "/officers/isabella.jpg" },
-  { name: "Megan Nguyen", role: "Competitive Lead", email: "nguyen27m@ncssm.edu", photo: "/officers/megan.jpg" },
-  { name: "Ayush Kamath", role: "Reporter", email: "kamath27a@ncssm.edu", photo: "/officers/ayush.jpg" },
-  { name: "Aarush Jain", role: "Tech Lead", email: "jain27a@ncssm.edu", photo: "/officers/aarush.jpg" },
-];
+import { type GalleryPhoto, type Officer, getContent, getGallery } from "./services/content";
 
 export default function Home(): React.ReactElement {
   // ===== Next key dates (same file the portal and Resources page use) =====
@@ -35,33 +18,21 @@ export default function Home(): React.ReactElement {
       .catch(() => setDates([]));
   }, []);
 
-  // ===== Load gallery manifest =====
-  const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  // ===== Officers (edited in Admin > Officers) =====
+  const [officers, setOfficers] = useState<Officer[] | null>(null); // null while loading
+  useEffect(() => {
+    getContent<Officer[]>("officers").then(setOfficers).catch(() => setOfficers([]));
+  }, []);
+
+  // ===== Gallery photos for the carousel (edited in Admin > Gallery) =====
+  const [gallery, setGallery] = useState<GalleryPhoto[]>([]);
   const [index, setIndex] = useState(0);
   const [hovering, setHovering] = useState(false);
   const autoplayMs = 5000;
   const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const res = await fetch("/data/gallery.json", { cache: "no-store" });
-        if (!res.ok) return;
-        const raw = (await res.json()) as unknown;
-        const data = Array.isArray(raw) ? raw : [];
-        const cleaned = (data as unknown[]).filter((x) => {
-          const obj = x as Record<string, unknown> | null;
-          return !!obj && typeof obj.src === "string" && typeof obj.title === "string" && typeof obj.date === "string";
-        }) as GalleryItem[];
-        if (alive) setGallery(cleaned);
-      } catch {
-        // ignore; will show placeholders
-      }
-    })();
-    return () => {
-      alive = false;
-    };
+    getGallery().then(setGallery).catch(() => setGallery([])); // placeholder slide stays on failure
   }, []);
 
   // ===== Autoplay with pause on hover / page hidden =====
@@ -95,11 +66,11 @@ export default function Home(): React.ReactElement {
   const go = (i: number) => setIndex(i);
 
   // Ensure we always have at least one slide to render (placeholder)
-  const slides: GalleryItem[] = useMemo(() => {
+  const slides: Pick<GalleryPhoto, "src" | "title" | "album">[] = useMemo(() => {
     return gallery.length
       ? gallery
       : [
-          { src: "/front_page/background.jpg", title: "NCSSM TSA", date: "Welcome" },
+          { src: "/front_page/background.jpg", title: "NCSSM TSA", album: "Welcome" },
         ];
   }, [gallery]);
 
@@ -173,9 +144,20 @@ export default function Home(): React.ReactElement {
             <p className="text-ink-soft">2026–27</p>
           </div>
           <ul className="flex flex-wrap justify-center gap-x-5 gap-y-10">
-            {OFFICERS.map((o) => (
+            {officers === null &&
+              Array.from({ length: 4 }, (_, i) => (
+                <li
+                  key={i}
+                  aria-hidden
+                  className="w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)]"
+                >
+                  <div className="mb-4 aspect-[4/5] animate-pulse rounded-md bg-paper-2" />
+                  <div className="h-5 w-2/3 rounded bg-paper-2" />
+                </li>
+              ))}
+            {officers?.map((o) => (
               <li
-                key={o.email}
+                key={o.id}
                 className="w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)]"
               >
                 <div className="mb-4 aspect-[4/5] overflow-hidden rounded-md bg-paper-2">
@@ -242,7 +224,7 @@ export default function Home(): React.ReactElement {
                     {/* Caption overlay */}
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/75 to-transparent px-5 pb-5 pt-16">
                       <p className="text-xl font-semibold md:text-2xl">{s.title}</p>
-                      <p className="text-sm text-paper/75 md:text-base">{s.date}</p>
+                      <p className="text-sm text-paper/75 md:text-base">{s.album}</p>
                     </div>
                   </div>
                 ))}
