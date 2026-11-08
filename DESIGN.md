@@ -28,7 +28,8 @@ One family, Archivo (variable, width axis), two voices:
 - **Section head**: display heading + muted count, over a 2px ink rule.
 - **Events and Resources** keep the original card UI below their PageBanner (owner preference); only their data and links are current.
 - **Tags** (`.tag-badge`): small rounded format labels.
-- **DateList** (`app/components/DateList.tsx`): fixture-style rows (date, event, place) used on Home, Resources and the portal; reads `public/data/upcoming_dates.json`. `tone="dark"` for photo/navy backgrounds.
+- **DateList** (`app/components/DateList.tsx`): fixture-style rows (date, event, place) used on Home and the portal; data comes from Admin > Key Dates via the API. `tone="dark"` for photo/navy backgrounds.
+- **AnnouncementBar** (`app/components/AnnouncementBar.tsx`): one centered line on `tsa-tint` under the header, shown only when an officer turns it on in Admin > Announcement.
 - **Instagram**: the pink-to-yellow logo/handle colors are a deliberate owner-approved exception to the no-gradient-text rule.
 
 ## Motion
