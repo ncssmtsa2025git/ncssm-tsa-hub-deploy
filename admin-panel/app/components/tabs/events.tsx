@@ -101,22 +101,22 @@ export default function EventsTab() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Events</h2>
+        <h2 className="text-2xl font-semibold text-ink">Events</h2>
         <button
           onClick={handleCreateClick}
-          className="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium"
+          className="btn btn-primary"
         >
-          + Create Event
+          New event
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-4 space-y-4">
+      <div className="panel p-4 space-y-3">
         <input
           type="text"
-          placeholder="Search events..."
+          placeholder="Search events"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-6 py-4 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:ring-0 outline-none"
+          className="field w-full"
         />
 
         <div className="flex items-center justify-between">
@@ -125,28 +125,28 @@ export default function EventsTab() {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
                   selectedCategory === category
-                    ? "bg-blue-900 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-tsa-tint font-medium text-tsa-deep"
+                    : "text-ink-soft hover:bg-paper-2"
                 }`}
               >
                 {category}
               </button>
             ))}
           </div>
-          <div className="text-sm text-slate-400">{filteredEvents.length} result{filteredEvents.length === 1 ? '' : 's'}</div>
+          <div className="text-sm text-muted">{filteredEvents.length} result{filteredEvents.length === 1 ? '' : 's'}</div>
         </div>
 
         {loading && (
-          <div className="flex items-center gap-2 text-sm text-blue-600 mt-3">
-            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <span>Loading events...</span>
+          <div className="flex items-center gap-2 text-sm text-muted mt-3">
+            <div className="w-4 h-4 border-2 border-line border-t-ink-soft rounded-full animate-spin"></div>
+            <span>Loading events…</span>
           </div>
         )}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-md mt-3">
-            <p className="text-sm text-red-700 font-medium">{error}</p>
+          <div className="bg-signal/5 border border-signal/25 text-signal p-3 rounded-md mt-3">
+            <p className="text-sm text-signal font-medium">{error}</p>
           </div>
         )}
       </div>
@@ -157,32 +157,28 @@ export default function EventsTab() {
           <div
             key={ev.id}
             onClick={() => handleEventClick(ev)}
-            className="bg-white rounded-md shadow-sm hover:shadow-md transition-all duration-150 cursor-pointer border-l-2 border-blue-800 overflow-hidden group"
+            className="bg-white rounded-md border border-line hover:border-tsa/40 transition-colors cursor-pointer overflow-hidden group"
           >
             <div className="p-5">
               <div className="flex gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base md:text-lg font-semibold text-gray-900 group-hover:text-blue-800 transition-colors duration-150">
+                      <h3 className="text-base md:text-lg font-semibold text-ink group-hover:text-tsa transition-colors">
                         {ev.title}
                       </h3>
                       {ev.theme && (
-                        <div className="mt-1 inline-flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-800 rounded text-xs font-medium">
-                            {ev.theme}
-                          </span>
-                        </div>
+                        <p className="mt-1 text-sm text-muted">{ev.theme}</p>
                       )}
                     </div>
                     <div className="shrink-0">
-                      <span className="inline-block px-3 py-1 bg-blue-50 text-blue-800 rounded text-xs font-semibold">
+                      <span className="text-sm text-muted">
                         {ev.category}
                       </span>
                     </div>
                   </div>
 
-                  <p className="text-slate-600 text-sm mt-3 break-words whitespace-pre-wrap line-clamp-3">
+                  <p className="text-ink-soft text-sm mt-3 break-words whitespace-pre-wrap line-clamp-3">
                     {ev.description}
                   </p>
 
@@ -192,27 +188,14 @@ export default function EventsTab() {
                         {ev.types.map((t) => (
                           <span
                             key={t}
-                            className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-xs font-medium border border-slate-200"
+                            className="inline-block px-2 py-0.5 bg-paper-2 text-ink-soft rounded text-xs font-medium border border-line"
                           >
                             {t}
                           </span>
                         ))}
                       </>
                     )}
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-900 rounded text-xs font-medium border border-amber-200">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
-                      </svg>
+                    <span className="ml-1 text-xs text-muted">
                     {ev.teamSize || "-"}
                     </span>
                   </div>
@@ -224,9 +207,9 @@ export default function EventsTab() {
       </div>
 
       {filteredEvents.length === 0 && !loading && (
-        <div className="text-center py-8 bg-white rounded-md shadow-sm border border-slate-100">
+        <div className="text-center py-8 panel">
           <svg
-            className="w-10 h-10 mx-auto text-slate-300 mb-3"
+            className="w-10 h-10 mx-auto text-line mb-3"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -238,8 +221,8 @@ export default function EventsTab() {
               d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <p className="text-slate-500 text-sm font-medium">No events found</p>
-          <p className="text-slate-400 text-xs mt-1">
+          <p className="text-muted text-sm font-medium">No events found</p>
+          <p className="text-muted text-xs mt-1">
             Try adjusting your search or filters
           </p>
         </div>

@@ -31,9 +31,9 @@ function GradeForm({ checkin, onSaved }: { checkin: Checkin; onSaved: (c: Checki
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-slate-100">
+    <div className="mt-3 pt-3 border-t border-line">
       <div className="flex items-center gap-2 mb-2">
-        <label htmlFor={`score-${checkin.id}`} className="text-xs font-medium text-slate-600">Score</label>
+        <label htmlFor={`score-${checkin.id}`} className="text-xs font-medium text-ink-soft">Score</label>
         <input
           id={`score-${checkin.id}`}
           type="number"
@@ -42,11 +42,11 @@ function GradeForm({ checkin, onSaved }: { checkin: Checkin; onSaved: (c: Checki
           step={1}
           value={score}
           onChange={(e) => setScore(e.target.value)}
-          className="w-20 px-2 py-1 border border-slate-300 rounded text-sm text-slate-900"
+          className="w-20 px-2 py-1 border border-line rounded text-sm text-ink"
         />
-        <span className="text-xs text-slate-500">/ 100</span>
+        <span className="text-xs text-muted">/ 100</span>
         {checkin.graded_at && (
-          <span className="ml-auto text-xs text-slate-500">Graded {new Date(checkin.graded_at).toLocaleDateString()}</span>
+          <span className="ml-auto text-xs text-muted">Graded {new Date(checkin.graded_at).toLocaleDateString()}</span>
         )}
       </div>
       <textarea
@@ -54,13 +54,13 @@ function GradeForm({ checkin, onSaved }: { checkin: Checkin; onSaved: (c: Checki
         onChange={(e) => setFeedback(e.target.value)}
         rows={3}
         placeholder="Feedback for the team (shown in their portal)"
-        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900"
+        className="field"
       />
       <div className="flex justify-end mt-2">
         <button
           onClick={save}
           disabled={!valid || !dirty || saving}
-          className="px-4 py-1.5 bg-blue-900 text-white rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-primary"
         >
           {saving ? 'Saving...' : checkin.graded_at ? 'Update grade' : 'Save grade'}
         </button>
@@ -114,17 +114,14 @@ export default function CheckinsModal({ teamId, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6">
-      <div className="relative bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-ink/50 flex items-center justify-center z-50 p-4 sm:p-6">
+      <div className="relative bg-white rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-blue-900 to-blue-800 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-white">Team Checkins</h2>
-            <p className="text-sm text-blue-100 mt-0.5">All submissions for this team</p>
-          </div>
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-ink">Check-ins</h2>
           <button
             onClick={onClose}
-            className="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-lg"
+            className="text-muted hover:text-ink transition-colors p-1.5 hover:bg-paper-2 rounded-md"
             aria-label="Close"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,37 +133,37 @@ export default function CheckinsModal({ teamId, onClose }: Props) {
         {/* Content */}
         <div className="overflow-y-auto flex-1 px-6 py-4">
           {loading && (
-            <div className="flex items-center justify-center py-12 text-slate-500">
+            <div className="flex items-center justify-center py-12 text-muted">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
-                <span className="text-sm">Loading checkins...</span>
+                <div className="w-4 h-4 border-2 border-line border-t-ink-soft rounded-full animate-spin" />
+                <span className="text-sm">Loading check-ins…</span>
               </div>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+            <div className="bg-signal/5 border border-signal/25 rounded-lg p-4 text-sm text-signal">
               {error}
             </div>
           )}
 
           {!loading && checkins.length === 0 && (
             <div className="text-center py-12">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 mb-3">
-                <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-paper-2 mb-3">
+                <svg className="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <p className="text-sm text-slate-600">No checkins submitted yet</p>
+              <p className="text-sm text-ink-soft">No checkins submitted yet</p>
             </div>
           )}
 
           <div className="space-y-3">
             {checkins.map((c) => (
-              <div key={c.id} className="group border border-slate-200 rounded-lg p-4 hover:border-slate-300 hover:shadow-sm transition-all bg-white">
+              <div key={c.id} className="group border border-line rounded-lg p-4 hover:border-line transition-colors bg-white">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="flex items-center gap-3 flex-1">
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <div className="flex items-center gap-2 text-xs text-muted">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -185,7 +182,7 @@ export default function CheckinsModal({ teamId, onClose }: Props) {
                     {!c.approved && (
                       <button
                         onClick={() => handleApprove(c.id)}
-                        className="text-slate-400 hover:text-green-600 transition-colors text-xs font-medium px-2 py-1 rounded hover:bg-green-50"
+                        className="text-muted hover:text-green-600 transition-colors text-xs font-medium px-2 py-1 rounded hover:bg-green-50"
                         title="Approve checkin"
                       >
                         Approve
@@ -193,7 +190,7 @@ export default function CheckinsModal({ teamId, onClose }: Props) {
                     )}
                     <button
                       onClick={() => handleDelete(c.id)}
-                      className="text-slate-400 hover:text-red-600 transition-colors text-xs font-medium px-2 py-1 rounded hover:bg-red-50"
+                      className="text-muted hover:text-signal transition-colors text-xs font-medium px-2 py-1 rounded hover:bg-signal/5"
                       title="Delete checkin"
                     >
                       Delete
@@ -208,7 +205,7 @@ export default function CheckinsModal({ teamId, onClose }: Props) {
                       href={l}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 rounded transition-colors group/link"
+                      className="flex items-center gap-2 text-sm text-tsa hover:text-tsa-deep hover:bg-tsa-tint p-2 rounded transition-colors group/link"
                     >
                       <svg className="w-4 h-4 shrink-0 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

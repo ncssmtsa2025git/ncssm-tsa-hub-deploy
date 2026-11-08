@@ -108,23 +108,23 @@ export default function TeamsTab() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Teams</h2>
+        <h2 className="text-2xl font-semibold text-ink">Teams</h2>
         <button
           onClick={handleCreateClick}
-          className="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium"
+          className="btn btn-primary"
         >
-          + Create Team
+          New team
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-4 space-y-4">
+      <div className="panel p-4 space-y-3">
         <div className="flex items-start justify-between gap-4">
           <input
             type="text"
-            placeholder="Search teams..."
+            placeholder="Search teams"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 px-6 py-4 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:ring-0 outline-none"
+            className="field flex-1"
           />
         </div>
 
@@ -133,25 +133,25 @@ export default function TeamsTab() {
           <select
             value={selectedEventFilter}
             onChange={(e) => setSelectedEventFilter(e.target.value)}
-            className="px-5 py-3 border border-slate-200 rounded-xl bg-white text-slate-700"
+            className="field w-auto"
           >
-            <option value="All">All Events</option>
+            <option value="All">All events</option>
             {availableEvents.map((ev) => (
               <option key={ev.id} value={ev.id}>{ev.title}</option>
             ))}
           </select>
-          <div className="text-sm text-slate-400">{filteredTeams.length} result{filteredTeams.length === 1 ? '' : 's'}</div>
+          <div className="text-sm text-muted">{filteredTeams.length} result{filteredTeams.length === 1 ? '' : 's'}</div>
         </div>
 
         {loading && (
-          <div className="flex items-center gap-2 text-sm text-blue-600 mt-3">
-            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <span>Loading teams...</span>
+          <div className="flex items-center gap-2 text-sm text-muted mt-3">
+            <div className="w-4 h-4 border-2 border-line border-t-ink-soft rounded-full animate-spin"></div>
+            <span>Loading teams…</span>
           </div>
         )}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-md mt-3">
-            <p className="text-sm text-red-700 font-medium">{error}</p>
+          <div className="bg-signal/5 border border-signal/25 text-signal p-3 rounded-md mt-3">
+            <p className="text-sm text-signal font-medium">{error}</p>
           </div>
         )}
       </div>
@@ -162,31 +162,21 @@ export default function TeamsTab() {
           <div
             key={team.id}
             onClick={() => handleTeamClick(team)}
-            className="relative bg-white rounded-md shadow-sm hover:shadow-md transition-all duration-150 cursor-pointer border-l-2 border-blue-800 overflow-hidden group"
+            className="relative bg-white rounded-md border border-line hover:border-tsa/40 transition-colors cursor-pointer overflow-hidden group"
           >
             <div className="p-5">
               <div className="flex gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base md:text-lg font-semibold text-gray-900 group-hover:text-blue-800 transition-colors duration-150">
+                      <h3 className="text-base md:text-lg font-semibold text-ink group-hover:text-tsa transition-colors">
                         {team.event.title} Team {team.teamNumber}
                       </h3>
                     </div>
                     <div className="shrink-0">
-                      <span className="inline-block px-3 py-1 bg-blue-50 text-blue-800 rounded text-xs font-semibold">
+                      <span className="text-sm text-muted">
                         {team.conference}
                       </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                      <span className="font-medium">Members:</span>
-                      <span>{team.members.length}</span>
                     </div>
                   </div>
 
@@ -198,8 +188,8 @@ export default function TeamsTab() {
                           key={member.id}
                           className={
                             isCaptain
-                              ? 'inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-800 rounded text-xs font-medium border border-blue-200'
-                              : 'inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-700 rounded text-xs font-medium border border-slate-200'
+                              ? 'inline-flex items-center gap-2 px-3 py-1 bg-tsa-tint text-tsa rounded text-xs font-medium border border-line'
+                              : 'inline-flex items-center gap-2 px-3 py-1 bg-paper-2 text-ink-soft rounded text-xs font-medium border border-line'
                           }
                         >
                           <span>{member.name}</span>
@@ -209,8 +199,8 @@ export default function TeamsTab() {
                   </div>
 
                   <div className="mt-3 flex items-center justify-between gap-4">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-900 rounded text-xs font-medium border border-amber-200">
-                      Check-in: {team.checkInDate ? (() => {
+                    <span className="text-sm text-muted tabular">
+                      Next check-in {team.checkInDate ? (() => {
                         const dateStr = team.checkInDate.split('T')[0];
                         const [y, m, d] = dateStr.split('-').map(Number);
                         return new Date(y, m - 1, d).toLocaleDateString();
@@ -222,12 +212,9 @@ export default function TeamsTab() {
                         e.stopPropagation();
                         setViewingCheckinsFor(team.id);
                       }}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-800 text-white rounded-lg text-sm font-medium transition-all hover:bg-blue-700 hover:shadow-md"
+                      className="btn btn-secondary py-1.5"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      View Checkins
+                      Check-ins
                     </button>
                   </div>
                 </div>
@@ -238,12 +225,12 @@ export default function TeamsTab() {
       </div>
 
       {filteredTeams.length === 0 && !loading && (
-        <div className="text-center py-8 bg-white rounded-md shadow-sm border border-slate-100">
-          <svg className="w-10 h-10 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center py-8 panel">
+          <svg className="w-10 h-10 mx-auto text-line mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          <p className="text-slate-500 text-sm font-medium">No teams found</p>
-          <p className="text-slate-400 text-xs mt-1">Try adjusting your search or filters</p>
+          <p className="text-muted text-sm font-medium">No teams found</p>
+          <p className="text-muted text-xs mt-1">Try adjusting your search or filters</p>
         </div>
       )}
 

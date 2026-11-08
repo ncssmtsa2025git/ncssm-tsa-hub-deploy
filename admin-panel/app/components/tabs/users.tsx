@@ -95,32 +95,32 @@ export default function UsersTab() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Users</h2>
+      <h2 className="text-2xl font-semibold text-ink">Users</h2>
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Registered Users</h3>
+      <div className="panel p-6">
+        <h3 className="text-xl font-semibold text-ink mb-4">Registered Users</h3>
 
         <input
           type="text"
-          placeholder="Search users..."
+          placeholder="Search users"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none"
+          className="w-full px-4 py-2 mb-4 border border-line rounded-lg text-ink focus:ring-2 focus:ring-tsa/20 focus:border-transparent outline-none"
         />
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b-2 border-gray-200">
+            <thead className="bg-paper-2 border-b-2 border-line">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-ink-soft">Name</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-ink-soft">Email</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-line">
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-900">{user.name || '-'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{user.email}</td>
+                <tr key={user.id} className="hover:bg-paper-2">
+                  <td className="px-4 py-3 text-sm text-ink">{user.name || '-'}</td>
+                  <td className="px-4 py-3 text-sm text-ink-soft">{user.email}</td>
                 </tr>
               ))}
             </tbody>
@@ -128,23 +128,23 @@ export default function UsersTab() {
         </div>
 
         {filteredUsers.length === 0 && (
-          <div className="text-center py-8 text-gray-500">No users found matching your search.</div>
+          <div className="text-center py-8 text-muted">No users found matching your search.</div>
         )}
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="panel p-6">
         <div className="flex items-center justify-between gap-4 mb-2">
-          <h3 className="text-xl font-semibold text-gray-900">Haven&apos;t Logged In Yet</h3>
+          <h3 className="text-xl font-semibold text-ink">Haven&apos;t Logged In Yet</h3>
           {notRegistered.length > 0 && (
             <button
               onClick={handleCopyNotRegistered}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="btn btn-secondary"
             >
               {copied ? 'Copied!' : 'Copy emails'}
             </button>
           )}
         </div>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-ink-soft mb-4">
           {notRegistered.length} of {whitelist.length} whitelisted member{whitelist.length === 1 ? '' : 's'} haven&apos;t signed in to register yet
         </p>
 
@@ -161,46 +161,46 @@ export default function UsersTab() {
         )}
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Email Whitelist</h3>
-        <p className="text-sm text-gray-600 mb-4">Manage approved email addresses for event registration</p>
+      <div className="panel p-6">
+        <h3 className="text-xl font-semibold text-ink mb-4">Email Whitelist</h3>
+        <p className="text-sm text-ink-soft mb-4">Manage approved email addresses for event registration</p>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Add Emails (separated by commas, spaces or new lines)</label>
+          <label className="block text-sm font-medium text-ink-soft mb-2">Add Emails (separated by commas, spaces or new lines)</label>
           <div className="flex gap-2 items-start">
             <textarea
               rows={3}
               placeholder="email1@ncssm.edu, email2@ncssm.edu"
               value={newEmails}
               onChange={(e) => setNewEmails(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none"
+              className="field flex-1"
             />
             <button
               onClick={handleAddToWhitelist}
               disabled={saving || !newEmails.trim()}
-              className="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary"
             >
               {saving ? 'Adding...' : 'Add'}
             </button>
           </div>
           {status && (
-            <p className={`mt-2 text-sm ${status.kind === 'ok' ? 'text-green-700' : 'text-red-700'}`}>{status.text}</p>
+            <p className={`mt-2 text-sm ${status.kind === 'ok' ? 'text-green-700' : 'text-signal'}`}>{status.text}</p>
           )}
         </div>
 
-        <p className="text-sm text-gray-500 mb-2">{whitelist.length} email{whitelist.length === 1 ? '' : 's'} on the whitelist</p>
+        <p className="text-sm text-muted mb-2">{whitelist.length} email{whitelist.length === 1 ? '' : 's'} on the whitelist</p>
 
         <div className="space-y-2">
           {whitelist.map((email) => (
-            <div key={email} className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg">
-              <span className="text-sm text-gray-700">{email}</span>
-              <button onClick={() => handleRemoveFromWhitelist(email)} className="text-red-600 hover:text-red-800 font-medium text-sm">✕ Remove</button>
+            <div key={email} className="flex items-center justify-between bg-paper-2 px-4 py-3 rounded-lg">
+              <span className="text-sm text-ink-soft">{email}</span>
+              <button onClick={() => handleRemoveFromWhitelist(email)} className="text-signal hover:text-signal/75 font-medium text-sm">✕ Remove</button>
             </div>
           ))}
         </div>
 
         {whitelist.length === 0 && (
-          <div className="text-center py-8 text-gray-500">No emails in whitelist.</div>
+          <div className="text-center py-8 text-muted">No emails in whitelist.</div>
         )}
       </div>
     </div>
