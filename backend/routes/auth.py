@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 import re
-import secrets
-from typing import Optional
-from urllib.parse import quote
+from typing import Literal, Optional
+from urllib.parse import quote, urlencode
 import httpx
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -20,8 +19,20 @@ from database import (
     add_whitelist_emails,
     remove_whitelist_email,
     list_users,
+    is_admin_email,
+    list_admins,
+    add_admin,
+    remove_admin,
 )
-from utils import create_access_token, verify_token, verify_admin_password, create_admin_token, verify_admin_jwt
+from utils import (
+    create_access_token,
+    verify_token,
+    verify_admin_password,
+    create_admin_token,
+    verify_admin_jwt,
+    create_oauth_state,
+    read_oauth_state,
+)
 
 import os
 
@@ -34,14 +45,12 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/callback")
 REDIRECT_RESPONSE_URL = os.getenv("REDIRECT_RESPONSE_URL", "http://localhost:3000/auth/success")
+# Where officers land after signing in to the admin panel with Google
+ADMIN_REDIRECT_URL = os.getenv("ADMIN_REDIRECT_URL", "https://ncssm-tsa-hub-admin.vercel.app/login")
 
 JWT_EXPIRATION_HOURS = 24
 
 # --- Helper functions ---
-def generate_state() -> str:
-    return secrets.token_urlsafe(32)
-
-
 async def exchange_code_for_token(code: str) -> dict:
     token_url = "https://oauth2.googleapis.com/token"
     data = {
@@ -72,29 +81,36 @@ async def get_google_user_info(access_token: str) -> GoogleUserInfo:
 
 # --- Routes ---
 @router.get("/login")
-async def login():
-    state = generate_state()
-    google_auth_url = (
-        f"https://accounts.google.com/o/oauth2/auth?"
-        f"client_id={GOOGLE_CLIENT_ID}&"
-        f"redirect_uri={GOOGLE_REDIRECT_URI}&"
-        f"scope=openid email profile&"
-        f"response_type=code&"
-        f"state={state}"
-    )
+async def login(purpose: Literal["member", "admin"] = "member"):
+    """Google sign-in URL for members (website) or officers (admin panel). Both use the same callback."""
+    state = create_oauth_state(purpose)
+    google_auth_url = "https://accounts.google.com/o/oauth2/auth?" + urlencode({
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "scope": "openid email profile",
+        "response_type": "code",
+        "state": state,
+        "prompt": "select_account",
+    })
     return {"auth_url": google_auth_url, "state": state}
 
 
-def _login_error_redirect(reason: str) -> RedirectResponse:
-    # The frontend /auth/success page turns this into a readable message
-    return RedirectResponse(url=f"{REDIRECT_RESPONSE_URL}#error={quote(reason)}")
+def _login_error_redirect(reason: str, base: str = REDIRECT_RESPONSE_URL) -> RedirectResponse:
+    # The website's /auth/success page and the admin login page turn this into a readable message
+    return RedirectResponse(url=f"{base}#error={quote(reason)}")
 
 
 @router.get("/callback")
 async def auth_callback(code: Optional[str] = None, state: Optional[str] = None, error: Optional[str] = None):
+    # Only accept sign-ins this API started (signed, 10-minute state)
+    purpose = read_oauth_state(state)
+    if purpose is None:
+        return _login_error_redirect("expired")
+    base = ADMIN_REDIRECT_URL if purpose == "admin" else REDIRECT_RESPONSE_URL
+
     # Google sends ?error=access_denied (and no code) when the user cancels
     if error or not code:
-        return _login_error_redirect(error or "missing_code")
+        return _login_error_redirect(error or "missing_code", base)
 
     # Exchange code for token
     token_data = await exchange_code_for_token(code)
@@ -105,7 +121,15 @@ async def auth_callback(code: Optional[str] = None, state: Optional[str] = None,
 
     # Only trust addresses Google has verified, otherwise the whitelist check means nothing
     if not google_user.verified_email:
-        return _login_error_redirect("unverified_email")
+        return _login_error_redirect("unverified_email", base)
+
+    # Officers signing in to the admin panel: must be on the admins list
+    if purpose == "admin":
+        if not await is_admin_email(google_user.email):
+            print(f"Admin sign-in refused for: {google_user.email}")
+            return _login_error_redirect("not_admin", base)
+        token = create_admin_token(google_user.email.lower())
+        return RedirectResponse(url=f"{base}#admin_token={token}")
 
     # Enforce whitelist membership via Supabase
     allowed = await is_email_whitelisted(google_user.email)
@@ -183,6 +207,47 @@ async def delete_whitelist(email: str, admin: None = Depends(verify_admin_jwt)):
         raise HTTPException(status_code=500, detail="Failed to remove email")
     return {"removed": email}
 
+
+
+class AdminEmail(BaseModel):
+    email: str
+
+
+def _require_google_admin(admin: Optional[str]) -> None:
+    # Chapter-password sessions have no identity; they must not be able to grant themselves lasting access
+    if not admin:
+        raise HTTPException(status_code=403, detail="Sign in with Google to change the admin list")
+
+
+@router.get("/admins")
+async def get_admins(admin: Optional[str] = Depends(verify_admin_jwt)):
+    """Admin-only: who can sign in to the admin panel. `me` is the caller's email (None for password sessions)."""
+    return {"admins": await list_admins(), "me": admin}
+
+
+@router.post("/admins")
+async def post_admin(payload: AdminEmail, admin: Optional[str] = Depends(verify_admin_jwt)):
+    _require_google_admin(admin)
+    email = payload.email.strip().lower()
+    if not EMAIL_RE.match(email) or len(email) > 120:
+        raise HTTPException(status_code=422, detail="Enter a valid email address")
+    await add_admin(email)
+    return {"added": email}
+
+
+@router.delete("/admins")
+async def delete_admin(email: str, admin: Optional[str] = Depends(verify_admin_jwt)):
+    _require_google_admin(admin)
+    email = email.strip().lower()
+    admins = await list_admins()
+    if email not in admins:
+        raise HTTPException(status_code=404, detail="Not an admin")
+    if len(admins) == 1:
+        raise HTTPException(status_code=409, detail="Can't remove the last admin")
+    if email == admin:
+        raise HTTPException(status_code=409, detail="You can't remove yourself; ask another admin")
+    await remove_admin(email)
+    return {"removed": email}
 
 
 class AdminLoginRequest(BaseModel):
