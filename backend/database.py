@@ -484,3 +484,38 @@ async def list_user_teams(user_id: str) -> list[Team]:
     except Exception as e:
         print(f"Error listing user teams: {e}")
         return []
+
+
+# Admins (officers who can sign in to the admin panel with Google)
+async def is_admin_email(email: str) -> bool:
+    try:
+        response = supabase.table("admins").select("email").eq("email", email.lower()).execute()
+        return bool(response.data)
+    except Exception as e:
+        print(f"Error checking admins for {email}: {e}")
+        return False
+
+
+async def list_admins() -> list[str]:
+    try:
+        response = supabase.table("admins").select("email").order("email").execute()
+        return [row["email"] for row in response.data or []]
+    except Exception as e:
+        print(f"Error listing admins: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+
+async def add_admin(email: str) -> None:
+    try:
+        supabase.table("admins").upsert({"email": email}, on_conflict="email", ignore_duplicates=True).execute()
+    except Exception as e:
+        print(f"Error adding admin: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+
+async def remove_admin(email: str) -> None:
+    try:
+        supabase.table("admins").delete().eq("email", email).execute()
+    except Exception as e:
+        print(f"Error removing admin: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
